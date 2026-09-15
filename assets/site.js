@@ -299,6 +299,17 @@
   var ANIM = 'stagger motion-safe:animate-fade-up';
   var SHADOW = '[text-shadow:0_1px_3px_rgba(0,0,0,.55)]';
 
+  // Decorative character art (transparent cutouts, assets/img/art) placed in
+  // otherwise empty corners on wide screens. Each slot names a piece from ART
+  // or null for none.
+  var ART = { blue: 'assets/img/art/pair-blue.webp', red: 'assets/img/art/pair-red.webp', group: 'assets/img/art/group.webp' };
+  var DECO = { hero: 'group', dungeon: 'blue', timeline: 'red' };
+  function deco(slot, cls) {
+    var k = DECO[slot];
+    if (!k || !ART[k]) return '';
+    return '<img class="pointer-events-none select-none ' + cls + '" src="' + ART[k] + '" alt="" decoding="async">';
+  }
+
   function setDock(html) {
     dock.innerHTML = html || '';
     dock.hidden = !html;
@@ -502,6 +513,7 @@
       '<div class="min-w-0 flex-1"><p class="text-xs font-medium uppercase tracking-wide text-zinc-200 [text-shadow:0_1px_2px_rgba(0,0,0,.5)]">Sword x Staff guild on ' + esc(m.server || 'an unknown server') + '</p>' +
       '<h1 class="mt-0.5 text-3xl font-semibold tracking-tight [text-shadow:0_1px_3px_rgba(0,0,0,.5)] sm:text-4xl">' + esc(m.guild) + '</h1>' +
       '<p class="mt-1 text-sm text-zinc-200 [text-shadow:0_1px_2px_rgba(0,0,0,.5)]">' + esc(m.memberCount + ' members. ' + m.label + ', captured ' + m.capturedDate + '.') + '</p></div>' +
+      deco('hero', 'hidden h-44 w-auto -my-12 mr-2 self-end drop-shadow-[0_12px_24px_rgba(0,0,0,.45)] lg:block') +
       '<div class="flex basis-full gap-2 sm:basis-auto">' +
       '<a class="' + BTN + ' flex-1 justify-center rounded-md sm:flex-none" href="#timeline">' + icon('clock', 'size-4') + 'Timeline</a>' +
       '<a class="inline-flex h-9 flex-1 shrink-0 items-center justify-center gap-1.5 rounded-md bg-[#5865F2] px-3.5 text-sm font-semibold text-white shadow-md transition-colors hover:bg-[#4752C4] sm:flex-none" href="https://discord.gg/fapjXcFYhw" target="_blank" rel="noopener">' + icon('discord', 'size-4') + 'Join the Discord</a>' +
@@ -512,7 +524,7 @@
       kpi('gem', fmtNum(m.totalWeek), 'Weekly contribution', 3) +
       kpi('swords', fmtNum(m.totalDmg), 'Conquest damage', 4) +
       '</section>';
-    html += '<div id="coming-up"></div>';
+    html += '<div class="mt-4 grid gap-3 sm:gap-4 md:grid-cols-2" id="coming-up"></div>';
 
     html += '<section class="' + CARD + ' mt-6 ' + ANIM + '" style="--i:5" aria-labelledby="ledger-title">' +
       '<div class="flex flex-col gap-3 border-b border-zinc-200/70 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5 dark:border-white/10">' +
@@ -905,16 +917,57 @@
     var today = tlToday(t);
     var next = tlEntries(t).filter(function (e) { return e.day >= today; }).slice(0, count);
     if (!next.length) return '';
-    var html = '<section class="' + CARD + ' mt-4 p-5 ' + ANIM + '" style="--i:5" aria-label="Coming up">' +
+    var html = '<section class="' + CARD + ' p-5 ' + ANIM + '" style="--i:5" aria-label="Coming up">' +
       '<div class="flex items-center justify-between gap-3"><div><h2 class="text-base font-semibold">Coming up</h2>' +
       '<p class="text-sm ' + MUTED + '">Day ' + today + ' on ' + esc(m_server()) + '. Next unlocks from the server timeline.</p></div>' +
       '<a class="' + BTN + ' shrink-0" href="#timeline">Full timeline' + icon('next', 'size-4') + '</a></div>' +
       '<ul class="mt-4 divide-y divide-zinc-200/60 dark:divide-white/5">';
     next.forEach(function (e) {
-      html += '<li class="flex items-start gap-3 py-2.5 text-sm"><span class="w-24 shrink-0 text-xs ' + MUTED + '"><b class="block font-semibold text-zinc-800 dark:text-zinc-100">' + relDay(e.day - today) + '</b>Day ' + e.day + '</span>' +
+      html += '<li class="flex items-start gap-3 py-2.5 text-sm"><span class="w-20 shrink-0 text-xs ' + MUTED + '"><b class="block font-semibold text-zinc-800 dark:text-zinc-100">' + relDay(e.day - today) + '</b>Day ' + e.day + '</span>' +
         catBadge(e.category) + '<span class="min-w-0">' + e.items.map(fmtItem).join('<br>') + '</span></li>';
     });
-    return html + '</ul></section>';
+    return html + '</ul></section>' + currentDungeon(t);
+  }
+
+  // Dungeons on the timeline are "Name - Difficulty (Power: X)" items. The
+  // current one is the latest to have opened; entries that add a difficulty to
+  // the same dungeon later (an Abyss tier, say) are folded into it.
+  function tlDungeons(t) {
+    var out = [];
+    t.entries.forEach(function (e) {
+      if (e.category !== 'Dungeon') return;
+      e.items.forEach(function (item) {
+        var m = /^(.*?)\s+-\s+([^(]+?)\s*(?:\((.*)\))?$/.exec(item);
+        if (!m) return;
+        var name = m[1], last = out[out.length - 1];
+        if (!last || last.name !== name) { last = { name: name, day: e.day, tiers: [] }; out.push(last); }
+        last.tiers.push({ diff: m[2], req: m[3] ? m[3].replace(/^Power:\s*/, '') : '', day: e.day });
+      });
+    });
+    return out;
+  }
+
+  function currentDungeon(t) {
+    var today = tlToday(t), all = tlDungeons(t), cur = null, next = null;
+    all.forEach(function (d) { if (d.day <= today) cur = d; else if (!next) next = d; });
+    if (!cur) return '';
+    var html = '<section class="' + CARD + ' relative overflow-hidden p-5 ' + ANIM + '" style="--i:6" aria-label="Current dungeon">' +
+      deco('dungeon', 'absolute -bottom-2 right-3 hidden h-32 lg:block') +
+      '<div class="flex items-start justify-between gap-3"><div class="min-w-0"><h2 class="text-base font-semibold">Current dungeon</h2>' +
+      '<p class="text-sm ' + MUTED + '">Opened day ' + cur.day + ', ' + fmtLong(tlDate(t, cur.day)) + '. ' + (cur.day === today ? 'New today.' : (today - cur.day) + ' days in.') + '</p></div>' +
+      catBadge('Dungeon') + '</div>' +
+      '<p class="mt-3 text-2xl font-semibold tracking-tight">' + esc(cur.name) + '</p>' +
+      '<ul class="mt-3 divide-y divide-zinc-200/60 text-sm dark:divide-white/5' + (DECO.dungeon ? ' lg:mr-48' : '') + '">';
+    cur.tiers.forEach(function (x) {
+      var late = x.day > cur.day && x.day <= today, soon = x.day > today;
+      html += '<li class="flex items-center justify-between gap-3 py-2"><span class="font-medium' + (soon ? ' ' + MUTED : '') + '">' + esc(x.diff) +
+        (late ? ' <span class="text-xs font-normal ' + MUTED + '">added day ' + x.day + '</span>' : '') +
+        (soon ? ' <span class="text-xs font-normal">' + relDay(x.day - today) + '</span>' : '') + '</span>' +
+        '<span class="shrink-0 tabular-nums ' + MUTED + '">' + (x.req ? esc(x.req) : 'No requirement') + '</span></li>';
+    });
+    html += '</ul>';
+    if (next) html += '<p class="mt-3 border-t border-zinc-200/70 pt-3 text-sm dark:border-white/10"><span class="' + MUTED + '">Next:</span> <b class="font-semibold">' + esc(next.name) + '</b> <span class="' + MUTED + '">' + relDay(next.day - today) + ', day ' + next.day + '</span></p>';
+    return html + '</section>';
   }
 
   function m_server() { return state.meta.server || 'the server'; }
@@ -926,6 +979,7 @@
       '<div class="min-w-0"><p class="text-xs font-medium uppercase tracking-wide text-zinc-200 ' + SHADOW + '">' + esc(m_server()) + ' server timeline</p>' +
       '<h1 class="mt-0.5 text-3xl font-semibold tracking-tight sm:text-4xl ' + SHADOW + '">Day ' + today + '</h1>' +
       '<p class="mt-1 text-sm text-zinc-200 ' + SHADOW + '">Opened ' + fmtLong(tlStart(t)) + ' ' + tlStart(t).getFullYear() + '. ' + (region ? 'Currently in ' + esc(region.name) + ', day ' + (today - region.day + 1) + ' of the region.' : '') + '</p></div>' +
+      deco('timeline', 'hidden h-44 w-auto -my-10 ml-auto mr-4 self-end drop-shadow-[0_12px_24px_rgba(0,0,0,.45)] lg:block') +
       '<a class="' + BTN + ' rounded-full" href="#">' + icon('back', 'size-4') + 'Rankings</a></section>';
 
     // Region strip
@@ -972,6 +1026,16 @@
   }
 
   // ---- routing ---------------------------------------------------------------
+
+  // The timeline day is computed from the viewer's clock at render time, so a
+  // tab left open past midnight is re-rendered when the day ticks over.
+  var shownDay = null;
+  setInterval(function () {
+    if (!timeline) return;
+    var d = tlToday(timeline);
+    if (shownDay === null) { shownDay = d; return; }
+    if (d !== shownDay) { shownDay = d; route(); }
+  }, 60000);
 
   function route() {
     var slug = decodeURIComponent(location.hash.replace(/^#\/?/, ''));
