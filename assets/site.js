@@ -297,6 +297,7 @@
   var BADGE = 'inline-flex items-center gap-1 rounded-md border border-zinc-200/70 bg-white/70 px-2 py-0.5 text-xs font-medium dark:border-white/10 dark:bg-zinc-800/70';
   var INPUT = 'h-9 rounded-lg border border-zinc-200/70 bg-white/70 text-sm shadow-sm transition-colors placeholder:text-zinc-400 focus:border-zinc-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:border-white/10 dark:bg-zinc-800/60 dark:focus:border-zinc-600 dark:focus:bg-zinc-800 dark:focus:ring-zinc-50/10';
   var ANIM = 'stagger motion-safe:animate-fade-up';
+  var SHADOW = '[text-shadow:0_1px_3px_rgba(0,0,0,.55)]';
 
   function setDock(html) {
     dock.innerHTML = html || '';
@@ -501,14 +502,17 @@
       '<div class="min-w-0 flex-1"><p class="text-xs font-medium uppercase tracking-wide text-zinc-200 [text-shadow:0_1px_2px_rgba(0,0,0,.5)]">Sword x Staff guild on ' + esc(m.server || 'an unknown server') + '</p>' +
       '<h1 class="mt-0.5 text-3xl font-semibold tracking-tight [text-shadow:0_1px_3px_rgba(0,0,0,.5)] sm:text-4xl">' + esc(m.guild) + '</h1>' +
       '<p class="mt-1 text-sm text-zinc-200 [text-shadow:0_1px_2px_rgba(0,0,0,.5)]">' + esc(m.memberCount + ' members. ' + m.label + ', captured ' + m.capturedDate + '.') + '</p></div>' +
-      '<a class="inline-flex h-9 shrink-0 basis-full items-center justify-center gap-1.5 rounded-md bg-[#5865F2] px-3.5 text-sm font-semibold text-white shadow-md transition-colors hover:bg-[#4752C4] sm:basis-auto" href="https://discord.gg/fapjXcFYhw" target="_blank" rel="noopener">' + icon('discord', 'size-4') + 'Join the Discord</a>' +
-      '</section>';
+      '<div class="flex basis-full gap-2 sm:basis-auto">' +
+      '<a class="' + BTN + ' flex-1 justify-center rounded-md sm:flex-none" href="#timeline">' + icon('clock', 'size-4') + 'Timeline</a>' +
+      '<a class="inline-flex h-9 flex-1 shrink-0 items-center justify-center gap-1.5 rounded-md bg-[#5865F2] px-3.5 text-sm font-semibold text-white shadow-md transition-colors hover:bg-[#4752C4] sm:flex-none" href="https://discord.gg/fapjXcFYhw" target="_blank" rel="noopener">' + icon('discord', 'size-4') + 'Join the Discord</a>' +
+      '</div></section>';
     html += '<section class="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4" aria-label="Guild summary">' +
       kpi('people', m.memberCount, 'Members', 1) +
       kpi('bolt', fmtNum(m.totalPower), 'Total power', 2) +
       kpi('gem', fmtNum(m.totalWeek), 'Weekly contribution', 3) +
       kpi('swords', fmtNum(m.totalDmg), 'Conquest damage', 4) +
       '</section>';
+    html += '<div id="coming-up"></div>';
 
     html += '<section class="' + CARD + ' mt-6 ' + ANIM + '" style="--i:5" aria-labelledby="ledger-title">' +
       '<div class="flex flex-col gap-3 border-b border-zinc-200/70 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5 dark:border-white/10">' +
@@ -552,6 +556,10 @@
       countUp(el, parseFloat(el.getAttribute('data-count')), el.textContent);
     });
     animateMeters();
+    loadTimeline().then(function (t) {
+      var box = document.getElementById('coming-up');
+      if (box) box.innerHTML = comingUp(t, 3);
+    }).catch(function () {});
     document.title = m.guild + ' rankings';
   }
 
@@ -819,12 +827,160 @@
     document.title = 'Player not found | ' + state.meta.guild;
   }
 
+  // ---- timeline ----------------------------------------------------------------
+  // Server content schedule counted from the opening date (day 1). Data lives
+  // in data/timeline.json; the weekly Treasure Hunt events are generated here.
+
+  var timeline = null;
+
+  function loadTimeline() {
+    if (timeline) return Promise.resolve(timeline);
+    return fetchJSON('data/timeline.json').then(function (t) { timeline = t; return t; });
+  }
+
+  function tlStart(t) { var a = t.start.split('-').map(Number); return new Date(a[0], a[1] - 1, a[2]); }
+  function tlToday(t) {
+    var now = new Date(), s = tlStart(t);
+    return Math.round((new Date(now.getFullYear(), now.getMonth(), now.getDate()) - s) / 86400000) + 1;
+  }
+  function tlDate(t, day) { var d = tlStart(t); d.setDate(d.getDate() + day - 1); return d; }
+  function tlRegionAt(t, day) {
+    var r = null;
+    t.regions.forEach(function (x) { if (day >= x.day) r = x; });
+    return r;
+  }
+  function tlEntries(t) {
+    var list = t.entries.slice();
+    var th = t.treasureHunt, maxDay = Math.max(tlToday(t), Math.max.apply(null, t.entries.map(function (e) { return e.day; })));
+    var second = [0, 0, 0];
+    for (var i = 0; th.firstDay + i * th.every <= maxDay + th.every; i++) {
+      var day = th.firstDay + i * th.every, region = tlRegionAt(t, day), tier = region ? region.tier : 0, rot = i % 4, prize;
+      if (rot === 0) prize = th.relicSelect;
+      else if (rot === 1) prize = th.special1[th.tierSpecial[tier]];
+      else if (rot === 2) prize = th.skillShard[tier];
+      else prize = th.special2[th.tierSpecial[tier]];
+      var items = [th.name + ' (' + (i + 1) + ') (' + prize + ')'];
+      if (i >= 1) { var k = (i - 1) % 3; second[k]++; items.push(th.second[k] + ' (' + second[k] + ')'); }
+      list.push({ day: day, category: 'Event', items: items });
+    }
+    var order = { 'Region': 1, 'Job change': 2, 'Dungeon': 3, 'Zone': 4, 'Seasonal map': 5, 'Ancient relic': 6, 'Relic': 6, 'Pet': 7, 'Phantasm': 8, 'Content': 9, 'Companion': 10, 'Event': 11 };
+    list.sort(function (a, b) { return a.day - b.day || (order[a.category] || 99) - (order[b.category] || 99); });
+    return list;
+  }
+
+  var CAT_STYLE = {
+    'Region': 'bg-violet-600 text-white',
+    'Job change': 'bg-amber-100 text-amber-800 dark:bg-amber-500/15 dark:text-amber-300',
+    'Dungeon': 'bg-sky-100 text-sky-800 dark:bg-sky-500/15 dark:text-sky-300',
+    'Seasonal map': 'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/15 dark:text-emerald-300',
+    'Ancient relic': 'bg-rose-100 text-rose-800 dark:bg-rose-500/15 dark:text-rose-300',
+    'Relic': 'bg-rose-100 text-rose-800 dark:bg-rose-500/15 dark:text-rose-300',
+    'Pet': 'bg-pink-100 text-pink-800 dark:bg-pink-500/15 dark:text-pink-300',
+    'Phantasm': 'bg-indigo-100 text-indigo-800 dark:bg-indigo-500/15 dark:text-indigo-300',
+    'Content': 'bg-teal-100 text-teal-800 dark:bg-teal-500/15 dark:text-teal-300',
+    'Companion': 'bg-lime-100 text-lime-800 dark:bg-lime-500/15 dark:text-lime-300',
+    'Event': 'bg-orange-100 text-orange-800 dark:bg-orange-500/15 dark:text-orange-300',
+    'Zone': 'bg-zinc-100 text-zinc-700 dark:bg-zinc-700 dark:text-zinc-200'
+  };
+  var REGION_STYLE = ['border-emerald-400', 'border-amber-400', 'border-sky-400', 'border-violet-400', 'border-rose-400'];
+
+  function catBadge(c) {
+    return '<span class="inline-flex shrink-0 items-center rounded-md px-1.5 py-0.5 text-[11px] font-semibold ' + (CAT_STYLE[c] || CAT_STYLE.Zone) + '">' + esc(c) + '</span>';
+  }
+
+  function fmtItem(text) {
+    return esc(text).replace(/\(([^)]+)\)/g, ' <span class="' + MUTED + '">($1)</span>');
+  }
+
+  function fmtLong(d) { return d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }); }
+
+  function relDay(diff) {
+    if (diff === 0) return 'Today';
+    if (diff === 1) return 'Tomorrow';
+    if (diff === -1) return 'Yesterday';
+    return diff > 0 ? 'in ' + diff + ' days' : Math.abs(diff) + ' days ago';
+  }
+
+  function comingUp(t, count) {
+    var today = tlToday(t);
+    var next = tlEntries(t).filter(function (e) { return e.day >= today; }).slice(0, count);
+    if (!next.length) return '';
+    var html = '<section class="' + CARD + ' mt-4 p-5 ' + ANIM + '" style="--i:5" aria-label="Coming up">' +
+      '<div class="flex items-center justify-between gap-3"><div><h2 class="text-base font-semibold">Coming up</h2>' +
+      '<p class="text-sm ' + MUTED + '">Day ' + today + ' on ' + esc(m_server()) + '. Next unlocks from the server timeline.</p></div>' +
+      '<a class="' + BTN + ' shrink-0" href="#timeline">Full timeline' + icon('next', 'size-4') + '</a></div>' +
+      '<ul class="mt-4 divide-y divide-zinc-200/60 dark:divide-white/5">';
+    next.forEach(function (e) {
+      html += '<li class="flex items-start gap-3 py-2.5 text-sm"><span class="w-24 shrink-0 text-xs ' + MUTED + '"><b class="block font-semibold text-zinc-800 dark:text-zinc-100">' + relDay(e.day - today) + '</b>Day ' + e.day + '</span>' +
+        catBadge(e.category) + '<span class="min-w-0">' + e.items.map(fmtItem).join('<br>') + '</span></li>';
+    });
+    return html + '</ul></section>';
+  }
+
+  function m_server() { return state.meta.server || 'the server'; }
+
+  function renderTimeline(t) {
+    var today = tlToday(t), list = tlEntries(t), region = tlRegionAt(t, today);
+    var i = 0;
+    var html = '<section class="mb-5 flex flex-wrap items-end justify-between gap-4 pt-2 text-white sm:pt-6 ' + ANIM + '" style="--i:' + i++ + '" aria-label="Timeline">' +
+      '<div class="min-w-0"><p class="text-xs font-medium uppercase tracking-wide text-zinc-200 ' + SHADOW + '">' + esc(m_server()) + ' server timeline</p>' +
+      '<h1 class="mt-0.5 text-3xl font-semibold tracking-tight sm:text-4xl ' + SHADOW + '">Day ' + today + '</h1>' +
+      '<p class="mt-1 text-sm text-zinc-200 ' + SHADOW + '">Opened ' + fmtLong(tlStart(t)) + ' ' + tlStart(t).getFullYear() + '. ' + (region ? 'Currently in ' + esc(region.name) + ', day ' + (today - region.day + 1) + ' of the region.' : '') + '</p></div>' +
+      '<a class="' + BTN + ' rounded-full" href="#">' + icon('back', 'size-4') + 'Rankings</a></section>';
+
+    // Region strip
+    html += '<section class="' + CARD + ' mb-4 p-4 ' + ANIM + '" style="--i:' + i++ + '" aria-label="Regions"><div class="flex gap-2 overflow-x-auto pb-1">';
+    t.regions.forEach(function (r, k) {
+      var open = today >= r.day, cur = region && region.name === r.name;
+      html += '<div class="flex min-w-[9.5rem] shrink-0 flex-col rounded-xl border-l-4 ' + REGION_STYLE[r.tier] + ' bg-white/60 px-3 py-2 dark:bg-white/5' + (cur ? ' ring-2 ring-zinc-900/80 dark:ring-white/70' : '') + (open ? '' : ' opacity-60') + '">' +
+        '<span class="text-xs ' + MUTED + '">Region ' + (k + 1) + (cur ? ', current' : open ? ', open' : '') + '</span><span class="font-semibold">' + esc(r.name) + '</span>' +
+        '<span class="text-xs ' + MUTED + '">Day ' + r.day + ', ' + fmtLong(tlDate(t, r.day)) + '</span></div>';
+    });
+    html += '</div></section>';
+
+    // Day groups
+    var past = list.filter(function (e) { return e.day < today; }), future = list.filter(function (e) { return e.day >= today; });
+    function groups(entries, stagger) {
+      var out = '', last = null, region = null;
+      entries.forEach(function (e) {
+        var r = tlRegionAt(t, e.day), tone = r ? REGION_STYLE[r.tier] : 'border-zinc-300';
+        if (e.day !== last) {
+          if (last !== null) out += '</div></div>';
+          var diff = e.day - today;
+          out += '<div class="flex gap-4 ' + (stagger ? ANIM : '') + '" style="--i:' + Math.min(stagger ? i++ : 0, 14) + '">' +
+            '<div class="w-24 shrink-0 pt-3 text-right sm:w-28"><p class="text-sm font-semibold' + (diff === 0 ? ' text-emerald-600 dark:text-emerald-400' : '') + '">' + relDay(diff) + '</p>' +
+            '<p class="text-xs ' + MUTED + '">Day ' + e.day + '</p><p class="text-xs ' + MUTED + '">' + fmtLong(tlDate(t, e.day)) + '</p></div>' +
+            '<div class="min-w-0 flex-1 space-y-2 border-l-2 ' + tone + ' pb-4 pl-4">';
+          last = e.day;
+        }
+        out += '<div class="' + CARD + ' flex items-start gap-3 px-4 py-3' + (e.category === 'Region' ? ' bg-violet-50/70 dark:bg-violet-500/10' : '') + '">' + catBadge(e.category) +
+          '<div class="min-w-0 text-sm ' + (e.category === 'Region' ? 'font-semibold' : '') + '">' + e.items.map(fmtItem).join('<br>') + '</div></div>';
+      });
+      if (last !== null) out += '</div></div>';
+      return out;
+    }
+    html += '<section aria-label="Schedule">';
+    if (past.length) {
+      html += '<details class="group mb-4 ' + ANIM + '" style="--i:' + i++ + '"><summary class="' + BTN + ' cursor-pointer list-none select-none">' + icon('down', 'size-4 transition-transform group-open:rotate-180') + 'Show the ' + past.length + ' earlier unlocks</summary><div class="mt-4">' + groups(past, false) + '</div></details>';
+    }
+    html += '<div class="mb-4 flex items-center gap-3 ' + ANIM + '" style="--i:' + i++ + '"><span class="h-px flex-1 bg-emerald-500/40"></span><span class="rounded-full bg-emerald-600 px-3 py-1 text-xs font-semibold text-white shadow-md">Today, day ' + today + '</span><span class="h-px flex-1 bg-emerald-500/40"></span></div>';
+    html += groups(future, true) + '</section>';
+    html += '<p class="mt-6 text-xs ' + MUTED + '">Schedule adapted from <a class="underline underline-offset-2" href="https://qenu.github.io/ethna-timeline/?start=20260703&lang=en" target="_blank" rel="noopener">Ethna Timeline</a> by Nayuta. Days count from the server opening, and dates are in your local time zone.</p>';
+    app.innerHTML = html;
+    setDock('');
+    document.title = 'Timeline | ' + state.meta.guild;
+  }
+
   // ---- routing ---------------------------------------------------------------
 
   function route() {
     var slug = decodeURIComponent(location.hash.replace(/^#\/?/, ''));
-    document.getElementById('backdrop').hidden = !!slug;
+    document.getElementById('backdrop').hidden = !(slug === '' || slug === 'timeline');
     if (!slug) { setDock(''); renderRankings(); window.scrollTo(0, 0); return; }
+    if (slug === 'timeline') {
+      loadTimeline().then(renderTimeline).catch(function (err) { setDock(''); app.innerHTML = '<p class="rounded-xl border border-white/70 bg-white/50 p-4 text-sm backdrop-blur-md ' + MUTED + '">Could not load the timeline. ' + esc(err && err.message) + '</p>'; });
+      window.scrollTo(0, 0); return;
+    }
     var p = state.players.filter(function (x) { return x.slug === slug; })[0];
     if (p) renderProfile(p); else renderNotFound(slug);
     window.scrollTo(0, 0);

@@ -1,0 +1,602 @@
+{
+  "_source": "Schedule adapted from Ethna Timeline by Nayuta (https://qenu.github.io/ethna-timeline/). Days count from the server opening date, day 1.",
+  "start": "2026-07-03",
+  "regions": [
+    {
+      "day": 1,
+      "name": "Verdantglade",
+      "tier": 0
+    },
+    {
+      "day": 4,
+      "name": "Cinder Ridge",
+      "tier": 0
+    },
+    {
+      "day": 12,
+      "name": "Aqualis",
+      "tier": 0
+    },
+    {
+      "day": 47,
+      "name": "Loong Haven",
+      "tier": 1
+    },
+    {
+      "day": 114,
+      "name": "Aethyris",
+      "tier": 2
+    },
+    {
+      "day": 215,
+      "name": "Harpadia",
+      "tier": 3
+    },
+    {
+      "day": 316,
+      "name": "Ignis",
+      "tier": 4
+    }
+  ],
+  "treasureHunt": {
+    "name": "Treasure Hunt",
+    "firstDay": 8,
+    "every": 7,
+    "relicSelect": "Choice: Miracle Relic Box",
+    "special1": [
+      "Relic: Lucky Idol",
+      "Relic: Lucky Idol / Golden Divine Tree",
+      "Relic: Lucky Idol / Golden Divine Tree / Endless Hourglass"
+    ],
+    "skillShard": [
+      "Choice: 3rd Job Skill Fragment",
+      "Choice: 4th Job Skill Fragment",
+      "Choice: 5th Job Skill Fragment",
+      "Choice: 6th Job Skill Fragment",
+      "Choice: 7th Job Skill Fragment"
+    ],
+    "special2": [
+      "Relic: Primal Gem",
+      "Relic: Primal Gem / Philosopher's Stone",
+      "Relic: Primal Gem / Philosopher's Stone / Treasure Detector"
+    ],
+    "tierSpecial": [
+      0,
+      0,
+      1,
+      2,
+      2
+    ],
+    "second": [
+      "Bingo Draw",
+      "Lucky Scratch",
+      "Feneck's Puzzle"
+    ]
+  },
+  "entries": [
+    {
+      "day": 1,
+      "category": "Region",
+      "items": [
+        "Verdantglade"
+      ]
+    },
+    {
+      "day": 1,
+      "category": "Dungeon",
+      "items": [
+        "Auroradrasil - Normal",
+        "Auroradrasil - Hard (Power: 36K)"
+      ]
+    },
+    {
+      "day": 4,
+      "category": "Region",
+      "items": [
+        "Cinder Ridge"
+      ]
+    },
+    {
+      "day": 4,
+      "category": "Job change",
+      "items": [
+        "2nd Job (Lv. 44)",
+        "(Class Lv. 20 + 1st Job Lv. 18)"
+      ]
+    },
+    {
+      "day": 4,
+      "category": "Dungeon",
+      "items": [
+        "Mecha Summit - Normal",
+        "Mecha Summit - Hard (Power: 180K)"
+      ]
+    },
+    {
+      "day": 12,
+      "category": "Region",
+      "items": [
+        "Aqualis"
+      ]
+    },
+    {
+      "day": 12,
+      "category": "Dungeon",
+      "items": [
+        "Ocean Palace Ruins - Normal",
+        "Ocean Palace Ruins - Hard (Power: 580K)"
+      ]
+    },
+    {
+      "day": 12,
+      "category": "Job change",
+      "items": [
+        "3rd Job (Lv. 82)",
+        "(Class Lv. 48 + 2nd Job Lv. 16)"
+      ]
+    },
+    {
+      "day": 24,
+      "category": "Dungeon",
+      "items": [
+        "Aquorigin Shrine - Normal (Power: 930K + Lv. 100)",
+        "Aquorigin Shrine - Hard (Power: 1.45M)",
+        "Aquorigin Shrine - Nightmare (Power: 2.05M)"
+      ]
+    },
+    {
+      "day": 26,
+      "category": "Seasonal map",
+      "items": [
+        "Whaleback"
+      ]
+    },
+    {
+      "day": 33,
+      "category": "Dungeon",
+      "items": [
+        "Hellhold - Normal (Power: 2.25M)",
+        "Hellhold - Hard (Power: 2.75M)",
+        "Hellhold - Nightmare (Power: 3.9M)",
+        "Hellhold - Purgatory (Power: 6.2M)"
+      ]
+    },
+    {
+      "day": 47,
+      "category": "Region",
+      "items": [
+        "Loong Haven"
+      ]
+    },
+    {
+      "day": 47,
+      "category": "Job change",
+      "items": [
+        "4th Job (Lv. 106)",
+        "(Class Lv. 89 + 3rd Job Lv. 19)"
+      ]
+    },
+    {
+      "day": 47,
+      "category": "Phantasm",
+      "items": [
+        "Phantasm Manifestation (Lv. 108)"
+      ]
+    },
+    {
+      "day": 47,
+      "category": "Content",
+      "items": [
+        "Dual Shadow Realm (Lv. 116)"
+      ]
+    },
+    {
+      "day": 47,
+      "category": "Dungeon",
+      "items": [
+        "Demonseal Gorge - Normal",
+        "Demonseal Gorge - Hard (Power: 2.35M)"
+      ]
+    },
+    {
+      "day": 60,
+      "category": "Dungeon",
+      "items": [
+        "Warlord's Rest - Normal (Power: 3.55M + Lv. 130)",
+        "Warlord's Rest - Hard (Power: 5M)",
+        "Warlord's Rest - Nightmare (Power: 6M)"
+      ]
+    },
+    {
+      "day": 71,
+      "category": "Seasonal map",
+      "items": [
+        "Sky Tower (Lv. 130)"
+      ]
+    },
+    {
+      "day": 73,
+      "category": "Dungeon",
+      "items": [
+        "Cloudcrest Temple - Normal (Power: 6.2M)",
+        "Cloudcrest Temple - Hard (Power: 7.7M)",
+        "Cloudcrest Temple - Nightmare (Power: 9.8M)"
+      ]
+    },
+    {
+      "day": 78,
+      "category": "Ancient relic",
+      "items": [
+        "Ancient Relic: Yin Yang Engine (Dragon Region Phase 2)"
+      ]
+    },
+    {
+      "day": 86,
+      "category": "Dungeon",
+      "items": [
+        "Bladeshire - Normal (Power: 10M)",
+        "Bladeshire - Hard (Power: 12.5M)",
+        "Bladeshire - Nightmare (Power: 15.8M)"
+      ]
+    },
+    {
+      "day": 92,
+      "category": "Pet",
+      "items": [
+        "Bamboo Immortal"
+      ]
+    },
+    {
+      "day": 99,
+      "category": "Dungeon",
+      "items": [
+        "Celestship - Normal (Power: 16.5M)",
+        "Celestship - Hard (Power: 20M)",
+        "Celestship - Nightmare (Power: 24.5M)",
+        "Celestship - Purgatory (Power: 40M)"
+      ]
+    },
+    {
+      "day": 114,
+      "category": "Region",
+      "items": [
+        "Aethyris"
+      ]
+    },
+    {
+      "day": 114,
+      "category": "Dungeon",
+      "items": [
+        "Crystal Spiral Tree - Normal",
+        "Crystal Spiral Tree - Hard (Power: 9M)"
+      ]
+    },
+    {
+      "day": 114,
+      "category": "Job change",
+      "items": [
+        "5th Job (Lv. 136)",
+        "(Class Lv. 180 + 4th Job Lv. 40)"
+      ]
+    },
+    {
+      "day": 127,
+      "category": "Dungeon",
+      "items": [
+        "Eternal Flower Garden - Normal (Power: 12.5M + Lv. 160)",
+        "Eternal Flower Garden - Hard (Power: 15M)",
+        "Eternal Flower Garden - Nightmare (Power: 18M)",
+        "Eternal Flower Garden - Purgatory (Power: 28.5M)"
+      ]
+    },
+    {
+      "day": 128,
+      "category": "Seasonal map",
+      "items": [
+        "Starry Sea Cruise"
+      ]
+    },
+    {
+      "day": 141,
+      "category": "Dungeon",
+      "items": [
+        "Battle Abyss Fortress - Normal (Power: 20M)",
+        "Battle Abyss Fortress - Hard (Power: 26M)",
+        "Battle Abyss Fortress - Nightmare (Power: 30M)",
+        "Battle Abyss Fortress - Purgatory (Power: 46M)"
+      ]
+    },
+    {
+      "day": 144,
+      "category": "Ancient relic",
+      "items": [
+        "Ancient Relic: Celestial Covenant (Feather Region Phase 2)"
+      ]
+    },
+    {
+      "day": 155,
+      "category": "Dungeon",
+      "items": [
+        "Purification Garden - Normal (Power: 32.5M)",
+        "Purification Garden - Hard (Power: 43M)",
+        "Purification Garden - Nightmare (Power: 50.5M)",
+        "Purification Garden - Purgatory (Power: 75M)"
+      ]
+    },
+    {
+      "day": 160,
+      "category": "Pet",
+      "items": [
+        "Rainbow Star Spirit"
+      ]
+    },
+    {
+      "day": 169,
+      "category": "Dungeon",
+      "items": [
+        "Order Temple - Normal (Power: 55M)",
+        "Order Temple - Hard (Power: 65M)",
+        "Order Temple - Nightmare (Power: 82M)",
+        "Order Temple - Purgatory (Power: 115M)"
+      ]
+    },
+    {
+      "day": 174,
+      "category": "Ancient relic",
+      "items": [
+        "Ancient Relic: Azure Radiance Codex (Feather Region Phase 3)"
+      ]
+    },
+    {
+      "day": 183,
+      "category": "Dungeon",
+      "items": [
+        "Blazing Sun Spire - Normal (Power: 84.5M)",
+        "Blazing Sun Spire - Hard (Power: 100M)",
+        "Blazing Sun Spire - Nightmare (Power: 120M)",
+        "Blazing Sun Spire - Purgatory (Power: 180M)"
+      ]
+    },
+    {
+      "day": 197,
+      "category": "Dungeon",
+      "items": [
+        "Sovereign's Nest - Normal (Power: 125M)",
+        "Sovereign's Nest - Hard (Power: 145M)",
+        "Sovereign's Nest - Nightmare (Power: 180M)",
+        "Sovereign's Nest - Purgatory (Power: 250M)"
+      ]
+    },
+    {
+      "day": 203,
+      "category": "Dungeon",
+      "items": [
+        "Sovereign's Nest - Abyss (Power: 350M)"
+      ]
+    },
+    {
+      "day": 215,
+      "category": "Region",
+      "items": [
+        "Harpadia"
+      ]
+    },
+    {
+      "day": 215,
+      "category": "Dungeon",
+      "items": [
+        "Clockwork Bell Tower - Normal",
+        "Clockwork Bell Tower - Hard (Power: 27M)"
+      ]
+    },
+    {
+      "day": 215,
+      "category": "Job change",
+      "items": [
+        "6th Job (Lv. 172)",
+        "(Class Lv. 280 + 5th Job Lv. 50)"
+      ]
+    },
+    {
+      "day": 215,
+      "category": "Pet",
+      "items": [
+        "Phantasm Bond (Lv. 180)"
+      ]
+    },
+    {
+      "day": 215,
+      "category": "Companion",
+      "items": [
+        "Dora (Lv. 186)"
+      ]
+    },
+    {
+      "day": 228,
+      "category": "Dungeon",
+      "items": [
+        "Paradise Pirate Ship - Normal (Power: 35M + Lv. 190)",
+        "Paradise Pirate Ship - Hard (Power: 48M)",
+        "Paradise Pirate Ship - Nightmare (Power: 57M)",
+        "Paradise Pirate Ship - Purgatory (Power: 84M)"
+      ]
+    },
+    {
+      "day": 229,
+      "category": "Seasonal map",
+      "items": [
+        "Carnival Fantasy"
+      ]
+    },
+    {
+      "day": 242,
+      "category": "Dungeon",
+      "items": [
+        "Sea Emperor Submarine - Normal (Power: 62M)",
+        "Sea Emperor Submarine - Hard (Power: 72M)",
+        "Sea Emperor Submarine - Nightmare (Power: 87M)",
+        "Sea Emperor Submarine - Purgatory (Power: 130M)"
+      ]
+    },
+    {
+      "day": 245,
+      "category": "Ancient relic",
+      "items": [
+        "Ancient Relic (Hapardi Phase 2)"
+      ]
+    },
+    {
+      "day": 256,
+      "category": "Dungeon",
+      "items": [
+        "Clockwork Fortress - Normal (Power: 91M)",
+        "Clockwork Fortress - Hard (Power: 110M)",
+        "Clockwork Fortress - Nightmare (Power: 135M)",
+        "Clockwork Fortress - Purgatory (Power: 190M)"
+      ]
+    },
+    {
+      "day": 270,
+      "category": "Dungeon",
+      "items": [
+        "Celestial Observatory - Normal (Power: 145M)",
+        "Celestial Observatory - Hard (Power: 175M)",
+        "Celestial Observatory - Nightmare (Power: 210M)",
+        "Celestial Observatory - Purgatory (Power: 305M)"
+      ]
+    },
+    {
+      "day": 275,
+      "category": "Ancient relic",
+      "items": [
+        "Ancient Relic (Hapardi Phase 3)"
+      ]
+    },
+    {
+      "day": 284,
+      "category": "Dungeon",
+      "items": [
+        "Titan Hot Air Balloon - Normal (Power: 220M)",
+        "Titan Hot Air Balloon - Hard (Power: 256M)",
+        "Titan Hot Air Balloon - Nightmare (Power: 300M)",
+        "Titan Hot Air Balloon - Purgatory (Power: 460M)"
+      ]
+    },
+    {
+      "day": 298,
+      "category": "Dungeon",
+      "items": [
+        "Starry City - Normal (Power: 315M)",
+        "Starry City - Hard (Power: 385M)",
+        "Starry City - Nightmare (Power: 435M)",
+        "Starry City - Purgatory (Power: 630M)",
+        "Starry City - Abyss (Power: 880M)"
+      ]
+    },
+    {
+      "day": 316,
+      "category": "Region",
+      "items": [
+        "Ignis"
+      ]
+    },
+    {
+      "day": 316,
+      "category": "Job change",
+      "items": [
+        "7th Job (Lv. 198)",
+        "(Class Lv. 380 + 6th Job Lv. 55)"
+      ]
+    },
+    {
+      "day": 316,
+      "category": "Dungeon",
+      "items": [
+        "Ice Spire - Normal",
+        "Ice Spire - Hard (Power: 82M)"
+      ]
+    },
+    {
+      "day": 329,
+      "category": "Dungeon",
+      "items": [
+        "Black Rock Ruins - Normal (Power: 110M + Lv. 220)",
+        "Black Rock Ruins - Hard (Power: 130M)",
+        "Black Rock Ruins - Nightmare (Power: 156M)",
+        "Black Rock Ruins - Purgatory (Power: 230M)"
+      ]
+    },
+    {
+      "day": 330,
+      "category": "Seasonal map",
+      "items": [
+        "Frost Flame Gate"
+      ]
+    },
+    {
+      "day": 343,
+      "category": "Dungeon",
+      "items": [
+        "Eternal Frost Castle - Normal (Power: 166M)",
+        "Eternal Frost Castle - Hard (Power: 192M)",
+        "Eternal Frost Castle - Nightmare (Power: 230M)",
+        "Eternal Frost Castle - Purgatory (Power: 350M)"
+      ]
+    },
+    {
+      "day": 346,
+      "category": "Ancient relic",
+      "items": [
+        "Ancient Relic (Ignis Phase 2)"
+      ]
+    },
+    {
+      "day": 357,
+      "category": "Dungeon",
+      "items": [
+        "Flame Purgatory Throne - Normal (Power: 240M)",
+        "Flame Purgatory Throne - Hard (Power: 280M)",
+        "Flame Purgatory Throne - Nightmare (Power: 340M)",
+        "Flame Purgatory Throne - Purgatory (Power: 500M)"
+      ]
+    },
+    {
+      "day": 371,
+      "category": "Dungeon",
+      "items": [
+        "Moon Palace - Normal (Power: 358M)",
+        "Moon Palace - Hard (Power: 415M)",
+        "Moon Palace - Nightmare (Power: 500M)",
+        "Moon Palace - Purgatory (Power: 750M)"
+      ]
+    },
+    {
+      "day": 376,
+      "category": "Ancient relic",
+      "items": [
+        "Ancient Relic (Ignis Phase 3)"
+      ]
+    },
+    {
+      "day": 385,
+      "category": "Dungeon",
+      "items": [
+        "Crimson Flame Wedge - Normal (Power: 514M)",
+        "Crimson Flame Wedge - Hard (Power: 588M)",
+        "Crimson Flame Wedge - Nightmare (Power: 720M)",
+        "Crimson Flame Wedge - Purgatory (Power: 1080M)"
+      ]
+    },
+    {
+      "day": 399,
+      "category": "Dungeon",
+      "items": [
+        "Gate of Origin - Normal (Power: 680M)",
+        "Gate of Origin - Hard (Power: 780M)",
+        "Gate of Origin - Nightmare (Power: 950M)",
+        "Gate of Origin - Purgatory (Power: 1360M)",
+        "Gate of Origin - Abyss (Power: TBD)"
+      ]
+    }
+  ]
+}
