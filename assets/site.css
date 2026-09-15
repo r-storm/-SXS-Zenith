@@ -1,0 +1,30 @@
+/* Zenith guild tracker. Tailwind (Play CDN) provides the utilities; this file
+   only holds the few things that are easier to express once. */
+
+html { scroll-behavior: smooth; }
+[hidden] { display: none !important; }
+body { font-variant-numeric: tabular-nums; }
+input[type="search"]::-webkit-search-cancel-button { -webkit-appearance: none; }
+
+/* Progress bars: width is set from JS on the next frame so it animates in. */
+.meter > i { display: block; height: 100%; width: 0; border-radius: inherit; transition: width 0.9s cubic-bezier(0.16, 1, 0.3, 1); }
+
+/* Staggered entrance: each block sets its own --i. */
+.stagger { animation-delay: calc(var(--i, 0) * 40ms); }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .meter > i { transition: none; }
+  .stagger { animation: none !important; }
+}
+
+/* Glass fallback: solid surfaces when the viewer prefers less transparency
+   or the browser cannot blur behind elements. */
+@media (prefers-reduced-transparency: reduce) {
+  .glass { background-color: #fff !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+  @media (prefers-color-scheme: dark) { .glass { background-color: #18181b !important; } }
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass { background-color: rgba(255, 255, 255, 0.92) !important; }
+  @media (prefers-color-scheme: dark) { .glass { background-color: rgba(24, 24, 27, 0.94) !important; } }
+}

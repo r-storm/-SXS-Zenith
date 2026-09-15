@@ -1,0 +1,13 @@
+# IDE
+.idea/
+*.iml
+
+# Raw in-game screenshots (100MB+). Keep them locally, publish only the JSON extracted from them.
+captures/
+
+# OS noise
+.DS_Store
+Thumbs.db
+
+# Local Claude Code config (contains machine-specific symlinks)
+.claude/
