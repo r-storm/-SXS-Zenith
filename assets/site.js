@@ -311,15 +311,32 @@
     if (noMotion) apply(); else requestAnimationFrame(function () { requestAnimationFrame(apply); });
   }
 
+  function avatarUrl(pr) {
+    if (!pr.file || !state.meta.dir) return null;
+    return 'data/snapshots/' + state.meta.dir + '/avatars/' + String(pr.file).replace(/\.png$/i, '') + '.webp';
+  }
+
+  // Head-and-shoulders crop of the member's character from the capture, then
+  // the class emblem. The photo hides itself when a snapshot has no avatars.
   function avatar(p, size) {
     var key = classKey(p);
     var label = key === 'unknown' ? 'Class not captured' : p.profile['class'];
-    var sz = size === 'lg' ? 'size-14' : 'size-9';
-    var ic = size === 'lg' ? 'size-11' : 'size-7';
+    var lg = size === 'lg';
+    var url = avatarUrl(p.profile || {});
+    var photo = url ? '<img class="' + (lg ? 'size-16' : 'size-10') + ' shrink-0 rounded-full object-cover shadow-sm ring-2 ring-white dark:ring-zinc-800" src="' + esc(url) + '" alt="" loading="lazy" decoding="async" onerror="this.hidden=true;this.nextSibling.hidden=false">' : '';
     var inner = key === 'unknown'
-      ? icon('cls-unknown', size === 'lg' ? 'size-7' : 'size-4')
-      : '<img class="' + ic + ' object-contain" src="assets/img/classes/' + key + '.png" alt="" loading="lazy" decoding="async">';
-    return '<span class="grid ' + sz + ' shrink-0 place-items-center rounded-full bg-' + key + '/10 text-' + key + ' ring-1 ring-inset ring-' + key + '/20" title="' + esc(label) + '">' + inner + '</span>';
+      ? icon('cls-unknown', lg ? 'size-7' : 'size-4')
+      : '<img class="' + (lg ? 'size-11' : 'size-7') + ' object-contain" src="assets/img/classes/' + key + '.png" alt="" loading="lazy" decoding="async">';
+    var cls = '<span class="grid ' + (lg ? 'size-16' : 'size-10') + ' shrink-0 place-items-center rounded-full bg-' + key + '/10 text-' + key + ' ring-1 ring-inset ring-' + key + '/20" title="' + esc(label) + '"' + (url ? ' hidden' : '') + '>' + inner + '</span>';
+    return photo + cls;
+  }
+
+  // Small class emblem inline before the class name.
+  function classInline(p, extra) {
+    var key = classKey(p);
+    var name = key === 'unknown' ? 'Class not captured' : p.profile['class'];
+    var ic = key === 'unknown' ? icon('cls-unknown', 'size-3.5') : '<img class="size-3.5 object-contain" src="assets/img/classes/' + key + '.png" alt="" loading="lazy" decoding="async">';
+    return '<span class="inline-flex items-center gap-1 ' + (extra || '') + '">' + ic + esc(name) + '</span>';
   }
 
   // The game's Fantomon species. Players can rename theirs, so profiles carry
@@ -568,7 +585,7 @@
     { key: 'dmg_n', label: 'Conquest damage', cls: 'hidden text-right md:table-cell' }
   ];
 
-  var metrics = { power_n: ['Power', 'power'], week_n: ['Weekly contribution', 'week'], total_n: ['Total contribution', 'total'], dmg_n: ['Conquest damage', 'dmg'] };
+  var metrics = { power_n: ['Power', 'power', 'Power'], week_n: ['Weekly contribution', 'week', 'Weekly'], total_n: ['Total contribution', 'total', 'Total'], dmg_n: ['Conquest damage', 'dmg', 'Conquest'] };
 
   function mobileKey() {
     return metrics[state.sortKey] ? state.sortKey : 'power_n';
@@ -617,13 +634,13 @@
       Object.keys(metrics).forEach(function (k) {
         if (k === mk) return;
         var raw = p[metrics[k][1]];
-        sub += '<span class="md:hidden">' + metrics[k][0] + ' <b class="font-medium text-zinc-700 dark:text-zinc-300">' + esc(raw != null ? raw : '-') + '</b></span>';
+        sub += '<span class="md:hidden">' + metrics[k][2] + ' <b class="font-medium text-zinc-700 dark:text-zinc-300">' + esc(raw != null ? raw : '-') + '</b></span>';
       });
       html += '<tr class="group cursor-pointer transition-colors hover:bg-white/60 dark:hover:bg-white/5" data-href="#' + esc(p.slug) + '">' +
-        '<td class="px-4 py-3">' + posBadge(shown) + '</td>' +
-        '<td class="px-4 py-3"><div class="flex items-center gap-3">' + avatar(p) +
+        '<td class="px-3 py-3 sm:px-4">' + posBadge(shown) + '</td>' +
+        '<td class="px-3 py-3 sm:px-4"><div class="flex items-center gap-3">' + avatar(p) +
         '<div class="min-w-0"><div class="flex items-center gap-2"><a class="truncate font-medium text-zinc-900 hover:underline dark:text-zinc-50" href="#' + esc(p.slug) + '">' + esc(p.name) + '</a>' + roleBadge(p) + '</div>' +
-        '<div class="flex flex-wrap gap-x-3 text-xs ' + MUTED + '"><span>' + esc(p.profile ? p.profile['class'] : 'Class unknown') + '</span>' +
+        '<div class="flex flex-wrap items-center gap-x-3 text-xs ' + MUTED + '">' + classInline(p) +
         (p.rank ? '<span class="hidden sm:inline">' + esc(p.rank) + '</span>' : '') +
         sub + '</div></div></div></td>' +
         num(p, mk, p[metrics[mk][1]], 'text-right md:hidden') +
@@ -666,7 +683,7 @@
       '<div class="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">' +
       '<div class="flex items-start gap-4">' + avatar(p, 'lg') +
       '<div class="min-w-0"><h1 class="text-2xl font-semibold tracking-tight">' + esc(p.name) + '</h1>' +
-      '<p class="mt-0.5 text-sm ' + MUTED + '">' + esc(sub.join('')) + '</p>' +
+      '<p class="mt-0.5 flex flex-wrap items-center text-sm ' + MUTED + '">' + classInline(p) + (pr.classLevel != null ? '<span>, class level ' + esc(pr.classLevel) + '</span>' : '') + '</p>' +
       '<div class="mt-3 flex flex-wrap gap-1.5">' +
       (pr.level != null ? '<span class="' + BADGE + '">Level ' + esc(pr.level) + '</span>' : '') +
       roleBadge(p) +
