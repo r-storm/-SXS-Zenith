@@ -509,7 +509,7 @@
     var k = classKey(p), out = [];
     if (k === 'unknown' || !p.cpos) return out;
     var cls = p.profile['class'];
-    [['power_n', 'power'], ['dmg_n', 'conquest damage'], ['total_n', 'total contribution'], ['week_n', 'weekly contribution']].forEach(function (m) {
+    [['power_n', 'power'], ['dmg_n', 'Conquest damage'], ['total_n', 'total contribution'], ['week_n', 'weekly contribution']].forEach(function (m) {
       var pos = p.cpos[m[0]];
       if (pos === 1 && p.classSize >= 2) out.push(classBadge(p, 'Best ' + esc(cls) + ' by ' + m[1]));
       else if (pos != null && pos <= 3 && p.classSize >= 4) out.push(classBadge(p, 'Top 3 ' + esc(cls) + ' by ' + m[1]));
@@ -749,11 +749,11 @@
       return '<div class="mb-3 mt-8 flex flex-wrap items-baseline justify-between gap-2"><h2 class="text-sm font-semibold" id="' + id + '">' + title + '</h2><p class="text-xs ' + MUTED + '">' + note + '</p></div>';
     };
     if (m.prevPlayers) {
-      html += '<section aria-labelledby="movers-title">' + heading('movers-title', 'Movers since ' + esc(m.previousLabel), 'Members who are in both snapshots, ' + m.sinceDays + (m.sinceDays === 1 ? ' day' : ' days') + ' apart.') + moversSection(7) + '</section>';
+      html += '<section aria-labelledby="movers-title">' + heading('movers-title', 'Top gains since ' + esc(m.previousLabel), 'Who grew the most. Members who are in both snapshots, ' + m.sinceDays + (m.sinceDays === 1 ? ' day' : ' days') + ' apart.') + moversSection(7) + '</section>';
       var mvps = mvpSection(10);
-      if (mvps) html += '<section aria-labelledby="mvp-title">' + heading('mvp-title', 'Class MVPs since ' + esc(m.previousLabel), 'Best average placing among classmates for power, upgrade levels, contribution and damage gained.') + mvps + '</section>';
+      if (mvps) html += '<section aria-labelledby="mvp-title">' + heading('mvp-title', 'Class MVPs since ' + esc(m.previousLabel), 'The best all-rounder in each class: average rank among classmates for power, upgrade levels, contribution and Conquest damage gained.') + mvps + '</section>';
     }
-    html += '<section aria-labelledby="overview-title">' + heading('overview-title', 'Guild overview', m.prevPlayers ? '' : 'Movers and growth appear once there is an earlier snapshot to compare with.') +
+    html += '<section aria-labelledby="overview-title">' + heading('overview-title', 'Guild stats', m.prevPlayers ? 'How the guild is built and where it stands.' : 'Top gains and growth appear once there is an earlier snapshot to compare with.') +
       (m.prevPlayers ? '<div class="mb-4">' + growthCard(10) + '</div>' : '') +
       '<div class="grid gap-4 lg:grid-cols-2">' + classCard(11) + concentrationCard(12) +
       '<div class="empty:hidden" id="guild-readiness">' + (timeline ? guildReadinessCard(timeline, 13) : '') + '</div>' +
@@ -985,17 +985,17 @@
     list.forEach(function (x, k) {
       var p = x.mvp.p;
       var body = '<div class="mt-4 flex items-center gap-3">' + avatar(p, 'lg') + '<div class="min-w-0"><a class="block truncate text-lg font-semibold tracking-tight hover:underline" href="' + esc(link(p.slug)) + '">' + esc(p.name) + '</a>' +
-        '<p class="text-xs ' + MUTED + '">Average place ' + (Math.round(10 * x.mvp.total / x.mvp.n) / 10) + ' of ' + x.size + '</p></div></div>' +
+        '<p class="text-xs ' + MUTED + '">Avg rank ' + (Math.round(10 * x.mvp.total / x.mvp.n) / 10) + ' among ' + x.size + ' ' + esc(x.cls.label) + 's</p></div></div>' +
         '<ul class="mt-4 space-y-1.5 text-sm">';
       MVP_METRICS.forEach(function (mt, j) {
         var r = x.mvp.places[j];
         if (!r) return;
         body += '<li class="flex items-baseline justify-between gap-3"><span class="min-w-0 truncate">' + esc(mt[2](r.value)) + '</span>' +
-          '<span class="shrink-0 text-xs tabular-nums ' + (r.place === 1 ? 'font-semibold text-zinc-900 dark:text-zinc-50' : MUTED) + '">' + ordinal(r.place) + '</span></li>';
+          '<span class="shrink-0 text-xs tabular-nums ' + (r.place === 1 ? 'font-semibold text-zinc-900 dark:text-zinc-50' : MUTED) + '">' + ordinal(r.place) + ' in class</span></li>';
       });
       body += '</ul>';
       if (x.runnerUp) body += cardFoot('Runner-up: <a class="font-medium text-zinc-900 hover:underline dark:text-zinc-50" href="' + esc(link(x.runnerUp.p.slug)) + '">' + esc(x.runnerUp.p.name) + '</a>');
-      html += insightCard(i + k, esc(x.cls.label) + ' MVP', 'Among ' + x.size + ' ' + esc(x.cls.label) + 's.', '<img class="size-7 shrink-0 object-contain" src="assets/img/classes/' + x.cls.key + '.png" alt="">', body);
+      html += insightCard(i + k, esc(x.cls.label) + ' MVP', 'Best all-round gains in class.', '<img class="size-7 shrink-0 object-contain" src="assets/img/classes/' + x.cls.key + '.png" alt="">', body);
     });
     return html + '</div>';
   }
@@ -1013,13 +1013,13 @@
       moversCard(i + 1, 'Biggest climbs', 'Most places gained on power.', top(function (p) { return p.growth.places; }).map(function (p) {
         return { p: p, value: '+' + p.growth.places + (p.growth.places === 1 ? ' place' : ' places'), sub: ordinal(p.pos.power_n + p.growth.places) + ' to ' + ordinal(p.pos.power_n) };
       })) +
-      moversCard(i + 2, 'Most damage dealt', 'Conquest damage added.', top(function (p) { return p.dmgGain; }).map(function (p) {
+      moversCard(i + 2, 'Most Conquest damage', 'Damage dealt in the period.', top(function (p) { return p.dmgGain; }).map(function (p) {
         return { p: p, value: '+' + fmtNum(p.dmgGain), sub: (dealt > 0 ? Math.round(100 * p.dmgGain / dealt) : 0) + '% of the guild\'s ' + fmtNum(dealt) };
       })) +
-      moversCard(i + 3, 'Most gear enhanced', 'Enhancement levels added.', top(function (p) { return added(p, ['gear']); }).map(function (p) {
+      moversCard(i + 3, 'Most equipment enhanced', 'Enhancement levels added.', top(function (p) { return added(p, ['gear']); }).map(function (p) {
         return { p: p, value: plural(added(p, ['gear'])), sub: 'average +' + Math.round(p.prev.stat_n.gear) + ' to +' + Math.round(p.stat_n.gear) };
       })) +
-      moversCard(i + 4, 'Most skills and charms levelled', 'Technique and charm levels added.', top(function (p) { return added(p, ['technique', 'charm']); }).map(function (p) {
+      moversCard(i + 4, 'Most technique and charm levels', 'Levels added across both.', top(function (p) { return added(p, ['technique', 'charm']); }).map(function (p) {
         return { p: p, value: plural(added(p, ['technique', 'charm'])), sub: 'tech +' + added(p, ['technique']) + ', charm +' + added(p, ['charm']) };
       })) +
       moversCard(i + 5, 'Most contributed', 'Added to total contribution.', top(function (p) { return p.totalGain; }).map(function (p) {
@@ -1044,8 +1044,8 @@
       '<div class="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-4">' +
       statCell((pct >= 0 ? '+' : '-') + Math.abs(Math.round(pct * 10) / 10) + '%', 'Total power', fmtNum(before) + ' to ' + fmtNum(m.totalPower)) +
       statCell((avgGain >= 0 ? '+' : '-') + fmtNum(Math.abs(avgGain)), 'Average gain', 'per member, across the ' + both.length + ' in both') +
-      statCell(fmtNum(medNow), 'Median power', 'was ' + fmtNum(medWas) + '; half the guild is above this') +
-      statCell(fmtNum(dealt), 'Damage dealt', 'conquest damage added in the period') +
+      statCell(fmtNum(medNow), 'Typical member\'s power', 'the middle of the guild; was ' + fmtNum(medWas)) +
+      statCell(fmtNum(dealt), 'Conquest damage', 'dealt by the guild in the period') +
       '</div>');
   }
 
@@ -1082,8 +1082,8 @@
     var avgOf = function (list, get) { var v = list.map(get).filter(function (x) { return x != null; }); return v.length ? v.reduce(function (a, b) { return a + b; }, 0) / v.length : null; };
     var body = '<div class="mt-3 overflow-x-auto"><table class="w-full text-sm"><thead class="text-xs ' + MUTED + '"><tr>' +
       '<th scope="col" class="py-2 text-left font-medium">Class</th><th scope="col" class="px-2 py-2 text-right font-medium">Members</th>' +
-      '<th scope="col" class="px-2 py-2 text-right font-medium">Avg power</th><th scope="col" class="hidden px-2 py-2 text-right font-medium sm:table-cell">Avg gear</th>' +
-      '<th scope="col" class="w-2/5 py-2 pl-2 text-left font-medium">Share of conquest damage</th></tr></thead><tbody class="divide-y divide-zinc-200/60 dark:divide-white/5">';
+      '<th scope="col" class="px-2 py-2 text-right font-medium">Avg power</th><th scope="col" class="hidden px-2 py-2 text-right font-medium sm:table-cell">Avg equip</th>' +
+      '<th scope="col" class="w-2/5 py-2 pl-2 text-left font-medium">Share of Conquest damage</th></tr></thead><tbody class="divide-y divide-zinc-200/60 dark:divide-white/5">';
     m.classes.forEach(function (c) {
       var list = groups[c.key] || [], dmg = list.reduce(function (a, p) { return a + (p.dmg_n || 0); }, 0);
       var share = m.totalDmg > 0 ? dmg / m.totalDmg : 0, gear = avgOf(list, function (p) { return p.stat_n.gear; });
@@ -1108,8 +1108,8 @@
     var parts = [[list[0].name, sumOf(0, 1)], ['2nd to 5th', sumOf(1, 5)], ['6th to 10th', sumOf(5, 10)], ['Everyone else, ' + Math.max(0, list.length - 10) + ' members', sumOf(10)]]
       .filter(function (x) { return x[1] > 0; });
     var body = '<p class="mt-4 flex items-baseline gap-2"><span class="text-3xl font-semibold tracking-tight">' + Math.round(100 * sumOf(0, 5) / m.totalDmg) + '%</span>' +
-      '<span class="text-sm ' + MUTED + '">of all conquest damage comes from the top 5</span></p>' +
-      '<div class="mt-4 flex h-3 gap-0.5 overflow-hidden rounded-full" role="img" aria-label="Share of conquest damage by rank group">';
+      '<span class="text-sm ' + MUTED + '">of all Conquest damage comes from the top 5</span></p>' +
+      '<div class="mt-4 flex h-3 gap-0.5 overflow-hidden rounded-full" role="img" aria-label="Share of Conquest damage by rank group">';
     parts.forEach(function (x, k) {
       body += '<i class="block h-full ' + SHARE_STEPS[k] + '" style="width:' + (100 * x[1] / m.totalDmg) + '%" title="' + esc(x[0]) + ': ' + esc(fmtNum(x[1])) + ', ' + Math.round(100 * x[1] / m.totalDmg) + '%"></i>';
     });
@@ -1118,27 +1118,27 @@
       body += '<li class="flex items-center gap-2"><i class="size-2.5 shrink-0 rounded-sm ' + SHARE_STEPS[k] + '"></i><span class="min-w-0 flex-1 truncate">' + (k === 0 ? '<a class="font-medium hover:underline" href="' + esc(link(list[0].slug)) + '">' + esc(x[0]) + '</a>' : esc(x[0])) + '</span>' +
         '<span class="tabular-nums ' + MUTED + '">' + esc(fmtNum(x[1])) + '</span><b class="w-10 text-right font-semibold tabular-nums">' + Math.round(100 * x[1] / m.totalDmg) + '%</b></li>';
     });
-    return insightCard(i, 'Damage concentration', 'How the guild\'s ' + esc(fmtNum(m.totalDmg)) + ' running total splits.', icon('swords', 'mt-1 size-4 ' + MUTED), body + '</ul>');
+    return insightCard(i, 'Who carries Conquest', 'How the guild\'s ' + esc(fmtNum(m.totalDmg)) + ' Conquest damage splits.', icon('swords', 'mt-1 size-4 ' + MUTED), body + '</ul>');
   }
 
   // Counts only: this is a public page, so nobody is named for a low week.
   function contributionHealthCard(i) {
     var m = state.meta, roster = state.players.filter(function (p) { return p.rosterOrder != null && p.week_n != null; }), top = m.weekTop;
     if (!roster.length || !(top > 0)) return '';
-    var bands = [['95% or more of the top', 0.95, 2], ['75 to 95%', 0.75, 0.95], ['50 to 75%', 0.5, 0.75], ['Under 50%', 1e-9, 0.5], ['Nothing yet', -1, 1e-9]].map(function (b) {
-      return { label: b[0], count: roster.filter(function (p) { var r = p.week_n / top; return r >= b[1] && r < b[2]; }).length };
+    var bands = [['Maxed', '95%+', 0.95, 2], ['Nearly there', '75 to 95%', 0.75, 0.95], ['Halfway', '50 to 75%', 0.5, 0.75], ['Low', 'under 50%', 1e-9, 0.5], ['Nothing yet', '', -1, 1e-9]].map(function (b) {
+      return { label: b[0], range: b[1], count: roster.filter(function (p) { var r = p.week_n / top; return r >= b[2] && r < b[3]; }).length };
     });
     var most = Math.max.apply(null, bands.map(function (b) { return b.count; }));
     var body = '<p class="mt-4 flex items-baseline gap-2"><span class="text-3xl font-semibold tracking-tight">' + bands[0].count + '</span>' +
-      '<span class="text-sm ' + MUTED + '">of ' + roster.length + ' members are within 5% of this week\'s top, ' + esc(fmtNum(top)) + '</span></p><div class="mt-4 space-y-2.5">';
+      '<span class="text-sm ' + MUTED + '">of ' + roster.length + ' members are at or near this week\'s top, ' + esc(fmtNum(top)) + '</span></p><div class="mt-4 space-y-2.5">';
     bands.forEach(function (b) {
-      body += '<div class="flex items-center gap-3 text-sm" title="' + b.count + ' members: ' + esc(b.label) + '"><span class="w-40 shrink-0 ' + MUTED + '">' + esc(b.label) + '</span>' +
+      body += '<div class="flex items-center gap-3 text-sm" title="' + b.count + ' members: ' + esc(b.label) + (b.range ? ', ' + esc(b.range) + ' of the top' : '') + '"><span class="w-40 shrink-0"><span class="font-medium">' + esc(b.label) + '</span> <span class="text-xs ' + MUTED + '">' + esc(b.range) + '</span></span>' +
         '<div class="min-w-0 flex-1">' + meter(most ? b.count / most : 0, 'bg-zinc-900 dark:bg-zinc-100') + '</div><b class="w-6 shrink-0 text-right font-semibold tabular-nums">' + b.count + '</b></div>';
     });
     body += '</div>';
-    var lines = ['Guild median this week is ' + fmtNum(m.weekMedian) + ', ' + Math.round(100 * m.weekMedian / top) + '% of the top.'];
-    if (m.totalGainMedian != null) lines.push('The median member added ' + fmtNum(m.totalGainMedian) + ' to their total since ' + m.previousLabel + '.');
-    return insightCard(i, 'Contribution health', 'Weekly contribution, as a share of the highest in the guild.', icon('gem', 'mt-1 size-4 ' + MUTED), body + cardFoot(lines.map(esc).join('<br>')));
+    var lines = ['The typical member gave ' + fmtNum(m.weekMedian) + ' this week, ' + Math.round(100 * m.weekMedian / top) + '% of the top.'];
+    if (m.totalGainMedian != null) lines.push('The typical member added ' + fmtNum(m.totalGainMedian) + ' to their total since ' + m.previousLabel + '.');
+    return insightCard(i, 'Weekly contribution check', 'How close everyone is to the highest weekly contribution in the guild.', icon('gem', 'mt-1 size-4 ' + MUTED), body + cardFoot(lines.map(esc).join('<br>')));
   }
 
   function fantomonCard(i) {
@@ -1234,14 +1234,14 @@
     var pr = p.profile;
     if (!pr) return '';
     var g = peerGroup(p), items = [];
-    var groups = [['gear', 'Gear', '+', pr.gear], ['tech', 'Technique', 'Lv. ', pr.technique], ['charm', 'Charm', 'Lv. ', pr.charm]];
+    var groups = [['gear', 'Equip', '+', pr.gear, 'equipment'], ['tech', 'Technique', 'Lv. ', pr.technique, 'technique'], ['charm', 'Charm', 'Lv. ', pr.charm, 'charm']];
 
     var behind = groups.map(function (x) {
       var v = p.stat_n[x[0]], avg = g.avg[x[0]];
       return v == null || avg == null ? null : { g: x, diff: Math.round(v) - Math.round(avg), v: v, avg: avg };
     }).filter(function (x) { return x && x.diff <= -1; }).sort(function (a, b) { return a.diff - b.diff; });
     behind.forEach(function (x, k) {
-      items.push({ tone: 'warn', ic: 'up', title: (k === 0 ? 'Biggest gap: ' : 'Also behind: ') + x.g[1].toLowerCase(),
+      items.push({ tone: 'warn', ic: 'up', title: (k === 0 ? 'Biggest gap: ' : 'Also behind: ') + x.g[4],
         text: 'Your average is ' + x.g[2] + Math.round(x.v) + ', ' + Math.abs(x.diff) + (Math.abs(x.diff) === 1 ? ' level' : ' levels') + ' under the ' + g.name + ' average of ' + x.g[2] + Math.round(x.avg) + '.' });
     });
 
@@ -1251,7 +1251,7 @@
       var lo = Math.min.apply(null, known), hi = Math.max.apply(null, known);
       if (hi - lo < (x[0] === 'gear' ? 10 : 3)) return;
       var at = vals.indexOf(lo);
-      items.push({ tone: 'warn', ic: 'updown', title: 'Uneven ' + x[1].toLowerCase(),
+      items.push({ tone: 'warn', ic: 'updown', title: 'Uneven ' + x[4],
         text: (x[0] === 'gear' ? 'Your ' + GEAR_SLOTS[at] : 'Slot ' + (at + 1)) + ' is at ' + x[2] + lo + ' while your best is ' + x[2] + hi + '.' });
     });
 
@@ -1263,7 +1263,7 @@
     if (weak && weak.rel <= -0.1) items.push({ tone: 'warn', ic: 'down', title: 'Weakest stat: ' + weak.label,
       text: fmtNum(weak.v) + ' is ' + Math.round(-weak.rel * 100) + '% under the ' + g.name + ' average of ' + fmtNum(weak.avg) + '.' });
     if (!behind.length) items.unshift({ tone: 'good', ic: 'trophy', title: 'Upgrades on track',
-      text: 'Gear, technique and charm are all level with or ahead of the ' + g.name + ' average.' });
+      text: 'Equipment, technique and charm are all level with or ahead of the ' + g.name + ' average.' });
     if (strong && strong !== weak && strong.rel >= 0.1) items.push({ tone: 'good', ic: 'star', title: 'Strongest stat: ' + strong.label,
       text: fmtNum(strong.v) + ' is ' + Math.round(strong.rel * 100) + '% over the ' + g.name + ' average of ' + fmtNum(strong.avg) + '.' });
 
@@ -1283,7 +1283,7 @@
         '<td class="py-1 text-right tabular-nums ' + MUTED + '">' + (avg != null ? x[2] + Math.round(avg) : '-') + '</td>' +
         '<td class="py-1 text-right">' + (diff == null ? '' : deltaHTML(diff === 0 ? '±0' : (diff > 0 ? '+' : '-') + Math.abs(diff))) + '</td></tr>';
     });
-    return insightCard(i, 'Focus next', 'Compared with ' + esc(g.label) + '.', icon('eye', 'mt-1 size-4 ' + MUTED), body + '</tbody></table></div>');
+    return insightCard(i, 'What to upgrade next', 'Compared with ' + esc(g.label) + '.', icon('eye', 'mt-1 size-4 ' + MUTED), body + '</tbody></table></div>');
   }
 
   // "930K + Lv. 100" on the timeline means power and a character level.
@@ -1383,11 +1383,11 @@
   // Conquest damage is a running total, so where an earlier snapshot exists the
   // comparison uses what was dealt since then; that is fair to newer members.
   function damageCard(p, i) {
-    var m = state.meta, title = 'Damage for your power';
-    if (p.dmg_n == null) return insightCard(i, title, '', icon('sword', 'mt-1 size-4 ' + MUTED), '<p class="mt-4 text-sm ' + MUTED + '">No conquest damage is recorded for this player in this snapshot.</p>');
+    var m = state.meta, title = 'Punching above your weight?';
+    if (p.dmg_n == null) return insightCard(i, title, '', icon('sword', 'mt-1 size-4 ' + MUTED), '<p class="mt-4 text-sm ' + MUTED + '">No Conquest damage is recorded for this player in this snapshot.</p>');
     // Someone who joined since the last snapshot has a few days of damage against
     // everyone else's running total, so they get no verdict yet.
-    if (m.previousLabel && !p.prev) return insightCard(i, title, 'Conquest damage against members of similar power.', chip('flat', 'New member'),
+    if (m.previousLabel && !p.prev) return insightCard(i, title, 'Conquest damage, against similar power.', chip('flat', 'New member'),
       '<p class="mt-4 flex items-baseline gap-2"><span class="text-3xl font-semibold tracking-tight">' + esc(p.dmg) + '</span><span class="text-sm ' + MUTED + '">so far</span></p>' +
       cardFoot('Joined since ' + esc(m.previousLabel) + '. Conquest damage is a running total, so a fair comparison starts with the next snapshot, using what each member dealt in between.'));
     var useGain = p.dmgGain != null;
@@ -1395,23 +1395,23 @@
     var peers = p.power_n == null ? [] : state.players.filter(function (x) { return x !== p && x.power_n != null && get(x) != null; })
       .sort(function (a, b) { return Math.abs(a.power_n - p.power_n) - Math.abs(b.power_n - p.power_n); }).slice(0, 10);
     var mid = median(peers.map(get)), body = '', aside = icon('sword', 'mt-1 size-4 ' + MUTED);
-    var what = useGain ? 'Damage since ' + esc(m.previousLabel) : 'Conquest damage';
+    var what = useGain ? 'Conquest damage since ' + esc(m.previousLabel) : 'Conquest damage';
     if (peers.length >= 4 && mid > 0) {
       var ratio = get(p) / mid, powers = peers.map(function (x) { return x.power_n; });
       var tone = ratio >= 1.25 ? 'good' : ratio <= 0.8 ? 'warn' : 'flat';
       aside = chip(tone, ratio >= 1.25 ? 'Above your weight' : ratio <= 0.8 ? 'Below your weight' : 'In line');
-      body += '<p class="mt-4 flex items-baseline gap-2"><span class="text-3xl font-semibold tracking-tight">' + (ratio >= 10 ? Math.round(ratio) : ratio.toFixed(1)) + 'x</span>' +
-        '<span class="text-sm ' + MUTED + '">the typical member near your power</span></p>' +
-        pairBars(['You', get(p)], ['Median of the ' + peers.length + ' closest, ' + esc(fmtNum(Math.min.apply(null, powers))) + ' to ' + esc(fmtNum(Math.max.apply(null, powers))) + ' power', mid],
+      body += '<p class="mt-4 flex items-baseline gap-2"><span class="text-3xl font-semibold tracking-tight">' + (ratio < 2 ? Math.round(ratio * 100) + '%' : (ratio >= 10 ? Math.round(ratio) : ratio.toFixed(1)) + 'x') + '</span>' +
+        '<span class="text-sm ' + MUTED + '">' + (ratio < 2 ? 'of ' : '') + 'what members near your power dealt</span></p>' +
+        pairBars(['You', get(p)], ['The ' + peers.length + ' closest in power, ' + esc(fmtNum(Math.min.apply(null, powers))) + ' to ' + esc(fmtNum(Math.max.apply(null, powers))), mid],
           tone === 'warn' ? 'bg-amber-500' : tone === 'good' ? 'bg-emerald-500' : 'bg-zinc-900 dark:bg-zinc-100');
     } else {
       body += '<p class="mt-4 text-sm ' + MUTED + '">Not enough members with damage near this power to compare against.</p>';
     }
     var lines = [];
-    if (p.pos.power_n && p.pos.dmg_n) lines.push('In the guild: ' + ordinal(p.pos.power_n) + ' on power, ' + ordinal(p.pos.dmg_n) + ' on total damage.');
-    if (classKey(p) !== 'unknown' && p.classSize >= 3 && p.cpos.power_n && p.cpos.dmg_n) lines.push('Among ' + p.classSize + ' ' + p.profile['class'] + 's: ' + ordinal(p.cpos.power_n) + ' on power, ' + ordinal(p.cpos.dmg_n) + ' on total damage.');
+    if (p.pos.power_n && p.pos.dmg_n) lines.push('In the guild: ' + ordinal(p.pos.power_n) + ' on power, ' + ordinal(p.pos.dmg_n) + ' on Conquest damage.');
+    if (classKey(p) !== 'unknown' && p.classSize >= 3 && p.cpos.power_n && p.cpos.dmg_n) lines.push('Among ' + p.classSize + ' ' + p.profile['class'] + 's: ' + ordinal(p.cpos.power_n) + ' on power, ' + ordinal(p.cpos.dmg_n) + ' on Conquest damage.');
     if (lines.length) body += cardFoot(lines.map(esc).join('<br>'));
-    return insightCard(i, title, what + ' against members of similar power.', aside, body);
+    return insightCard(i, title, what + ', against similar power.', aside, body);
   }
 
   function contributionCard(p, i) {
@@ -1423,16 +1423,16 @@
     var body = '<p class="mt-4 flex items-baseline gap-2"><span class="text-3xl font-semibold tracking-tight">' + (top > 0 ? Math.round(100 * p.week_n / top) : 0) + '%</span>' +
       '<span class="text-sm ' + MUTED + '">of this week\'s top, ' + esc(fmtNum(top)) + '</span></p>' +
       '<div class="relative mt-4">' + meter(top > 0 ? p.week_n / top : 0, tone === 'good' ? 'bg-emerald-500' : tone === 'warn' ? 'bg-amber-500' : 'bg-red-500') +
-      (tick != null ? '<span class="absolute -top-1 h-3.5 w-0.5 rounded-full bg-zinc-400 dark:bg-zinc-500" style="left:' + tick + '%" title="Guild median"></span>' : '') + '</div>' +
+      (tick != null ? '<span class="absolute -top-1 h-3.5 w-0.5 rounded-full bg-zinc-400 dark:bg-zinc-500" style="left:' + tick + '%" title="Typical member"></span>' : '') + '</div>' +
       '<div class="mt-1.5 flex justify-between gap-3 text-xs ' + MUTED + '"><span>You <b class="font-medium text-zinc-700 dark:text-zinc-200">' + esc(p.week) + '</b></span>' +
-      (mid != null ? '<span>Guild median <b class="font-medium text-zinc-700 dark:text-zinc-200">' + esc(fmtNum(mid)) + '</b></span>' : '') + '</div>';
+      (mid != null ? '<span>Typical member <b class="font-medium text-zinc-700 dark:text-zinc-200">' + esc(fmtNum(mid)) + '</b></span>' : '') + '</div>';
     var lines = [];
     if (m.totalWeek > 0) lines.push((Math.round(1000 * p.week_n / m.totalWeek) / 10) + '% of the guild\'s ' + fmtNum(m.totalWeek) + ' this week. An even split would be ' + (Math.round(1000 / m.memberCount) / 10) + '%.');
     if (m.previousLabel && !p.prev) lines.push('Joined since ' + m.previousLabel + ', so this may be a part week.');
-    if (p.totalGain != null && m.totalGainMedian != null) lines.push('Added ' + fmtNum(p.totalGain) + ' to your total since ' + m.previousLabel + '. The guild median is ' + fmtNum(m.totalGainMedian) + '.');
+    if (p.totalGain != null && m.totalGainMedian != null) lines.push('Added ' + fmtNum(p.totalGain) + ' to your total since ' + m.previousLabel + '. The typical member added ' + fmtNum(m.totalGainMedian) + '.');
     if (lines.length) body += cardFoot(lines.map(esc).join('<br>'));
-    return insightCard(i, 'Contribution in context', 'Weekly contribution against the rest of the guild.',
-      chip(tone, tone === 'bad' ? 'Nothing yet' : tone === 'warn' ? 'Below median' : 'At or above median'), body);
+    return insightCard(i, 'Your contribution this week', 'Weekly contribution against the rest of the guild.',
+      chip(tone, tone === 'bad' ? 'Nothing yet' : tone === 'warn' ? 'Below typical' : 'On par or better'), body);
   }
 
   // ---- rendering: profile ---------------------------------------------------
