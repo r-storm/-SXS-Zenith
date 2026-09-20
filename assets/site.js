@@ -1,11 +1,13 @@
 /* Zenith guild tracker. Reads data/snapshots/<date>/{week,profiles}.json and
    renders the rankings dashboard and per-player profiles. No build step.
-   Routes: "#" is the rankings, "#<slug>" is one player. Both show the latest
-   snapshot; "#<date>" and "#<date>/<slug>" show an earlier one. */
+   Routes: "#" is the dashboard, "#rankings" the table, "#timeline" the server
+   schedule and "#<slug>" one player. They show the latest snapshot; a date in
+   front, as in "#<date>/<slug>", shows an earlier one. */
 (function () {
   'use strict';
 
   var app = document.getElementById('app');
+  var topbar = document.getElementById('topbar');
   var dock = document.getElementById('dock');
   var state = { dirs: [], latest: null, meta: null, players: [], sortKey: 'power_n', sortDir: 'desc', query: '', classFilter: null };
   var noMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -358,6 +360,7 @@
       previousLabel: previous ? previous.label : null,
       sinceDays: previous ? Math.round((dirDate(current.dir) - dirDate(previous.dir)) / 86400000) : null,
       since: since,
+      prevPlayers: previous ? previous.players : null,
       guildAvg: guildAvg,
       weekTop: Math.max.apply(null, onRoster.map(function (p) { return p.week_n || 0; }).concat([0])),
       weekMedian: median(onRoster.map(function (p) { return p.week_n; })),
@@ -385,7 +388,6 @@
   var BADGE = 'inline-flex items-center gap-1 rounded-md border border-zinc-200/70 bg-white/70 px-2 py-0.5 text-xs font-medium dark:border-white/10 dark:bg-zinc-800/70';
   var INPUT = 'h-9 rounded-lg border border-zinc-200/70 bg-white/70 text-sm shadow-sm transition-colors placeholder:text-zinc-400 focus:border-zinc-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:border-white/10 dark:bg-zinc-800/60 dark:focus:border-zinc-600 dark:focus:bg-zinc-800 dark:focus:ring-zinc-50/10';
   var ANIM = 'stagger motion-safe:animate-fade-up';
-  var SHADOW = '[text-shadow:0_1px_3px_rgba(0,0,0,.55)]';
 
   // Decorative character art (transparent cutouts, assets/img/art) placed in
   // otherwise empty corners on wide screens. Each slot names a piece from ART
@@ -546,14 +548,40 @@
     return '<span class="inline-flex size-6 items-center justify-center rounded-full text-xs font-semibold ' + tone + '">' + pos + '</span>';
   }
 
+  // ---- top bar ---------------------------------------------------------------
+  // Fixed tabs for the main views plus the snapshot picker. A player profile
+  // counts as part of Rankings.
+
+  var TABS = [['', 'Dashboard', 'grid'], ['rankings', 'Rankings', 'trophy'], ['timeline', 'Timeline', 'clock']];
+
+  function renderNav(slug) {
+    var active = slug === '' || slug === 'timeline' ? slug : 'rankings';
+    var html = '<div class="mx-auto flex max-w-6xl flex-wrap items-center gap-x-4 px-4 sm:px-6 lg:flex-nowrap">' +
+      '<a class="flex h-12 shrink-0 items-center gap-2 lg:h-14" href="' + esc(link('')) + '" aria-label="' + esc(state.meta.guild) + ' dashboard"><img class="size-7 rounded-md" src="assets/img/logo/zenith-64.webp" alt="">' +
+      '<span class="hidden font-semibold tracking-tight sm:inline">' + esc(state.meta.guild) + '</span></a>' +
+      '<nav class="order-last flex basis-full gap-1 pb-2 lg:order-none lg:basis-auto lg:pb-0" aria-label="Sections">';
+    TABS.forEach(function (t) {
+      var on = t[0] === active;
+      html += '<a class="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg px-3 text-sm font-medium transition-colors lg:flex-none ' +
+        (on ? 'bg-zinc-900 text-white dark:bg-zinc-50 dark:text-zinc-900' : 'text-zinc-600 hover:bg-zinc-900/5 dark:text-zinc-300 dark:hover:bg-white/10') +
+        '" href="' + esc(link(t[0])) + '"' + (on ? ' aria-current="page"' : '') + '>' + icon(t[2], 'size-4') + t[1] + '</a>';
+    });
+    html += '</nav><div class="ml-auto flex items-center gap-2">' + (slug === 'timeline' ? '' : snapPicker(slug)) +
+      '<a class="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-lg bg-[#5865F2] px-3 text-sm font-semibold text-white shadow-md transition-colors hover:bg-[#4752C4]" href="https://discord.gg/fapjXcFYhw" target="_blank" rel="noopener" aria-label="Join the Discord">' +
+      icon('discord', 'size-4') + '<span class="sm:hidden">Join</span><span class="hidden sm:inline">Join the Discord</span></a></div></div>';
+    topbar.innerHTML = html;
+    bindPicker();
+  }
+
   // ---- snapshot picker --------------------------------------------------------
   // Steps to the older or newer snapshot, with a month calendar in a popover
-  // where the days that have a snapshot are links. slug keeps a profile open
-  // across the switch.
+  // where the days that have a snapshot are links. It sits in the top bar; slug
+  // keeps the current view open across the switch.
 
   function snapPicker(slug, extra) {
     var dirs = state.dirs, at = dirs.indexOf(state.meta.dir);
     var seg = 'grid w-9 shrink-0 place-items-center transition-colors';
+    var shown = fmtDay(state.meta.dir), cut = shown.lastIndexOf(' ');
     function step(dir, ic, label) {
       if (!dir) return '<span class="' + seg + ' opacity-35" aria-hidden="true">' + icon(ic, 'size-4') + '</span>';
       return '<a class="' + seg + ' hover:bg-white/90 dark:hover:bg-zinc-800/80" href="' + esc(link(slug, dir)) + '" title="' + label + ', ' + esc(fmtDay(dir)) + '" aria-label="' + label + ', ' + esc(fmtDay(dir)) + '">' + icon(ic, 'size-4') + '</a>';
@@ -562,9 +590,9 @@
       '<div class="glass flex h-9 items-stretch divide-x divide-zinc-900/10 overflow-hidden rounded-lg border border-white/70 bg-white/60 text-sm font-medium shadow-md shadow-zinc-900/[0.05] backdrop-blur-md dark:divide-white/10 dark:border-white/10 dark:bg-zinc-900/60">' +
       step(at > 0 ? dirs[at - 1] : null, 'back', 'Older snapshot') +
       '<button type="button" class="inline-flex min-w-0 flex-1 items-center justify-center gap-1.5 whitespace-nowrap px-3 transition-colors hover:bg-white/90 dark:hover:bg-zinc-800/80" aria-haspopup="dialog" aria-expanded="false" data-picker-toggle>' +
-      icon('calendar', 'size-4') + '<span class="sr-only">Snapshot date, </span>' + esc(fmtDay(state.meta.dir)) + icon('down', 'size-3.5 opacity-60') + '</button>' +
+      icon('calendar', 'size-4') + '<span class="sr-only">Snapshot date, </span><span>' + esc(shown.slice(0, cut)) + '<span class="sr-only sm:not-sr-only">' + esc(shown.slice(cut)) + '</span></span>' + icon('down', 'size-3.5 opacity-60') + '</button>' +
       step(at < dirs.length - 1 ? dirs[at + 1] : null, 'next', 'Newer snapshot') + '</div>' +
-      '<div class="absolute right-0 top-full z-30 mt-2 w-72 rounded-2xl border border-zinc-200/80 bg-white/95 p-3 shadow-2xl shadow-zinc-900/20 backdrop-blur-xl motion-safe:animate-fade-in dark:border-white/10 dark:bg-zinc-900/95 dark:shadow-black/60" role="dialog" aria-label="Choose a snapshot date" hidden data-picker-pop></div></div>';
+      '<div class="absolute right-0 top-full z-30 mt-2 w-72 rounded-2xl border border-zinc-200 bg-white p-3 shadow-2xl shadow-zinc-900/20 motion-safe:animate-fade-in dark:border-zinc-700 dark:bg-zinc-900 dark:shadow-black/60" role="dialog" aria-label="Choose a snapshot date" hidden data-picker-pop></div></div>';
   }
 
   function calendarHTML(y, mo, slug) {
@@ -599,7 +627,7 @@
   }
 
   function closePicker(focus) {
-    var root = app.querySelector('[data-picker]');
+    var root = topbar.querySelector('[data-picker]');
     if (!root) return;
     var pop = root.querySelector('[data-picker-pop]'), btn = root.querySelector('[data-picker-toggle]');
     if (pop.hidden) return;
@@ -609,7 +637,7 @@
   }
 
   function bindPicker() {
-    var root = app.querySelector('[data-picker]');
+    var root = topbar.querySelector('[data-picker]');
     if (!root) return;
     var btn = root.querySelector('[data-picker-toggle]'), pop = root.querySelector('[data-picker-pop]');
     var slug = root.getAttribute('data-slug'), y, mo;
@@ -636,7 +664,7 @@
       document.documentElement.dataset.pickerBound = '1';
       // composedPath, because redrawing a month detaches the clicked button.
       document.addEventListener('click', function (ev) {
-        var open = app.querySelector('[data-picker]');
+        var open = topbar.querySelector('[data-picker]');
         if (open && ev.composedPath().indexOf(open) === -1) closePicker();
       });
       document.addEventListener('keydown', function (ev) { if (ev.key === 'Escape') closePicker(true); });
@@ -700,19 +728,15 @@
       (hint ? '<span class="whitespace-nowrap text-xs ' + MUTED + '">' + esc(hint) + '</span>' : '') + '</p></div></div>';
   }
 
-  function renderRankings() {
+  function renderDashboard() {
     var m = state.meta, since = m.since;
-    var html = pastNotice('') + '<section class="relative z-30 mb-6 flex flex-wrap items-center gap-4 pt-2 text-white sm:gap-5 sm:pt-6 ' + ANIM + '" style="--i:0" aria-label="Guild">' +
-      '<img class="size-16 shrink-0 rounded-xl shadow-lg ring-1 ring-white/20 sm:size-20" src="assets/img/logo/zenith-160.webp" alt="" decoding="async">' +
-      '<div class="min-w-0 flex-1"><p class="text-xs font-medium uppercase tracking-wide text-zinc-200 [text-shadow:0_1px_2px_rgba(0,0,0,.5)]">Sword x Staff guild on ' + esc(m.server || 'an unknown server') + '</p>' +
-      '<h1 class="mt-0.5 text-3xl font-semibold tracking-tight [text-shadow:0_1px_3px_rgba(0,0,0,.5)] sm:text-4xl">' + esc(m.guild) + '</h1>' +
-      '<p class="mt-1 text-sm text-zinc-200 [text-shadow:0_1px_2px_rgba(0,0,0,.5)]">' + esc(m.memberCount + ' members. ' + m.label + ', captured ' + m.capturedDate + '.') + '</p></div>' +
-      deco('hero', 'hidden h-44 w-auto -my-12 mr-2 self-end drop-shadow-[0_12px_24px_rgba(0,0,0,.45)] lg:block') +
-      '<div class="flex basis-full flex-wrap gap-2 sm:basis-auto">' +
-      snapPicker('', 'basis-full sm:basis-auto') +
-      '<a class="' + BTN + ' flex-1 justify-center rounded-md text-zinc-900 sm:flex-none dark:text-zinc-50" href="#timeline">' + icon('clock', 'size-4') + 'Timeline</a>' +
-      '<a class="inline-flex h-9 flex-1 shrink-0 items-center justify-center gap-1.5 rounded-md bg-[#5865F2] px-3.5 text-sm font-semibold text-white shadow-md transition-colors hover:bg-[#4752C4] sm:flex-none" href="https://discord.gg/fapjXcFYhw" target="_blank" rel="noopener">' + icon('discord', 'size-4') + 'Join the Discord</a>' +
-      '</div></section>';
+    var html = pastNotice('') + '<section class="mb-6 flex flex-wrap items-center gap-4 sm:gap-5 ' + ANIM + '" style="--i:0" aria-label="Guild">' +
+      '<img class="size-16 shrink-0 rounded-xl shadow-lg ring-1 ring-black/5 sm:size-20 dark:ring-white/10" src="assets/img/logo/zenith-160.webp" alt="" decoding="async">' +
+      '<div class="min-w-0 flex-1"><p class="text-xs font-medium uppercase tracking-wide ' + MUTED + '">Sword x Staff guild on ' + esc(m.server || 'an unknown server') + '</p>' +
+      '<h1 class="mt-0.5 text-3xl font-semibold tracking-tight sm:text-4xl">' + esc(m.guild) + '</h1>' +
+      '<p class="mt-1 text-sm ' + MUTED + '">' + esc(m.memberCount + ' members. ' + m.label + ', captured ' + m.capturedDate + '.') + '</p></div>' +
+      deco('hero', 'hidden h-36 w-auto -my-4 mr-2 self-end lg:block') +
+      '</section>';
     html += '<section class="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4" aria-label="Guild summary">' +
       kpi('people', m.memberCount, 'Members', 1, since && (since.joined || since.left) ? since.joined + ' joined, ' + since.left + ' left' : '') +
       kpi('bolt', fmtNum(m.totalPower), 'Total power', 2, since && since.power ? since.power + ' since ' + m.previousLabel : '') +
@@ -721,9 +745,42 @@
       '</section>';
     html += '<div class="mt-4 grid gap-3 sm:gap-4 md:grid-cols-2" id="coming-up"></div>';
 
-    html += '<section class="' + CARD + ' mt-6 ' + ANIM + '" style="--i:5" aria-labelledby="ledger-title">' +
+    var heading = function (id, title, note) {
+      return '<div class="mb-3 mt-8 flex flex-wrap items-baseline justify-between gap-2"><h2 class="text-sm font-semibold" id="' + id + '">' + title + '</h2><p class="text-xs ' + MUTED + '">' + note + '</p></div>';
+    };
+    if (m.prevPlayers) {
+      html += '<section aria-labelledby="movers-title">' + heading('movers-title', 'Movers since ' + esc(m.previousLabel), 'Members who are in both snapshots, ' + m.sinceDays + (m.sinceDays === 1 ? ' day' : ' days') + ' apart.') + moversSection(7) + '</section>';
+      var mvps = mvpSection(10);
+      if (mvps) html += '<section aria-labelledby="mvp-title">' + heading('mvp-title', 'Class MVPs since ' + esc(m.previousLabel), 'Best average placing among classmates for power, upgrade levels, contribution and damage gained.') + mvps + '</section>';
+    }
+    html += '<section aria-labelledby="overview-title">' + heading('overview-title', 'Guild overview', m.prevPlayers ? '' : 'Movers and growth appear once there is an earlier snapshot to compare with.') +
+      (m.prevPlayers ? '<div class="mb-4">' + growthCard(10) + '</div>' : '') +
+      '<div class="grid gap-4 lg:grid-cols-2">' + classCard(11) + concentrationCard(12) +
+      '<div class="empty:hidden" id="guild-readiness">' + (timeline ? guildReadinessCard(timeline, 13) : '') + '</div>' +
+      contributionHealthCard(14) + '</div>' +
+      '<div class="mt-4 grid gap-4 lg:grid-cols-3"><div class="min-w-0 lg:col-span-2">' + recordsCard(14) + '</div>' + fantomonCard(14) + '</div></section>';
+
+    app.innerHTML = html;
+    Array.prototype.forEach.call(app.querySelectorAll('[data-count]'), function (el) {
+      countUp(el, parseFloat(el.getAttribute('data-count')), el.textContent);
+    });
+    animateMeters();
+    loadTimeline().then(function (t) {
+      if (state.meta !== m) return;
+      var box = document.getElementById('coming-up'), ready = document.getElementById('guild-readiness');
+      if (box) box.innerHTML = comingUp(t, 3);
+      if (ready && !ready.innerHTML) ready.innerHTML = guildReadinessCard(t, 13);
+      animateMeters();
+    }).catch(function () {});
+    document.title = m.guild + ' dashboard' + (m.dir === state.latest ? '' : ', ' + m.capturedDate);
+  }
+
+  function renderRankings() {
+    var m = state.meta;
+    var html = pastNotice('rankings');
+    html += '<section class="' + CARD + ' ' + ANIM + '" style="--i:1" aria-labelledby="ledger-title">' +
       '<div class="flex flex-col gap-3 border-b border-zinc-200/70 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5 dark:border-white/10">' +
-      '<div><h2 class="text-base font-semibold" id="ledger-title">Guild rankings</h2>' +
+      '<div><h1 class="text-base font-semibold" id="ledger-title">Guild rankings</h1>' +
       '<p class="text-sm ' + MUTED + '">Click a column to sort. Open a row for the full profile.</p></div>' +
       '<div class="flex gap-2">' +
       '<label class="relative flex-1 sm:w-60 sm:flex-none">' + icon('search', 'pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 ' + MUTED) +
@@ -759,15 +816,6 @@
       location.hash = tr.getAttribute('data-href');
     });
 
-    Array.prototype.forEach.call(app.querySelectorAll('[data-count]'), function (el) {
-      countUp(el, parseFloat(el.getAttribute('data-count')), el.textContent);
-    });
-    animateMeters();
-    bindPicker();
-    loadTimeline().then(function (t) {
-      var box = document.getElementById('coming-up');
-      if (box) box.innerHTML = comingUp(t, 3);
-    }).catch(function () {});
     document.title = m.guild + ' rankings' + (m.dir === state.latest ? '' : ', ' + m.capturedDate);
   }
 
@@ -868,6 +916,266 @@
     });
     body.innerHTML = html;
     document.getElementById('empty').hidden = shown > 0;
+  }
+
+  // ---- rendering: guild overview ----------------------------------------------
+  // Dashboard cards about the guild as a whole. Anything that compares with the
+  // previous snapshot only counts members who are in both.
+
+  function moversCard(i, title, sub, rows) {
+    var body = '<ol class="mt-3 divide-y divide-zinc-200/60 dark:divide-white/5">';
+    rows.forEach(function (r, k) {
+      body += '<li class="flex items-center gap-3 py-2 text-sm"><span class="w-5 shrink-0 text-center text-xs tabular-nums ' + MUTED + '">' + (k + 1) + '</span>' + avatar(r.p) +
+        '<div class="min-w-0 flex-1"><a class="block truncate font-medium hover:underline" href="' + esc(link(r.p.slug)) + '">' + esc(r.p.name) + '</a>' +
+        '<p class="truncate text-xs ' + MUTED + '">' + esc(r.sub) + '</p></div>' +
+        '<span class="shrink-0 text-sm font-semibold tabular-nums text-emerald-600 dark:text-emerald-400">' + esc(r.value) + '</span></li>';
+    });
+    if (!rows.length) body += '<li class="py-3 text-sm ' + MUTED + '">Nobody moved on this one.</li>';
+    return insightCard(i, title, sub, '', body + '</ol>');
+  }
+
+  // Upgrade levels added across the named slot groups since the earlier profile
+  // capture, or null for a member without a capture in both snapshots.
+  function levelsAdded(p, keys) {
+    var was = prevProfile(p);
+    if (!was) return null;
+    var sum = function (arr) { return (arr || []).reduce(function (a, v) { var n = intOf(v); return a + (n == null ? 0 : n); }, 0); };
+    return keys.reduce(function (a, k) { return a + sum(p.profile[k]) - sum(was[k]); }, 0);
+  }
+
+  // One MVP per class: the best average placing among classmates across what
+  // was gained since the previous snapshot. Judging within the class keeps
+  // support classes from being measured against damage dealers.
+  var MVP_METRICS = [
+    ['power', function (p) { return p.growth.power; }, function (v) { return '+' + fmtNum(v) + ' power'; }],
+    ['upgrades', function (p) { return levelsAdded(p, ['gear', 'technique', 'charm']); }, function (v) { return '+' + v + ' upgrade levels'; }],
+    ['contribution', function (p) { return p.totalGain; }, function (v) { return '+' + fmtNum(v) + ' contribution'; }],
+    ['damage', function (p) { return p.dmgGain; }, function (v) { return '+' + fmtNum(v) + ' damage'; }]
+  ];
+
+  function classMvps() {
+    var out = [];
+    state.meta.classes.forEach(function (c) {
+      if (c.key === 'unknown') return;
+      var group = state.players.filter(function (p) { return p.prev && classKey(p) === c.key; });
+      if (group.length < 2) return;
+      var scored = group.map(function (p) { return { p: p, places: [], total: 0, n: 0 }; });
+      MVP_METRICS.forEach(function (mt) {
+        var vals = group.map(mt[1]);
+        scored.forEach(function (s, k) {
+          if (vals[k] == null) { s.places.push(null); return; }
+          // Ties share a place: one more than the number of classmates who did better.
+          var place = 1 + vals.filter(function (v) { return v != null && v > vals[k]; }).length;
+          s.places.push({ place: place, value: vals[k] });
+          s.total += place; s.n++;
+        });
+      });
+      scored = scored.filter(function (s) { return s.n >= 2; }).sort(function (a, b) {
+        return a.total / a.n - b.total / b.n || (b.p.growth.power || 0) - (a.p.growth.power || 0);
+      });
+      if (scored.length) out.push({ cls: c, size: group.length, mvp: scored[0], runnerUp: scored[1] || null });
+    });
+    return out;
+  }
+
+  function mvpSection(i) {
+    var list = classMvps();
+    if (!list.length) return '';
+    var html = '<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">';
+    list.forEach(function (x, k) {
+      var p = x.mvp.p;
+      var body = '<div class="mt-4 flex items-center gap-3">' + avatar(p, 'lg') + '<div class="min-w-0"><a class="block truncate text-lg font-semibold tracking-tight hover:underline" href="' + esc(link(p.slug)) + '">' + esc(p.name) + '</a>' +
+        '<p class="text-xs ' + MUTED + '">Average place ' + (Math.round(10 * x.mvp.total / x.mvp.n) / 10) + ' of ' + x.size + '</p></div></div>' +
+        '<ul class="mt-4 space-y-1.5 text-sm">';
+      MVP_METRICS.forEach(function (mt, j) {
+        var r = x.mvp.places[j];
+        if (!r) return;
+        body += '<li class="flex items-baseline justify-between gap-3"><span class="min-w-0 truncate">' + esc(mt[2](r.value)) + '</span>' +
+          '<span class="shrink-0 text-xs tabular-nums ' + (r.place === 1 ? 'font-semibold text-zinc-900 dark:text-zinc-50' : MUTED) + '">' + ordinal(r.place) + '</span></li>';
+      });
+      body += '</ul>';
+      if (x.runnerUp) body += cardFoot('Runner-up: <a class="font-medium text-zinc-900 hover:underline dark:text-zinc-50" href="' + esc(link(x.runnerUp.p.slug)) + '">' + esc(x.runnerUp.p.name) + '</a>');
+      html += insightCard(i + k, esc(x.cls.label) + ' MVP', 'Among ' + x.size + ' ' + esc(x.cls.label) + 's.', '<img class="size-7 shrink-0 object-contain" src="assets/img/classes/' + x.cls.key + '.png" alt="">', body);
+    });
+    return html + '</div>';
+  }
+
+  function moversSection(i) {
+    var m = state.meta, both = state.players.filter(function (p) { return p.prev; });
+    var top = function (get) { return both.filter(function (p) { return get(p) > 0; }).sort(function (a, b) { return get(b) - get(a); }).slice(0, 5); };
+    var dealt = both.reduce(function (a, p) { return a + (p.dmgGain || 0); }, 0);
+    var added = levelsAdded;
+    var plural = function (n) { return '+' + n + (n === 1 ? ' level' : ' levels'); };
+    return '<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">' +
+      moversCard(i, 'Biggest power gains', 'Most power added.', top(function (p) { return p.growth.power; }).map(function (p) {
+        return { p: p, value: '+' + fmtNum(p.growth.power), sub: p.prev.power + ' to ' + p.power };
+      })) +
+      moversCard(i + 1, 'Biggest climbs', 'Most places gained on power.', top(function (p) { return p.growth.places; }).map(function (p) {
+        return { p: p, value: '+' + p.growth.places + (p.growth.places === 1 ? ' place' : ' places'), sub: ordinal(p.pos.power_n + p.growth.places) + ' to ' + ordinal(p.pos.power_n) };
+      })) +
+      moversCard(i + 2, 'Most damage dealt', 'Conquest damage added.', top(function (p) { return p.dmgGain; }).map(function (p) {
+        return { p: p, value: '+' + fmtNum(p.dmgGain), sub: (dealt > 0 ? Math.round(100 * p.dmgGain / dealt) : 0) + '% of the guild\'s ' + fmtNum(dealt) };
+      })) +
+      moversCard(i + 3, 'Most gear enhanced', 'Enhancement levels added.', top(function (p) { return added(p, ['gear']); }).map(function (p) {
+        return { p: p, value: plural(added(p, ['gear'])), sub: 'average +' + Math.round(p.prev.stat_n.gear) + ' to +' + Math.round(p.stat_n.gear) };
+      })) +
+      moversCard(i + 4, 'Most skills and charms levelled', 'Technique and charm levels added.', top(function (p) { return added(p, ['technique', 'charm']); }).map(function (p) {
+        return { p: p, value: plural(added(p, ['technique', 'charm'])), sub: 'tech +' + added(p, ['technique']) + ', charm +' + added(p, ['charm']) };
+      })) +
+      moversCard(i + 5, 'Most contributed', 'Added to total contribution.', top(function (p) { return p.totalGain; }).map(function (p) {
+        return { p: p, value: '+' + fmtNum(p.totalGain), sub: p.prev.total + ' to ' + p.total };
+      })) + '</div>';
+  }
+
+  function statCell(value, label, note) {
+    return '<div class="rounded-xl border border-zinc-200/70 bg-white/40 p-3 dark:border-white/10 dark:bg-white/5"><p class="text-2xl font-semibold tracking-tight">' + esc(value) + '</p>' +
+      '<p class="text-sm font-medium">' + esc(label) + '</p><p class="text-xs ' + MUTED + '">' + esc(note) + '</p></div>';
+  }
+
+  function growthCard(i) {
+    var m = state.meta, both = state.players.filter(function (p) { return p.prev && p.growth.power != null; });
+    var before = m.prevPlayers.reduce(function (a, p) { return a + (p.power_n || 0); }, 0);
+    var gains = both.map(function (p) { return p.growth.power; });
+    var avgGain = gains.length ? gains.reduce(function (a, b) { return a + b; }, 0) / gains.length : 0;
+    var medNow = median(state.players.map(function (p) { return p.power_n; })), medWas = median(m.prevPlayers.map(function (p) { return p.power_n; }));
+    var dealt = state.players.reduce(function (a, p) { return a + (p.dmgGain || 0); }, 0);
+    var pct = before > 0 ? 100 * (m.totalPower - before) / before : 0;
+    return insightCard(i, 'Guild growth', 'Since ' + esc(m.previousLabel) + ', ' + m.sinceDays + (m.sinceDays === 1 ? ' day' : ' days') + ' earlier.', icon('up', 'mt-1 size-4 ' + MUTED),
+      '<div class="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-4">' +
+      statCell((pct >= 0 ? '+' : '-') + Math.abs(Math.round(pct * 10) / 10) + '%', 'Total power', fmtNum(before) + ' to ' + fmtNum(m.totalPower)) +
+      statCell((avgGain >= 0 ? '+' : '-') + fmtNum(Math.abs(avgGain)), 'Average gain', 'per member, across the ' + both.length + ' in both') +
+      statCell(fmtNum(medNow), 'Median power', 'was ' + fmtNum(medWas) + '; half the guild is above this') +
+      statCell(fmtNum(dealt), 'Damage dealt', 'conquest damage added in the period') +
+      '</div>');
+  }
+
+  // How many members each tier of the current and next dungeon is open to.
+  function guildReadinessCard(t, i) {
+    var m = state.meta, day = m.dir === state.latest ? tlToday(t) : Math.round((dirDate(m.dir) - tlStart(t)) / 86400000) + 1;
+    var cur = null, next = null;
+    tlDungeons(t).forEach(function (d) { if (d.day <= day) cur = d; else if (!next) next = d; });
+    if (!cur) return '';
+    var roster = state.players.filter(function (p) { return p.power_n != null; });
+    function block(d, upcoming) {
+      var html = '<div class="mt-4"><p class="flex flex-wrap items-baseline gap-x-2 text-sm font-semibold">' + esc(d.name) +
+        '<span class="text-xs font-normal ' + MUTED + '">' + (upcoming ? 'opens ' + relDay(d.day - day).toLowerCase() + ', day ' + d.day : 'current dungeon') + '</span></p><div class="mt-2 space-y-2.5">';
+      d.tiers.forEach(function (x) {
+        var r = reqOf(x.req), ready = 0;
+        roster.forEach(function (p) {
+          var lv = p.profile && p.profile.level != null ? p.profile.level : null;
+          if ((r.power == null || p.power_n >= r.power) && (r.level == null || lv == null || lv >= r.level)) ready++;
+        });
+        html += '<div title="' + ready + ' of ' + roster.length + ' members meet ' + esc(x.req || 'no requirement') + '"><div class="flex items-baseline justify-between gap-3 text-sm"><span class="font-medium">' + esc(x.diff) +
+          ' <span class="text-xs font-normal ' + MUTED + '">' + (x.req ? esc(x.req) : 'no requirement') + '</span></span>' +
+          '<span class="tabular-nums"><b class="font-semibold">' + ready + '</b> <span class="text-xs ' + MUTED + '">of ' + roster.length + '</span></span></div>' +
+          '<div class="mt-1">' + meter(roster.length ? ready / roster.length : 0, 'bg-zinc-900 dark:bg-zinc-100') + '</div></div>';
+      });
+      return html + '</div></div>';
+    }
+    var body = block(cur, false) + (next ? block(next, true) : '');
+    return insightCard(i, 'Dungeon readiness', 'Members whose power opens each tier.', icon('shield', 'mt-1 size-4 ' + MUTED), body);
+  }
+
+  function classCard(i) {
+    var m = state.meta, groups = {};
+    state.players.forEach(function (p) { var k = classKey(p); (groups[k] = groups[k] || []).push(p); });
+    var avgOf = function (list, get) { var v = list.map(get).filter(function (x) { return x != null; }); return v.length ? v.reduce(function (a, b) { return a + b; }, 0) / v.length : null; };
+    var body = '<div class="mt-3 overflow-x-auto"><table class="w-full text-sm"><thead class="text-xs ' + MUTED + '"><tr>' +
+      '<th scope="col" class="py-2 text-left font-medium">Class</th><th scope="col" class="px-2 py-2 text-right font-medium">Members</th>' +
+      '<th scope="col" class="px-2 py-2 text-right font-medium">Avg power</th><th scope="col" class="hidden px-2 py-2 text-right font-medium sm:table-cell">Avg gear</th>' +
+      '<th scope="col" class="w-2/5 py-2 pl-2 text-left font-medium">Share of conquest damage</th></tr></thead><tbody class="divide-y divide-zinc-200/60 dark:divide-white/5">';
+    m.classes.forEach(function (c) {
+      var list = groups[c.key] || [], dmg = list.reduce(function (a, p) { return a + (p.dmg_n || 0); }, 0);
+      var share = m.totalDmg > 0 ? dmg / m.totalDmg : 0, gear = avgOf(list, function (p) { return p.stat_n.gear; });
+      body += '<tr><th scope="row" class="py-2.5 text-left font-medium"><span class="inline-flex items-center gap-2">' +
+        (c.key === 'unknown' ? icon('cls-unknown', 'size-4') : '<img class="size-5 object-contain" src="assets/img/classes/' + c.key + '.png" alt="">') + esc(c.label) + '</span></th>' +
+        '<td class="px-2 py-2.5 text-right tabular-nums">' + c.count + '</td>' +
+        '<td class="px-2 py-2.5 text-right tabular-nums">' + esc(fmtNum(avgOf(list, function (p) { return p.power_n; }))) + '</td>' +
+        '<td class="hidden px-2 py-2.5 text-right tabular-nums sm:table-cell">' + (gear != null ? '+' + Math.round(gear) : '-') + '</td>' +
+        '<td class="py-2.5 pl-2" title="' + esc(c.label) + ': ' + esc(fmtNum(dmg)) + ' of ' + esc(fmtNum(m.totalDmg)) + '"><div class="flex items-center gap-2"><div class="min-w-0 flex-1">' + meter(share, 'bg-' + c.key) + '</div>' +
+        '<span class="w-9 shrink-0 text-right text-xs font-semibold tabular-nums">' + Math.round(share * 100) + '%</span></div></td></tr>';
+    });
+    return insightCard(i, 'Class breakdown', 'Who the guild is made of, and who deals the damage.', icon('people', 'mt-1 size-4 ' + MUTED), body + '</tbody></table></div>');
+  }
+
+  // One hue, strongest for the top player, so the split reads as a ranking.
+  var SHARE_STEPS = ['bg-violet-800 dark:bg-violet-300', 'bg-violet-600 dark:bg-violet-400', 'bg-violet-400 dark:bg-violet-600', 'bg-violet-200 dark:bg-violet-800'];
+
+  function concentrationCard(i) {
+    var m = state.meta, list = state.players.filter(function (p) { return p.dmg_n > 0; }).sort(function (a, b) { return b.dmg_n - a.dmg_n; });
+    if (!list.length || !(m.totalDmg > 0)) return '';
+    var sumOf = function (a, b) { return list.slice(a, b).reduce(function (s, p) { return s + p.dmg_n; }, 0); };
+    var parts = [[list[0].name, sumOf(0, 1)], ['2nd to 5th', sumOf(1, 5)], ['6th to 10th', sumOf(5, 10)], ['Everyone else, ' + Math.max(0, list.length - 10) + ' members', sumOf(10)]]
+      .filter(function (x) { return x[1] > 0; });
+    var body = '<p class="mt-4 flex items-baseline gap-2"><span class="text-3xl font-semibold tracking-tight">' + Math.round(100 * sumOf(0, 5) / m.totalDmg) + '%</span>' +
+      '<span class="text-sm ' + MUTED + '">of all conquest damage comes from the top 5</span></p>' +
+      '<div class="mt-4 flex h-3 gap-0.5 overflow-hidden rounded-full" role="img" aria-label="Share of conquest damage by rank group">';
+    parts.forEach(function (x, k) {
+      body += '<i class="block h-full ' + SHARE_STEPS[k] + '" style="width:' + (100 * x[1] / m.totalDmg) + '%" title="' + esc(x[0]) + ': ' + esc(fmtNum(x[1])) + ', ' + Math.round(100 * x[1] / m.totalDmg) + '%"></i>';
+    });
+    body += '</div><ul class="mt-4 space-y-2 text-sm">';
+    parts.forEach(function (x, k) {
+      body += '<li class="flex items-center gap-2"><i class="size-2.5 shrink-0 rounded-sm ' + SHARE_STEPS[k] + '"></i><span class="min-w-0 flex-1 truncate">' + (k === 0 ? '<a class="font-medium hover:underline" href="' + esc(link(list[0].slug)) + '">' + esc(x[0]) + '</a>' : esc(x[0])) + '</span>' +
+        '<span class="tabular-nums ' + MUTED + '">' + esc(fmtNum(x[1])) + '</span><b class="w-10 text-right font-semibold tabular-nums">' + Math.round(100 * x[1] / m.totalDmg) + '%</b></li>';
+    });
+    return insightCard(i, 'Damage concentration', 'How the guild\'s ' + esc(fmtNum(m.totalDmg)) + ' running total splits.', icon('swords', 'mt-1 size-4 ' + MUTED), body + '</ul>');
+  }
+
+  // Counts only: this is a public page, so nobody is named for a low week.
+  function contributionHealthCard(i) {
+    var m = state.meta, roster = state.players.filter(function (p) { return p.rosterOrder != null && p.week_n != null; }), top = m.weekTop;
+    if (!roster.length || !(top > 0)) return '';
+    var bands = [['95% or more of the top', 0.95, 2], ['75 to 95%', 0.75, 0.95], ['50 to 75%', 0.5, 0.75], ['Under 50%', 1e-9, 0.5], ['Nothing yet', -1, 1e-9]].map(function (b) {
+      return { label: b[0], count: roster.filter(function (p) { var r = p.week_n / top; return r >= b[1] && r < b[2]; }).length };
+    });
+    var most = Math.max.apply(null, bands.map(function (b) { return b.count; }));
+    var body = '<p class="mt-4 flex items-baseline gap-2"><span class="text-3xl font-semibold tracking-tight">' + bands[0].count + '</span>' +
+      '<span class="text-sm ' + MUTED + '">of ' + roster.length + ' members are within 5% of this week\'s top, ' + esc(fmtNum(top)) + '</span></p><div class="mt-4 space-y-2.5">';
+    bands.forEach(function (b) {
+      body += '<div class="flex items-center gap-3 text-sm" title="' + b.count + ' members: ' + esc(b.label) + '"><span class="w-40 shrink-0 ' + MUTED + '">' + esc(b.label) + '</span>' +
+        '<div class="min-w-0 flex-1">' + meter(most ? b.count / most : 0, 'bg-zinc-900 dark:bg-zinc-100') + '</div><b class="w-6 shrink-0 text-right font-semibold tabular-nums">' + b.count + '</b></div>';
+    });
+    body += '</div>';
+    var lines = ['Guild median this week is ' + fmtNum(m.weekMedian) + ', ' + Math.round(100 * m.weekMedian / top) + '% of the top.'];
+    if (m.totalGainMedian != null) lines.push('The median member added ' + fmtNum(m.totalGainMedian) + ' to their total since ' + m.previousLabel + '.');
+    return insightCard(i, 'Contribution health', 'Weekly contribution, as a share of the highest in the guild.', icon('gem', 'mt-1 size-4 ' + MUTED), body + cardFoot(lines.map(esc).join('<br>')));
+  }
+
+  function fantomonCard(i) {
+    var counts = {}, total = 0;
+    state.players.forEach(function (p) { var sp = p.profile && fantomonSpecies(p.profile); if (sp) { counts[sp] = (counts[sp] || 0) + 1; total++; } });
+    var list = Object.keys(counts).map(function (k) { return [k, counts[k]]; }).sort(function (a, b) { return b[1] - a[1] || a[0].localeCompare(b[0]); });
+    if (!list.length) return '';
+    var body = '<ul class="mt-3 space-y-2">';
+    list.forEach(function (x) {
+      body += '<li class="flex items-center gap-3 text-sm" title="' + x[1] + ' of ' + total + ' members use ' + esc(x[0]) + '"><img class="size-8 shrink-0 object-contain" src="assets/img/fantomons/' + slugify(x[0]) + '.png" alt="" loading="lazy" decoding="async">' +
+        '<span class="w-24 shrink-0 truncate font-medium">' + esc(x[0]) + '</span><div class="min-w-0 flex-1">' + meter(x[1] / list[0][1], 'bg-zinc-900 dark:bg-zinc-100') + '</div>' +
+        '<b class="w-6 shrink-0 text-right font-semibold tabular-nums">' + x[1] + '</b></li>';
+    });
+    return insightCard(i, 'Fantomon popularity', 'Which companions the guild runs.', icon('fantomon', 'mt-1 size-4 ' + MUTED), body + '</ul>');
+  }
+
+  function recordsCard(i) {
+    var m = state.meta, cols = [['atk', 'Attack'], ['def', 'Defense'], ['hp', 'HP'], ['spd', 'Speed']];
+    var withStats = state.players.filter(function (p) { return p.profile && p.profile.stats; });
+    if (!withStats.length) return '';
+    function row(label, list, emblem) {
+      var html = '<tr><th scope="row" class="py-2.5 pr-3 text-left font-medium"><span class="inline-flex items-center gap-2 whitespace-nowrap">' + emblem + esc(label) + '</span></th>';
+      cols.forEach(function (c) {
+        var best = null;
+        list.forEach(function (p) { if (p.stat_n[c[0]] != null && (!best || p.stat_n[c[0]] > best.stat_n[c[0]])) best = p; });
+        html += '<td class="px-2 py-2.5">' + (best ? '<a class="block truncate font-medium hover:underline" href="' + esc(link(best.slug)) + '">' + esc(best.name) + '</a><span class="text-xs tabular-nums ' + MUTED + '">' + esc(best.profile.stats[c[0]]) + '</span>' : '<span class="' + MUTED + '">-</span>') + '</td>';
+      });
+      return html + '</tr>';
+    }
+    var body = '<div class="mt-3 overflow-x-auto"><table class="w-full min-w-[34rem] table-fixed text-sm"><thead class="text-xs ' + MUTED + '"><tr><th scope="col" class="w-36 py-2 text-left font-medium">Best in</th>';
+    cols.forEach(function (c) { body += '<th scope="col" class="px-2 py-2 text-left font-medium">' + c[1] + '</th>'; });
+    body += '</tr></thead><tbody class="divide-y divide-zinc-200/60 dark:divide-white/5">' + row('Whole guild', withStats, icon('trophy', 'size-4 text-amber-500'));
+    m.classes.forEach(function (c) {
+      if (c.key === 'unknown') return;
+      body += row(c.label, withStats.filter(function (p) { return classKey(p) === c.key; }), '<img class="size-5 object-contain" src="assets/img/classes/' + c.key + '.png" alt="">');
+    });
+    return insightCard(i, 'Record holders', 'The highest combat stats in the guild and in each class.', icon('medal', 'mt-1 size-4 ' + MUTED), body + '</tbody></table></div>');
   }
 
   // ---- rendering: profile insights -------------------------------------------
@@ -1248,13 +1556,12 @@
 
     app.innerHTML = html;
     setDock('<div class="mx-auto flex max-w-6xl items-center gap-2 px-4 py-2 pb-[calc(env(safe-area-inset-bottom,0px)+8px)]">' +
-      '<a class="' + BTN + '" href="' + esc(link('')) + '" aria-label="All rankings">' + icon('back', 'size-4') + '</a>' +
+      '<a class="' + BTN + '" href="' + esc(link('rankings')) + '" aria-label="All rankings">' + icon('back', 'size-4') + '</a>' +
       (prev ? '<a class="' + BTN + ' min-w-0 flex-1 justify-center" href="' + esc(link(prev.slug)) + '">' + icon('back', 'size-4') + '<span class="truncate">' + esc(prev.name) + '</span></a>' : '<span class="' + BTN + ' flex-1 justify-center opacity-40">First</span>') +
       (next ? '<a class="' + BTN + ' min-w-0 flex-1 justify-center" href="' + esc(link(next.slug)) + '"><span class="truncate">' + esc(next.name) + '</span>' + icon('next', 'size-4') + '</a>' : '<span class="' + BTN + ' flex-1 justify-center opacity-40">Last</span>') +
       '</div>');
     animateMeters();
     bindShots();
-    bindPicker();
     if (!timeline) loadTimeline().then(function (t) {
       var box = document.getElementById('readiness');
       if (!box || state.meta !== m || location.hash.indexOf(p.slug) === -1) return;
@@ -1298,13 +1605,11 @@
     return html + '</div>';
   }
 
-  // Back link, the snapshot picker, and on wide screens the neighbours in the
-  // current sort order.
+  // Back link and, on wide screens, the neighbours in the current sort order.
   function topBar(slug, prev, next, i) {
-    return '<div class="relative z-30 mb-4 flex items-center justify-between gap-2 ' + ANIM + '" style="--i:' + i + '">' +
-      '<a class="' + GHOST + ' -ml-3" href="' + esc(link('')) + '">' + icon('back', 'size-4') + 'All rankings</a>' +
-      '<div class="flex gap-2">' + snapPicker(slug) +
-      '<div class="hidden gap-2 sm:flex">' + navBtn(prev, 'back', 'Previous') + navBtn(next, 'next', 'Next') + '</div></div></div>';
+    return '<div class="mb-4 flex items-center justify-between gap-2 ' + ANIM + '" style="--i:' + i + '">' +
+      '<a class="' + GHOST + ' -ml-3" href="' + esc(link('rankings')) + '">' + icon('back', 'size-4') + 'All rankings</a>' +
+      '<div class="hidden gap-2 sm:flex">' + navBtn(prev, 'back', 'Previous') + navBtn(next, 'next', 'Next') + '</div></div>';
   }
 
   function navBtn(target, ic, label) {
@@ -1317,7 +1622,6 @@
     app.innerHTML = pastNotice(slug) + topBar(slug, null, null, 0) +
       '<p class="rounded-xl border border-white/70 bg-white/50 p-4 text-sm backdrop-blur-md ' + MUTED + ' dark:border-white/10 dark:bg-zinc-900/40">No player called "' + esc(slug) + '" in this snapshot. They may have joined later, left the guild or been renamed.</p>';
     setDock('');
-    bindPicker();
     document.title = 'Player not found | ' + state.meta.guild;
   }
 
@@ -1402,7 +1706,7 @@
     var html = '<section class="' + CARD + ' p-5 ' + ANIM + '" style="--i:5" aria-label="Coming up">' +
       '<div class="flex items-center justify-between gap-3"><div><h2 class="text-base font-semibold">Coming up</h2>' +
       '<p class="text-sm ' + MUTED + '">Day ' + today + ' on ' + esc(m_server()) + '. Next unlocks from the server timeline.</p></div>' +
-      '<a class="' + BTN + ' shrink-0" href="#timeline">Full timeline' + icon('next', 'size-4') + '</a></div>' +
+      '<a class="' + BTN + ' shrink-0" href="' + esc(link('timeline')) + '">Full timeline' + icon('next', 'size-4') + '</a></div>' +
       '<ul class="mt-4 divide-y divide-zinc-200/60 dark:divide-white/5">';
     next.forEach(function (e) {
       html += '<li class="flex items-start gap-3 py-2.5 text-sm"><span class="w-20 shrink-0 text-xs ' + MUTED + '"><b class="block font-semibold text-zinc-800 dark:text-zinc-100">' + relDay(e.day - today) + '</b>Day ' + e.day + '</span>' +
@@ -1457,12 +1761,11 @@
   function renderTimeline(t) {
     var today = tlToday(t), list = tlEntries(t), region = tlRegionAt(t, today);
     var i = 0;
-    var html = '<section class="mb-5 flex flex-wrap items-end justify-between gap-4 pt-2 text-white sm:pt-6 ' + ANIM + '" style="--i:' + i++ + '" aria-label="Timeline">' +
-      '<div class="min-w-0"><p class="text-xs font-medium uppercase tracking-wide text-zinc-200 ' + SHADOW + '">' + esc(m_server()) + ' server timeline</p>' +
-      '<h1 class="mt-0.5 text-3xl font-semibold tracking-tight sm:text-4xl ' + SHADOW + '">Day ' + today + '</h1>' +
-      '<p class="mt-1 text-sm text-zinc-200 ' + SHADOW + '">Opened ' + fmtLong(tlStart(t)) + ' ' + tlStart(t).getFullYear() + '. ' + (region ? 'Currently in ' + esc(region.name) + ', day ' + (today - region.day + 1) + ' of the region.' : '') + '</p></div>' +
-      deco('timeline', 'hidden h-44 w-auto -my-10 ml-auto mr-4 self-end drop-shadow-[0_12px_24px_rgba(0,0,0,.45)] lg:block') +
-      '<a class="' + BTN + ' rounded-full" href="' + esc(link('')) + '">' + icon('back', 'size-4') + 'Rankings</a></section>';
+    var html = '<section class="mb-5 flex flex-wrap items-end justify-between gap-4 ' + ANIM + '" style="--i:' + i++ + '" aria-label="Timeline">' +
+      '<div class="min-w-0"><p class="text-xs font-medium uppercase tracking-wide ' + MUTED + '">' + esc(m_server()) + ' server timeline</p>' +
+      '<h1 class="mt-0.5 text-3xl font-semibold tracking-tight sm:text-4xl">Day ' + today + '</h1>' +
+      '<p class="mt-1 text-sm ' + MUTED + '">Opened ' + fmtLong(tlStart(t)) + ' ' + tlStart(t).getFullYear() + '. ' + (region ? 'Currently in ' + esc(region.name) + ', day ' + (today - region.day + 1) + ' of the region.' : '') + '</p></div>' +
+      deco('timeline', 'hidden h-36 w-auto -my-4 mr-4 self-end lg:block') + '</section>';
 
     // Region strip
     html += '<section class="' + CARD + ' mb-4 p-4 ' + ANIM + '" style="--i:' + i++ + '" aria-label="Regions"><div class="flex gap-2 overflow-x-auto pb-1">';
@@ -1544,7 +1847,7 @@
       openSnapshot(dir).then(function (ok) { if (ok) show(slug); }).catch(function (err) {
         if (!state.meta) { fail(err); return; }
         setDock('');
-        app.innerHTML = '<div class="mb-4"><a class="' + GHOST + ' -ml-3" href="#">' + icon('back', 'size-4') + 'Latest rankings</a></div>' +
+        app.innerHTML = '<div class="mb-4"><a class="' + GHOST + ' -ml-3" href="#">' + icon('back', 'size-4') + 'Latest dashboard</a></div>' +
           '<p class="rounded-xl border border-white/70 bg-white/50 p-4 text-sm backdrop-blur-md ' + MUTED + ' dark:border-white/10 dark:bg-zinc-900/40">Could not load the snapshot from ' + esc(fmtDay(dir)) + '. ' + esc(err && err.message) + '</p>';
       });
       return;
@@ -1553,8 +1856,9 @@
   }
 
   function show(slug) {
-    document.getElementById('backdrop').hidden = !(slug === '' || slug === 'timeline');
-    if (!slug) { setDock(''); renderRankings(); window.scrollTo(0, 0); return; }
+    renderNav(slug);
+    if (!slug) { setDock(''); renderDashboard(); window.scrollTo(0, 0); return; }
+    if (slug === 'rankings') { setDock(''); renderRankings(); window.scrollTo(0, 0); return; }
     if (slug === 'timeline') {
       loadTimeline().then(renderTimeline).catch(function (err) { setDock(''); app.innerHTML = '<p class="rounded-xl border border-white/70 bg-white/50 p-4 text-sm backdrop-blur-md ' + MUTED + '">Could not load the timeline. ' + esc(err && err.message) + '</p>'; });
       window.scrollTo(0, 0); return;
