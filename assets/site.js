@@ -1,6 +1,6 @@
 /* Zenith guild tracker. Reads data/snapshots/<date>/{week,profiles}.json and
    renders the rankings dashboard and per-player profiles. No build step.
-   Routes: "#" is the dashboard, "#rankings" the table, "#timeline" the server
+   Routes: "#" is the dashboard, "#rankings" the gains, "#members" the table, "#timeline" the server
    schedule and "#<slug>" one player. They show the latest snapshot; a date in
    front, as in "#<date>/<slug>", shows an earlier one. */
 (function () {
@@ -420,16 +420,18 @@
 
   // Head-and-shoulders crop of the member's character from the capture, then
   // the class emblem. The photo hides itself when a snapshot has no avatars.
-  function avatar(p, size) {
+  var AVATAR_SIZES = { sm: ['size-10', 'size-7', 'size-4'], lg: ['size-16', 'size-11', 'size-7'] };
+
+  function avatar(p, size, ring) {
     var key = classKey(p);
     var label = key === 'unknown' ? 'Class not captured' : p.profile['class'];
-    var lg = size === 'lg';
+    var sz = AVATAR_SIZES[size] || AVATAR_SIZES.sm;
     var url = avatarUrl(p.profile || {});
-    var photo = url ? '<img class="' + (lg ? 'size-16' : 'size-10') + ' shrink-0 rounded-full object-cover shadow-sm ring-2 ring-white dark:ring-zinc-800" src="' + esc(url) + '" alt="" loading="lazy" decoding="async" onerror="this.hidden=true;this.nextSibling.hidden=false">' : '';
+    var photo = url ? '<img class="' + sz[0] + ' shrink-0 rounded-full object-cover shadow-sm ring-2 ' + (ring || 'ring-white dark:ring-zinc-800') + '" src="' + esc(url) + '" alt="" loading="lazy" decoding="async" onerror="this.hidden=true;this.nextSibling.hidden=false">' : '';
     var inner = key === 'unknown'
-      ? icon('cls-unknown', lg ? 'size-7' : 'size-4')
-      : '<img class="' + (lg ? 'size-11' : 'size-7') + ' object-contain" src="assets/img/classes/' + key + '.png" alt="" loading="lazy" decoding="async">';
-    var cls = '<span class="grid ' + (lg ? 'size-16' : 'size-10') + ' shrink-0 place-items-center rounded-full bg-' + key + '/10 text-' + key + ' ring-1 ring-inset ring-' + key + '/20" title="' + esc(label) + '"' + (url ? ' hidden' : '') + '>' + inner + '</span>';
+      ? icon('cls-unknown', sz[2])
+      : '<img class="' + sz[1] + ' object-contain" src="assets/img/classes/' + key + '.png" alt="" loading="lazy" decoding="async">';
+    var cls = '<span class="grid ' + sz[0] + ' shrink-0 place-items-center rounded-full bg-' + key + '/10 text-' + key + ' ring-1 ring-inset ring-' + key + '/20" title="' + esc(label) + '"' + (url ? ' hidden' : '') + '>' + inner + '</span>';
     return photo + cls;
   }
 
@@ -550,24 +552,22 @@
 
   // ---- top bar ---------------------------------------------------------------
   // Fixed tabs for the main views plus the snapshot picker. A player profile
-  // counts as part of Rankings.
+  // counts as part of Members.
 
-  var TABS = [['', 'Dashboard', 'grid'], ['rankings', 'Rankings', 'trophy'], ['timeline', 'Timeline', 'clock']];
+  var TABS = [['', 'Dashboard', 'grid'], ['rankings', 'Rankings', 'trophy'], ['members', 'Members', 'people'], ['timeline', 'Timeline', 'clock']];
 
   function renderNav(slug) {
-    var active = slug === '' || slug === 'timeline' ? slug : 'rankings';
+    var active = slug === '' || slug === 'timeline' || slug === 'rankings' ? slug : 'members';
     var html = '<div class="mx-auto flex max-w-6xl flex-wrap items-center gap-x-4 px-4 sm:px-6 lg:flex-nowrap">' +
-      '<a class="flex h-12 shrink-0 items-center gap-2 lg:h-14" href="' + esc(link('')) + '" aria-label="' + esc(state.meta.guild) + ' dashboard"><img class="size-7 rounded-md" src="assets/img/logo/zenith-64.webp" alt="">' +
-      '<span class="hidden font-semibold tracking-tight sm:inline">' + esc(state.meta.guild) + '</span></a>' +
       '<nav class="order-last flex basis-full gap-1 pb-2 lg:order-none lg:basis-auto lg:pb-0" aria-label="Sections">';
     TABS.forEach(function (t) {
       var on = t[0] === active;
-      html += '<a class="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg px-3 text-sm font-medium transition-colors lg:flex-none ' +
+      html += '<a class="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg px-2 text-sm font-medium transition-colors sm:px-3 lg:flex-none ' +
         (on ? 'bg-zinc-900 text-white dark:bg-zinc-50 dark:text-zinc-900' : 'text-zinc-600 hover:bg-zinc-900/5 dark:text-zinc-300 dark:hover:bg-white/10') +
-        '" href="' + esc(link(t[0])) + '"' + (on ? ' aria-current="page"' : '') + '>' + icon(t[2], 'size-4') + t[1] + '</a>';
+        '" href="' + esc(link(t[0])) + '"' + (on ? ' aria-current="page"' : '') + '>' + icon(t[2], 'hidden size-4 sm:block') + t[1] + '</a>';
     });
-    html += '</nav><div class="ml-auto flex items-center gap-2">' + (slug === 'timeline' ? '' : snapPicker(slug)) +
-      '<a class="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-lg bg-[#5865F2] px-3 text-sm font-semibold text-white shadow-md transition-colors hover:bg-[#4752C4]" href="https://discord.gg/fapjXcFYhw" target="_blank" rel="noopener" aria-label="Join the Discord">' +
+    html += '</nav><div class="flex h-12 w-full items-center gap-2 lg:ml-auto lg:h-14 lg:w-auto">' + (slug === 'timeline' ? '' : snapPicker(slug)) +
+      '<a class="ml-auto inline-flex h-9 shrink-0 items-center gap-1.5 rounded-lg bg-[#5865F2] px-3 text-sm font-semibold text-white shadow-md transition-colors hover:bg-[#4752C4]" href="https://discord.gg/fapjXcFYhw" target="_blank" rel="noopener" aria-label="Join the Discord">' +
       icon('discord', 'size-4') + '<span class="sm:hidden">Join</span><span class="hidden sm:inline">Join the Discord</span></a></div></div>';
     topbar.innerHTML = html;
     bindPicker();
@@ -681,6 +681,29 @@
   }
 
   // ---- rendering: rankings --------------------------------------------------
+  // Who did well between the previous snapshot and this one.
+
+  function renderRankings() {
+    var m = state.meta;
+    var heading = function (id, title, note, first) {
+      return '<div class="mb-3 ' + (first ? 'mt-6' : 'mt-10') + ' flex flex-wrap items-baseline justify-between gap-2"><h2 class="text-lg font-semibold tracking-tight" id="' + id + '">' + title + '</h2><p class="text-xs ' + MUTED + '">' + note + '</p></div>';
+    };
+    var html = pastNotice('rankings') + '<section class="' + ANIM + '" style="--i:0" aria-label="Rankings">' +
+      '<p class="text-xs font-medium uppercase tracking-wide ' + MUTED + '">' + esc(m.guild) + ', ' + esc(m.label) + '</p>' +
+      '<h1 class="mt-0.5 text-3xl font-semibold tracking-tight sm:text-4xl">Rankings</h1>' +
+      '<p class="mt-1 text-sm ' + MUTED + '">' + 'Who did well in the past week.' + '</p></section>';
+    if (m.prevPlayers) {
+      var mvps = mvpSection(1);
+      html += (mvps ? '<section aria-labelledby="mvp-title">' + heading('mvp-title', 'Class MVPs', 'The best all-rounder in each class: average rank among classmates for power, enhancement levels, contribution and Conquest damage gained.', true) + mvps + '</section>' : '') +
+        '<section aria-labelledby="movers-title">' + heading('movers-title', 'Top gains', 'Who grew the most.', !mvps) + moversSection(5) + '</section>';
+    } else {
+      html += '<p class="mt-6 rounded-xl border border-white/70 bg-white/50 p-4 text-sm backdrop-blur-md ' + MUTED + ' dark:border-white/10 dark:bg-zinc-900/40">Rankings compare two snapshots, and ' + esc(m.label) + ' is the earliest one. Pick a later snapshot to see who gained the most. For the full roster, open <a class="font-medium text-zinc-900 underline underline-offset-2 dark:text-zinc-50" href="' + esc(link('members')) + '">Members</a>.</p>';
+    }
+    app.innerHTML = html;
+    document.title = m.guild + ' rankings' + (m.dir === state.latest ? '' : ', ' + m.capturedDate);
+  }
+
+  // ---- rendering: members ---------------------------------------------------
 
   var sorts = [
     { key: 'power_n', label: 'Power', type: 'num' },
@@ -732,32 +755,29 @@
     var m = state.meta, since = m.since;
     var html = pastNotice('') + '<section class="mb-6 flex flex-wrap items-center gap-4 sm:gap-5 ' + ANIM + '" style="--i:0" aria-label="Guild">' +
       '<img class="size-16 shrink-0 rounded-xl shadow-lg ring-1 ring-black/5 sm:size-20 dark:ring-white/10" src="assets/img/logo/zenith-160.webp" alt="" decoding="async">' +
-      '<div class="min-w-0 flex-1"><p class="text-xs font-medium uppercase tracking-wide ' + MUTED + '">Sword x Staff guild on ' + esc(m.server || 'an unknown server') + '</p>' +
-      '<h1 class="mt-0.5 text-3xl font-semibold tracking-tight sm:text-4xl">' + esc(m.guild) + '</h1>' +
-      '<p class="mt-1 text-sm ' + MUTED + '">' + esc(m.memberCount + ' members. ' + m.label + ', captured ' + m.capturedDate + '.') + '</p></div>' +
+      '<div class="min-w-0 flex-1"><h1 class="text-3xl font-semibold tracking-tight sm:text-4xl">' + esc(m.guild) + '</h1>' +
+      (m.server ? '<p class="mt-0.5 text-sm ' + MUTED + '">' + esc(m.server) + '</p>' : '') + '</div>' +
       deco('hero', 'hidden h-36 w-auto -my-4 mr-2 self-end lg:block') +
       '</section>';
-    html += '<section class="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4" aria-label="Guild summary">' +
+    // What is happening now, then how the guild is built. Who did well since
+    // the last snapshot has its own tab, Rankings.
+    var group = function (id, title, note, first) {
+      return '<div class="mb-3 ' + (first ? 'mt-2' : 'mt-12') + ' flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1"><h2 class="text-lg font-semibold tracking-tight" id="' + id + '">' + title + '</h2><p class="text-xs ' + MUTED + '">' + note + '</p></div>';
+    };
+    html += '<section aria-labelledby="now-title">' + group('now-title', 'What\'s happening now', 'Where the guild stands, what is open and what is coming.', true) +
+      '<div class="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">' +
       kpi('people', m.memberCount, 'Members', 1, since && (since.joined || since.left) ? since.joined + ' joined, ' + since.left + ' left' : '') +
       kpi('bolt', fmtNum(m.totalPower), 'Total power', 2, since && since.power ? since.power + ' since ' + m.previousLabel : '') +
       kpi('gem', fmtNum(m.totalWeek), 'Weekly contribution', 3) +
       kpi('swords', fmtNum(m.totalDmg), 'Conquest damage', 4, since && since.dmg ? since.dmg + ' since ' + m.previousLabel : '') +
-      '</section>';
-    html += '<div class="mt-4 grid gap-3 sm:gap-4 md:grid-cols-2" id="coming-up"></div>';
+      '</div>' +
+      '<div class="mt-4 grid gap-3 sm:gap-4 md:grid-cols-2" id="coming-up"></div>' +
+      '<div class="mt-4 grid gap-4 lg:grid-cols-2"><div class="empty:hidden" id="guild-readiness">' + (timeline ? guildReadinessCard(timeline, 7) : '') + '</div>' +
+      contributionHealthCard(8) + '</div></section>';
 
-    var heading = function (id, title, note) {
-      return '<div class="mb-3 mt-8 flex flex-wrap items-baseline justify-between gap-2"><h2 class="text-sm font-semibold" id="' + id + '">' + title + '</h2><p class="text-xs ' + MUTED + '">' + note + '</p></div>';
-    };
-    if (m.prevPlayers) {
-      html += '<section aria-labelledby="movers-title">' + heading('movers-title', 'Top gains since ' + esc(m.previousLabel), 'Who grew the most. Members who are in both snapshots, ' + m.sinceDays + (m.sinceDays === 1 ? ' day' : ' days') + ' apart.') + moversSection(7) + '</section>';
-      var mvps = mvpSection(10);
-      if (mvps) html += '<section aria-labelledby="mvp-title">' + heading('mvp-title', 'Class MVPs since ' + esc(m.previousLabel), 'The best all-rounder in each class: average rank among classmates for power, upgrade levels, contribution and Conquest damage gained.') + mvps + '</section>';
-    }
-    html += '<section aria-labelledby="overview-title">' + heading('overview-title', 'Guild stats', m.prevPlayers ? 'How the guild is built and where it stands.' : 'Top gains and growth appear once there is an earlier snapshot to compare with.') +
-      (m.prevPlayers ? '<div class="mb-4">' + growthCard(10) + '</div>' : '') +
-      '<div class="grid gap-4 lg:grid-cols-2">' + classCard(11) + concentrationCard(12) +
-      '<div class="empty:hidden" id="guild-readiness">' + (timeline ? guildReadinessCard(timeline, 13) : '') + '</div>' +
-      contributionHealthCard(14) + '</div>' +
+    html += '<section aria-labelledby="overview-title">' + group('overview-title', 'How the guild is built', m.prevPlayers ? 'Growth, classes, records and companions.' : 'Growth appears once there is an earlier snapshot to compare with.') +
+      (m.prevPlayers ? '<div class="mb-4">' + growthCard(9) + '</div>' : '') +
+      '<div class="grid gap-4 lg:grid-cols-2">' + classCard(14) + concentrationCard(14) + '</div>' +
       '<div class="mt-4 grid gap-4 lg:grid-cols-3"><div class="min-w-0 lg:col-span-2">' + recordsCard(14) + '</div>' + fantomonCard(14) + '</div></section>';
 
     app.innerHTML = html;
@@ -765,22 +785,28 @@
       countUp(el, parseFloat(el.getAttribute('data-count')), el.textContent);
     });
     animateMeters();
+    loadTrend(m.dir).then(function (rows) {
+      var box = document.getElementById('guild-trends');
+      if (state.meta !== m || !box) return;
+      box.innerHTML = trendsBlock(rows);
+      bindTrends(box);
+    }).catch(function () {});
     loadTimeline().then(function (t) {
       if (state.meta !== m) return;
       var box = document.getElementById('coming-up'), ready = document.getElementById('guild-readiness');
       if (box) box.innerHTML = comingUp(t, 3);
-      if (ready && !ready.innerHTML) ready.innerHTML = guildReadinessCard(t, 13);
+      if (ready && !ready.innerHTML) ready.innerHTML = guildReadinessCard(t, 7);
       animateMeters();
     }).catch(function () {});
     document.title = m.guild + ' dashboard' + (m.dir === state.latest ? '' : ', ' + m.capturedDate);
   }
 
-  function renderRankings() {
+  function renderMembers() {
     var m = state.meta;
-    var html = pastNotice('rankings');
+    var html = pastNotice('members');
     html += '<section class="' + CARD + ' ' + ANIM + '" style="--i:1" aria-labelledby="ledger-title">' +
       '<div class="flex flex-col gap-3 border-b border-zinc-200/70 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5 dark:border-white/10">' +
-      '<div><h1 class="text-base font-semibold" id="ledger-title">Guild rankings</h1>' +
+      '<div><h1 class="text-base font-semibold" id="ledger-title">Guild members</h1>' +
       '<p class="text-sm ' + MUTED + '">Click a column to sort. Open a row for the full profile.</p></div>' +
       '<div class="flex gap-2">' +
       '<label class="relative flex-1 sm:w-60 sm:flex-none">' + icon('search', 'pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 ' + MUTED) +
@@ -816,7 +842,7 @@
       location.hash = tr.getAttribute('data-href');
     });
 
-    document.title = m.guild + ' rankings' + (m.dir === state.latest ? '' : ', ' + m.capturedDate);
+    document.title = m.guild + ' members' + (m.dir === state.latest ? '' : ', ' + m.capturedDate);
   }
 
   function renderFilter() {
@@ -922,13 +948,28 @@
   // Dashboard cards about the guild as a whole. Anything that compares with the
   // previous snapshot only counts members who are in both.
 
+  // Podium rows share one size; only the row tint, medal and avatar ring differ.
+  var PODIUM = [
+    { row: 'bg-gradient-to-r from-amber-300/50 via-amber-200/25 to-transparent ring-1 ring-inset ring-amber-400/50 shadow-[0_0_28px_-10px] shadow-amber-400/60 dark:from-amber-400/25 dark:via-amber-400/10 dark:ring-amber-400/40',
+      medal: 'size-6 bg-gradient-to-br from-amber-300 to-amber-500 text-amber-950 shadow shadow-amber-500/40', ring: 'ring-amber-400' },
+    { row: 'bg-gradient-to-r from-zinc-300/60 via-zinc-200/30 to-transparent ring-1 ring-inset ring-zinc-400/50 dark:from-zinc-300/20 dark:via-zinc-300/10 dark:ring-zinc-300/30',
+      medal: 'size-6 bg-gradient-to-br from-zinc-200 to-zinc-400 text-zinc-900', ring: 'ring-zinc-300 dark:ring-zinc-400' },
+    { row: 'bg-gradient-to-r from-orange-300/45 via-orange-200/20 to-transparent ring-1 ring-inset ring-orange-400/40 dark:from-orange-500/20 dark:via-orange-500/10 dark:ring-orange-400/30',
+      medal: 'size-6 bg-gradient-to-br from-orange-300 to-orange-600 text-orange-950', ring: 'ring-orange-400 dark:ring-orange-500' }
+  ];
+
   function moversCard(i, title, sub, rows) {
-    var body = '<ol class="mt-3 divide-y divide-zinc-200/60 dark:divide-white/5">';
+    var body = '<ol class="mt-3 space-y-1.5">';
     rows.forEach(function (r, k) {
-      body += '<li class="flex items-center gap-3 py-2 text-sm"><span class="w-5 shrink-0 text-center text-xs tabular-nums ' + MUTED + '">' + (k + 1) + '</span>' + avatar(r.p) +
-        '<div class="min-w-0 flex-1"><a class="block truncate font-medium hover:underline" href="' + esc(link(r.p.slug)) + '">' + esc(r.p.name) + '</a>' +
+      var pod = PODIUM[k];
+      body += '<li class="flex items-center gap-3 rounded-xl px-3 text-sm ' + (pod ? 'py-2 ' + pod.row : 'py-1.5') + '">' +
+        (pod ? '<span class="grid w-7 shrink-0 place-items-center"><span class="grid place-items-center rounded-full text-xs font-bold tabular-nums ' + pod.medal + '">' + (k + 1) + '</span></span>'
+          : '<span class="w-7 shrink-0 text-center text-xs tabular-nums ' + MUTED + '">' + (k + 1) + '</span>') +
+        avatar(r.p, 'sm', pod ? pod.ring : '') +
+        '<div class="min-w-0 flex-1"><a class="block truncate hover:underline ' + (pod ? 'font-semibold' : 'font-medium') + '" href="' + esc(link(r.p.slug)) + '">' + esc(r.p.name) + '</a>' +
         '<p class="truncate text-xs ' + MUTED + '">' + esc(r.sub) + '</p></div>' +
-        '<span class="shrink-0 text-sm font-semibold tabular-nums text-emerald-600 dark:text-emerald-400">' + esc(r.value) + '</span></li>';
+        '<div class="shrink-0 text-right"><p class="font-semibold leading-tight tabular-nums text-emerald-600 dark:text-emerald-400 ' + (pod ? 'text-[15px]' : 'text-sm') + '">' + esc(r.value) + '</p>' +
+        (r.unit ? '<p class="text-[11px] leading-tight ' + MUTED + '">' + esc(r.unit) + '</p>' : '') + '</div></li>';
     });
     if (!rows.length) body += '<li class="py-3 text-sm ' + MUTED + '">Nobody moved on this one.</li>';
     return insightCard(i, title, sub, '', body + '</ol>');
@@ -948,7 +989,7 @@
   // support classes from being measured against damage dealers.
   var MVP_METRICS = [
     ['power', function (p) { return p.growth.power; }, function (v) { return '+' + fmtNum(v) + ' power'; }],
-    ['upgrades', function (p) { return levelsAdded(p, ['gear', 'technique', 'charm']); }, function (v) { return '+' + v + ' upgrade levels'; }],
+    ['upgrades', function (p) { return levelsAdded(p, ['gear', 'technique', 'charm']); }, function (v) { return '+' + v + ' enhancements'; }],
     ['contribution', function (p) { return p.totalGain; }, function (v) { return '+' + fmtNum(v) + ' contribution'; }],
     ['damage', function (p) { return p.dmgGain; }, function (v) { return '+' + fmtNum(v) + ' damage'; }]
   ];
@@ -1005,24 +1046,24 @@
     var top = function (get) { return both.filter(function (p) { return get(p) > 0; }).sort(function (a, b) { return get(b) - get(a); }).slice(0, 5); };
     var dealt = both.reduce(function (a, p) { return a + (p.dmgGain || 0); }, 0);
     var added = levelsAdded;
-    var plural = function (n) { return '+' + n + (n === 1 ? ' level' : ' levels'); };
+    var levels = function (n) { return n === 1 ? 'level' : 'levels'; };
     return '<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">' +
       moversCard(i, 'Biggest power gains', 'Most power added.', top(function (p) { return p.growth.power; }).map(function (p) {
         return { p: p, value: '+' + fmtNum(p.growth.power), sub: p.prev.power + ' to ' + p.power };
       })) +
       moversCard(i + 1, 'Biggest climbs', 'Most places gained on power.', top(function (p) { return p.growth.places; }).map(function (p) {
-        return { p: p, value: '+' + p.growth.places + (p.growth.places === 1 ? ' place' : ' places'), sub: ordinal(p.pos.power_n + p.growth.places) + ' to ' + ordinal(p.pos.power_n) };
+        return { p: p, value: '+' + p.growth.places, unit: p.growth.places === 1 ? 'place' : 'places', sub: ordinal(p.pos.power_n + p.growth.places) + ' to ' + ordinal(p.pos.power_n) };
       })) +
-      moversCard(i + 2, 'Most Conquest damage', 'Damage dealt in the period.', top(function (p) { return p.dmgGain; }).map(function (p) {
-        return { p: p, value: '+' + fmtNum(p.dmgGain), sub: (dealt > 0 ? Math.round(100 * p.dmgGain / dealt) : 0) + '% of the guild\'s ' + fmtNum(dealt) };
+      moversCard(i + 2, 'Most Conquest damage', 'Share of the ' + fmtNum(dealt) + ' the guild dealt in the period.', top(function (p) { return p.dmgGain; }).map(function (p) {
+        return { p: p, value: '+' + fmtNum(p.dmgGain), sub: (dealt > 0 ? Math.round(100 * p.dmgGain / dealt) : 0) + '% of the total' };
       })) +
-      moversCard(i + 3, 'Most equipment enhanced', 'Enhancement levels added.', top(function (p) { return added(p, ['gear']); }).map(function (p) {
-        return { p: p, value: plural(added(p, ['gear'])), sub: 'average +' + Math.round(p.prev.stat_n.gear) + ' to +' + Math.round(p.stat_n.gear) };
+      moversCard(i + 3, 'Most equipment enhanced', 'Enhancement levels added to equipment.', top(function (p) { return added(p, ['gear']); }).map(function (p) {
+        return { p: p, value: '+' + added(p, ['gear']), unit: levels(added(p, ['gear'])), sub: 'avg +' + Math.round(p.prev.stat_n.gear) + ' to +' + Math.round(p.stat_n.gear) };
       })) +
-      moversCard(i + 4, 'Most technique and charm levels', 'Levels added across both.', top(function (p) { return added(p, ['technique', 'charm']); }).map(function (p) {
-        return { p: p, value: plural(added(p, ['technique', 'charm'])), sub: 'tech +' + added(p, ['technique']) + ', charm +' + added(p, ['charm']) };
+      moversCard(i + 4, 'Most skills enhanced', 'Enhancement levels added to techniques and charms.', top(function (p) { return added(p, ['technique', 'charm']); }).map(function (p) {
+        return { p: p, value: '+' + added(p, ['technique', 'charm']), unit: levels(added(p, ['technique', 'charm'])), sub: 'tech +' + added(p, ['technique']) + ', charm +' + added(p, ['charm']) };
       })) +
-      moversCard(i + 5, 'Most contributed', 'Added to total contribution.', top(function (p) { return p.totalGain; }).map(function (p) {
+      moversCard(i + 5, 'Most donated', 'Contribution donated to the guild in the period.', top(function (p) { return p.totalGain; }).map(function (p) {
         return { p: p, value: '+' + fmtNum(p.totalGain), sub: p.prev.total + ' to ' + p.total };
       })) + '</div>';
   }
@@ -1042,14 +1083,119 @@
     var pct = before > 0 ? 100 * (m.totalPower - before) / before : 0;
     return insightCard(i, 'Guild growth', 'Since ' + esc(m.previousLabel) + ', ' + m.sinceDays + (m.sinceDays === 1 ? ' day' : ' days') + ' earlier.', icon('up', 'mt-1 size-4 ' + MUTED),
       '<div class="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-4">' +
-      statCell((pct >= 0 ? '+' : '-') + Math.abs(Math.round(pct * 10) / 10) + '%', 'Total power', fmtNum(before) + ' to ' + fmtNum(m.totalPower)) +
-      statCell((avgGain >= 0 ? '+' : '-') + fmtNum(Math.abs(avgGain)), 'Average gain', 'per member, across the ' + both.length + ' in both') +
-      statCell(fmtNum(medNow), 'Typical member\'s power', 'the middle of the guild; was ' + fmtNum(medWas)) +
-      statCell(fmtNum(dealt), 'Conquest damage', 'dealt by the guild in the period') +
-      '</div>');
+      statCell((pct >= 0 ? '+' : '-') + Math.abs(Math.round(pct * 10) / 10) + '%', 'Total power growth', fmtNum(before) + ' to ' + fmtNum(m.totalPower)) +
+      statCell((avgGain >= 0 ? '+' : '-') + fmtNum(Math.abs(avgGain)), 'Average power gain', 'per member, across the ' + both.length + ' members in both snapshots') +
+      statCell(fmtNum(medNow), 'Midpoint power', 'half the guild is above this; was ' + fmtNum(medWas)) +
+      statCell(fmtNum(dealt), 'Conquest damage', 'dealt by the guild since ' + m.previousLabel) +
+      '</div><div class="empty:hidden" id="guild-trends"></div>');
   }
 
-  // How many members each tier of the current and next dungeon is open to.
+  // ---- trends across snapshots -------------------------------------------------
+  // Guild totals from every snapshot up to the one on screen. Only week.json is
+  // needed, so the profile files of older snapshots are never fetched for this.
+
+  var weekCache = {};
+  function loadWeek(dir) {
+    if (rawCache[dir]) return rawCache[dir].then(function (r) { return r.week; });
+    if (!weekCache[dir]) {
+      weekCache[dir] = fetchJSON('data/snapshots/' + dir + '/week.json');
+      weekCache[dir].catch(function () { delete weekCache[dir]; });
+    }
+    return weekCache[dir];
+  }
+
+  function loadTrend(upTo) {
+    var dirs = state.dirs.filter(function (d) { return d <= upTo; });
+    return Promise.all(dirs.map(function (d) { return loadWeek(d).catch(function () { return null; }); })).then(function (weeks) {
+      return weeks.map(function (w, k) {
+        if (!w) return null;
+        var powers = (w.roster || []).map(function (r) { return parseNum(r.power); }).filter(function (v) { return v != null; });
+        var power = powers.reduce(function (a, b) { return a + b; }, 0);
+        var dmg = (w.conquest || []).reduce(function (a, r) { return a + (parseNum(r.dmg) || 0); }, 0);
+        return { dir: dirs[k], t: dirDate(dirs[k]).getTime(), power: power, avg: powers.length ? power / powers.length : null, dmg: dmg };
+      }).filter(Boolean);
+    });
+  }
+
+  var TREND_LINE = 'stroke-violet-600 dark:stroke-violet-500', TREND_DOT = 'bg-violet-600 dark:bg-violet-500';
+
+  // One line per chart: the plot is an SVG stretched to the box, so the dots and
+  // labels are HTML placed by percentage and keep their size at any width.
+  function trendChart(title, note, pts) {
+    pts = pts.filter(function (p) { return p.v != null; });
+    if (pts.length < 2) return '';
+    var t0 = pts[0].t, t1 = pts[pts.length - 1].t, vals = pts.map(function (p) { return p.v; });
+    var lo = Math.min.apply(null, vals), hi = Math.max.apply(null, vals), pad = (hi - lo) * 0.2 || Math.abs(hi) * 0.1 || 1;
+    lo -= pad; hi += pad;
+    pts.forEach(function (p) { p.x = t1 > t0 ? 100 * (p.t - t0) / (t1 - t0) : 50; p.y = 100 - 100 * (p.v - lo) / (hi - lo); });
+    var first = pts[0], last = pts[pts.length - 1], change = last.v - first.v;
+    // At most four dates along the bottom, always the first and the last.
+    var step = Math.ceil((pts.length - 1) / 3), ticks = pts.filter(function (p, k) { return k === pts.length - 1 || (k % step === 0 && pts.length - 1 - k >= step / 2); });
+    var shortDay = function (p) { return dirDate(p.dir).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }); };
+    var edge = function (p) { return p === first ? 'left-0' : p === last ? 'right-0' : '-translate-x-1/2'; };
+    var pos = function (p) { return p === first || p === last ? '' : 'left:' + p.x + '%'; };
+
+    var html = '<figure class="m-0 min-w-0"><figcaption><p class="text-sm font-medium">' + esc(title) + '</p>' +
+      '<p class="mt-0.5 flex flex-wrap items-baseline gap-x-2"><span class="text-xl font-semibold tracking-tight tabular-nums">' + esc(fmtNum(last.v)) + '</span>' +
+      '<span class="text-xs ' + MUTED + '">' + esc((change >= 0 ? '+' : '-') + fmtNum(Math.abs(change)) + ' since ' + shortDay(first)) + (note ? ', ' + esc(note) : '') + '</span></p></figcaption>' +
+      '<div class="mx-1.5 mt-5"><div class="relative h-24 touch-pan-y" data-trend role="img" aria-label="' + esc(title + ' from ' + fmtDay(first.dir) + ' to ' + fmtDay(last.dir) + ': ' + fmtNum(first.v) + ' to ' + fmtNum(last.v)) + '">' +
+      '<svg class="absolute inset-0 h-full w-full overflow-visible" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">' +
+      '<line x1="0" x2="100" y1="100" y2="100" vector-effect="non-scaling-stroke" stroke-width="1" class="stroke-zinc-200 dark:stroke-white/10"/>' +
+      '<polyline fill="none" vector-effect="non-scaling-stroke" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" class="' + TREND_LINE + '" points="' + pts.map(function (p) { return p.x.toFixed(2) + ',' + p.y.toFixed(2); }).join(' ') + '"/></svg>' +
+      '<span class="pointer-events-none absolute inset-y-0 w-px bg-zinc-400/70 dark:bg-white/30" data-cross hidden></span>';
+    pts.forEach(function (p) {
+      html += '<span class="pointer-events-none absolute size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full ring-2 ring-white dark:ring-zinc-900 ' + TREND_DOT + '" style="left:' + p.x + '%;top:' + p.y + '%" data-pt data-x="' + p.x + '" data-y="' + p.y + '" data-day="' + esc(fmtDay(p.dir)) + '" data-val="' + esc(fmtNum(p.v)) + '"></span>';
+    });
+    [first, last].forEach(function (p) {
+      html += '<span class="pointer-events-none absolute text-[11px] font-medium tabular-nums ' + MUTED + ' ' + (p === first ? 'left-0' : 'right-0') + '" style="top:' + p.y + '%;transform:translateY(' + (p.y < 30 ? '8px' : 'calc(-100% - 8px)') + ')" data-end>' + esc(fmtNum(p.v)) + '</span>';
+    });
+    html += '<div class="pointer-events-none absolute z-10 whitespace-nowrap rounded-md border border-zinc-200 bg-white px-2 py-1 text-xs shadow-lg dark:border-white/10 dark:bg-zinc-800" data-tip hidden><b class="font-semibold tabular-nums"></b> <span class="' + MUTED + '"></span></div>' +
+      '</div><div class="relative mt-1.5 h-4 text-[11px] ' + MUTED + '">';
+    ticks.forEach(function (p) { html += '<span class="absolute ' + edge(p) + '" style="' + pos(p) + '">' + esc(shortDay(p)) + '</span>'; });
+    html += '</div></div><table class="sr-only"><caption>' + esc(title) + ' by snapshot</caption><tbody>';
+    pts.forEach(function (p) { html += '<tr><th scope="row">' + esc(fmtDay(p.dir)) + '</th><td>' + esc(fmtNum(p.v)) + '</td></tr>'; });
+    return html + '</tbody></table></figure>';
+  }
+
+  function trendsBlock(rows) {
+    var charts = trendChart('Total power', '', rows.map(function (r) { return { dir: r.dir, t: r.t, v: r.power }; })) +
+      trendChart('Average power per member', '', rows.map(function (r) { return { dir: r.dir, t: r.t, v: r.avg }; })) +
+      trendChart('Conquest damage', 'running total', rows.map(function (r) { return { dir: r.dir, t: r.t, v: r.dmg }; }));
+    if (!charts) return '';
+    return '<div class="mt-5 border-t border-zinc-200/70 pt-4 dark:border-white/10"><p class="text-xs ' + MUTED + '">Trend across ' + rows.length + ' snapshots. Hover or tap a chart for each date.</p>' +
+      '<div class="mt-3 grid gap-x-8 gap-y-6 md:grid-cols-3">' + charts + '</div></div>';
+  }
+
+  // The pointer only has to be nearest a date, never on the line itself.
+  function bindTrends(root) {
+    Array.prototype.forEach.call(root.querySelectorAll('[data-trend]'), function (box) {
+      var pts = Array.prototype.slice.call(box.querySelectorAll('[data-pt]')), cross = box.querySelector('[data-cross]'), tip = box.querySelector('[data-tip]');
+      var ends = box.querySelectorAll('[data-end]');
+      function show(ev) {
+        var r = box.getBoundingClientRect(), x = 100 * (ev.clientX - r.left) / r.width, best = pts[0];
+        pts.forEach(function (p) { if (Math.abs(p.getAttribute('data-x') - x) < Math.abs(best.getAttribute('data-x') - x)) best = p; });
+        var px = parseFloat(best.getAttribute('data-x')), py = parseFloat(best.getAttribute('data-y'));
+        cross.hidden = false; cross.style.left = px + '%';
+        tip.hidden = false;
+        tip.firstChild.textContent = best.getAttribute('data-val');
+        tip.lastChild.textContent = best.getAttribute('data-day');
+        tip.style.left = px < 25 ? '0' : px > 75 ? 'auto' : px + '%';
+        tip.style.right = px > 75 ? '0' : 'auto';
+        tip.style.top = py + '%';
+        tip.style.transform = (px >= 25 && px <= 75 ? 'translateX(-50%) ' : '') + 'translateY(' + (py < 45 ? '12px' : 'calc(-100% - 12px)') + ')';
+        Array.prototype.forEach.call(ends, function (e) { e.style.visibility = 'hidden'; });
+      }
+      function hide() {
+        cross.hidden = true; tip.hidden = true;
+        Array.prototype.forEach.call(ends, function (e) { e.style.visibility = ''; });
+      }
+      box.addEventListener('pointermove', show);
+      box.addEventListener('pointerdown', show);
+      box.addEventListener('pointerleave', hide);
+    });
+  }
+
+  // How many members each difficulty of the current and next dungeon is open to.
   function guildReadinessCard(t, i) {
     var m = state.meta, day = m.dir === state.latest ? tlToday(t) : Math.round((dirDate(m.dir) - tlStart(t)) / 86400000) + 1;
     var cur = null, next = null;
@@ -1073,7 +1219,7 @@
       return html + '</div></div>';
     }
     var body = block(cur, false) + (next ? block(next, true) : '');
-    return insightCard(i, 'Dungeon readiness', 'Members whose power opens each tier.', icon('shield', 'mt-1 size-4 ' + MUTED), body);
+    return insightCard(i, 'Dungeon readiness', 'Members whose power opens each difficulty.', icon('shield', 'mt-1 size-4 ' + MUTED), body);
   }
 
   function classCard(i) {
@@ -1082,7 +1228,7 @@
     var avgOf = function (list, get) { var v = list.map(get).filter(function (x) { return x != null; }); return v.length ? v.reduce(function (a, b) { return a + b; }, 0) / v.length : null; };
     var body = '<div class="mt-3 overflow-x-auto"><table class="w-full text-sm"><thead class="text-xs ' + MUTED + '"><tr>' +
       '<th scope="col" class="py-2 text-left font-medium">Class</th><th scope="col" class="px-2 py-2 text-right font-medium">Members</th>' +
-      '<th scope="col" class="px-2 py-2 text-right font-medium">Avg power</th><th scope="col" class="hidden px-2 py-2 text-right font-medium sm:table-cell">Avg equip</th>' +
+      '<th scope="col" class="px-2 py-2 text-right font-medium">Avg power</th><th scope="col" class="hidden px-2 py-2 text-right font-medium sm:table-cell">Avg equipment</th>' +
       '<th scope="col" class="w-2/5 py-2 pl-2 text-left font-medium">Share of Conquest damage</th></tr></thead><tbody class="divide-y divide-zinc-200/60 dark:divide-white/5">';
     m.classes.forEach(function (c) {
       var list = groups[c.key] || [], dmg = list.reduce(function (a, p) { return a + (p.dmg_n || 0); }, 0);
@@ -1105,7 +1251,8 @@
     var m = state.meta, list = state.players.filter(function (p) { return p.dmg_n > 0; }).sort(function (a, b) { return b.dmg_n - a.dmg_n; });
     if (!list.length || !(m.totalDmg > 0)) return '';
     var sumOf = function (a, b) { return list.slice(a, b).reduce(function (s, p) { return s + p.dmg_n; }, 0); };
-    var parts = [[list[0].name, sumOf(0, 1)], ['2nd to 5th', sumOf(1, 5)], ['6th to 10th', sumOf(5, 10)], ['Everyone else, ' + Math.max(0, list.length - 10) + ' members', sumOf(10)]]
+    // Each part keeps the slice of the ranking it covers, so a group can open to show its members.
+    var parts = [[list[0].name, sumOf(0, 1), 0, 1], ['2nd to 5th', sumOf(1, 5), 1, 5], ['6th to 10th', sumOf(5, 10), 5, 10], ['Everyone else, ' + Math.max(0, list.length - 10) + ' members', sumOf(10), 10, list.length]]
       .filter(function (x) { return x[1] > 0; });
     var body = '<p class="mt-4 flex items-baseline gap-2"><span class="text-3xl font-semibold tracking-tight">' + Math.round(100 * sumOf(0, 5) / m.totalDmg) + '%</span>' +
       '<span class="text-sm ' + MUTED + '">of all Conquest damage comes from the top 5</span></p>' +
@@ -1115,8 +1262,21 @@
     });
     body += '</div><ul class="mt-4 space-y-2 text-sm">';
     parts.forEach(function (x, k) {
-      body += '<li class="flex items-center gap-2"><i class="size-2.5 shrink-0 rounded-sm ' + SHARE_STEPS[k] + '"></i><span class="min-w-0 flex-1 truncate">' + (k === 0 ? '<a class="font-medium hover:underline" href="' + esc(link(list[0].slug)) + '">' + esc(x[0]) + '</a>' : esc(x[0])) + '</span>' +
-        '<span class="tabular-nums ' + MUTED + '">' + esc(fmtNum(x[1])) + '</span><b class="w-10 text-right font-semibold tabular-nums">' + Math.round(100 * x[1] / m.totalDmg) + '%</b></li>';
+      var totals = '<span class="tabular-nums ' + MUTED + '">' + esc(fmtNum(x[1])) + '</span><b class="w-10 text-right font-semibold tabular-nums">' + Math.round(100 * x[1] / m.totalDmg) + '%</b>';
+      var swatch = '<i class="size-2.5 shrink-0 rounded-sm ' + SHARE_STEPS[k] + '"></i>';
+      if (k === 0) {
+        body += '<li class="flex items-center gap-2">' + swatch + '<span class="min-w-0 flex-1 truncate"><a class="font-medium hover:underline" href="' + esc(link(list[0].slug)) + '">' + esc(x[0]) + '</a></span>' + totals + '</li>';
+        return;
+      }
+      body += '<li><details class="group"><summary class="-mx-2 flex cursor-pointer list-none select-none items-center gap-2 rounded-md px-2 py-0.5 transition-colors hover:bg-zinc-900/5 dark:hover:bg-white/10 [&::-webkit-details-marker]:hidden">' + swatch +
+        '<span class="flex min-w-0 flex-1 items-center gap-1"><span class="truncate">' + esc(x[0]) + '</span>' + icon('down', 'size-3.5 ' + MUTED + ' transition-transform group-open:rotate-180') + '</span>' + totals + '</summary>' +
+        '<ol class="mb-2 ml-[18px] mt-1.5 grid gap-x-6 gap-y-1 border-l border-zinc-200/70 pl-3 text-xs sm:grid-cols-2 dark:border-white/10">';
+      list.slice(x[2], x[3]).forEach(function (p, n) {
+        body += '<li class="flex items-baseline gap-2"><span class="w-5 shrink-0 text-right tabular-nums ' + MUTED + '">' + (x[2] + n + 1) + '</span>' +
+          '<a class="min-w-0 flex-1 truncate font-medium hover:underline" href="' + esc(link(p.slug)) + '">' + esc(p.name) + '</a>' +
+          '<span class="shrink-0 tabular-nums ' + MUTED + '">' + esc(p.dmg) + '</span></li>';
+      });
+      body += '</ol></details></li>';
     });
     return insightCard(i, 'Who carries Conquest', 'How the guild\'s ' + esc(fmtNum(m.totalDmg)) + ' Conquest damage splits.', icon('swords', 'mt-1 size-4 ' + MUTED), body + '</ul>');
   }
@@ -1130,15 +1290,14 @@
     });
     var most = Math.max.apply(null, bands.map(function (b) { return b.count; }));
     var body = '<p class="mt-4 flex items-baseline gap-2"><span class="text-3xl font-semibold tracking-tight">' + bands[0].count + '</span>' +
-      '<span class="text-sm ' + MUTED + '">of ' + roster.length + ' members are at or near this week\'s top, ' + esc(fmtNum(top)) + '</span></p><div class="mt-4 space-y-2.5">';
+      '<span class="text-sm ' + MUTED + '">of ' + roster.length + ' members donated as much as the top donor, or within 5% of it</span></p><div class="mt-4 space-y-2.5">';
     bands.forEach(function (b) {
       body += '<div class="flex items-center gap-3 text-sm" title="' + b.count + ' members: ' + esc(b.label) + (b.range ? ', ' + esc(b.range) + ' of the top' : '') + '"><span class="w-40 shrink-0"><span class="font-medium">' + esc(b.label) + '</span> <span class="text-xs ' + MUTED + '">' + esc(b.range) + '</span></span>' +
         '<div class="min-w-0 flex-1">' + meter(most ? b.count / most : 0, 'bg-zinc-900 dark:bg-zinc-100') + '</div><b class="w-6 shrink-0 text-right font-semibold tabular-nums">' + b.count + '</b></div>';
     });
     body += '</div>';
-    var lines = ['The typical member gave ' + fmtNum(m.weekMedian) + ' this week, ' + Math.round(100 * m.weekMedian / top) + '% of the top.'];
-    if (m.totalGainMedian != null) lines.push('The typical member added ' + fmtNum(m.totalGainMedian) + ' to their total since ' + m.previousLabel + '.');
-    return insightCard(i, 'Weekly contribution check', 'How close everyone is to the highest weekly contribution in the guild.', icon('gem', 'mt-1 size-4 ' + MUTED), body + cardFoot(lines.map(esc).join('<br>')));
+    var lines = ['We recommend donating 4 out of 5 times. If you are running low on Dawnium, lower amounts are okay.'];
+    return insightCard(i, 'Weekly contribution check', 'Donations this week, against the top donor\'s ' + esc(fmtNum(top)) + '.', icon('gem', 'mt-1 size-4 ' + MUTED), body + cardFoot(lines.map(esc).join('<br>')));
   }
 
   function fantomonCard(i) {
@@ -1180,7 +1339,7 @@
 
   // ---- rendering: profile insights -------------------------------------------
   // Cards between the standing tiles and the stat panels: what to work on, which
-  // dungeon tiers the player's power opens, who is next to them on power, and how
+  // dungeon difficulties the player's power opens, who is next to them on power, and how
   // their damage and contribution compare.
 
   var CHIP = {
@@ -1234,7 +1393,7 @@
     var pr = p.profile;
     if (!pr) return '';
     var g = peerGroup(p), items = [];
-    var groups = [['gear', 'Equip', '+', pr.gear, 'equipment'], ['tech', 'Technique', 'Lv. ', pr.technique, 'technique'], ['charm', 'Charm', 'Lv. ', pr.charm, 'charm']];
+    var groups = [['gear', 'Equipment', '+', pr.gear, 'equipment'], ['tech', 'Technique', 'Lv. ', pr.technique, 'technique'], ['charm', 'Charm', 'Lv. ', pr.charm, 'charm']];
 
     var behind = groups.map(function (x) {
       var v = p.stat_n[x[0]], avg = g.avg[x[0]];
@@ -1242,7 +1401,7 @@
     }).filter(function (x) { return x && x.diff <= -1; }).sort(function (a, b) { return a.diff - b.diff; });
     behind.forEach(function (x, k) {
       items.push({ tone: 'warn', ic: 'up', title: (k === 0 ? 'Biggest gap: ' : 'Also behind: ') + x.g[4],
-        text: 'Your average is ' + x.g[2] + Math.round(x.v) + ', ' + Math.abs(x.diff) + (Math.abs(x.diff) === 1 ? ' level' : ' levels') + ' under the ' + g.name + ' average of ' + x.g[2] + Math.round(x.avg) + '.' });
+        text: 'Your average is ' + x.g[2] + Math.round(x.v) + ', ' + Math.abs(x.diff) + (Math.abs(x.diff) === 1 ? ' enhancement level' : ' enhancement levels') + ' under the ' + g.name + ' average of ' + x.g[2] + Math.round(x.avg) + '.' });
     });
 
     groups.forEach(function (x) {
@@ -1262,8 +1421,8 @@
     var weak = stats[0], strong = stats[stats.length - 1];
     if (weak && weak.rel <= -0.1) items.push({ tone: 'warn', ic: 'down', title: 'Weakest stat: ' + weak.label,
       text: fmtNum(weak.v) + ' is ' + Math.round(-weak.rel * 100) + '% under the ' + g.name + ' average of ' + fmtNum(weak.avg) + '.' });
-    if (!behind.length) items.unshift({ tone: 'good', ic: 'trophy', title: 'Upgrades on track',
-      text: 'Equipment, technique and charm are all level with or ahead of the ' + g.name + ' average.' });
+    if (!behind.length) items.unshift({ tone: 'good', ic: 'trophy', title: 'Enhancements on track',
+      text: 'Equipment and skills are all level with or ahead of the ' + g.name + ' average.' });
     if (strong && strong !== weak && strong.rel >= 0.1) items.push({ tone: 'good', ic: 'star', title: 'Strongest stat: ' + strong.label,
       text: fmtNum(strong.v) + ' is ' + Math.round(strong.rel * 100) + '% over the ' + g.name + ' average of ' + fmtNum(strong.avg) + '.' });
 
@@ -1273,7 +1432,7 @@
         '<div class="min-w-0 text-sm"><p class="font-medium">' + esc(it.title) + '</p><p class="' + MUTED + '">' + esc(it.text) + '</p></div></li>';
     });
     body += '</ul><div class="mt-auto pt-4"><table class="w-full border-t border-zinc-200/70 text-sm dark:border-white/10">' +
-      '<thead class="text-xs ' + MUTED + '"><tr><th scope="col" class="pb-1 pt-3 text-left font-medium">Average level</th><th scope="col" class="pb-1 pt-3 text-right font-medium">You</th>' +
+      '<thead class="text-xs ' + MUTED + '"><tr><th scope="col" class="pb-1 pt-3 text-left font-medium">Average enhancement</th><th scope="col" class="pb-1 pt-3 text-right font-medium">You</th>' +
       '<th scope="col" class="pb-1 pt-3 text-right font-medium">' + esc(g.name.charAt(0).toUpperCase() + g.name.slice(1)) + '</th><th scope="col" class="w-20 pb-1 pt-3 text-right font-medium">Gap</th></tr></thead><tbody>';
     groups.forEach(function (x) {
       var v = p.stat_n[x[0]], avg = g.avg[x[0]];
@@ -1283,7 +1442,7 @@
         '<td class="py-1 text-right tabular-nums ' + MUTED + '">' + (avg != null ? x[2] + Math.round(avg) : '-') + '</td>' +
         '<td class="py-1 text-right">' + (diff == null ? '' : deltaHTML(diff === 0 ? '±0' : (diff > 0 ? '+' : '-') + Math.abs(diff))) + '</td></tr>';
     });
-    return insightCard(i, 'What to upgrade next', 'Compared with ' + esc(g.label) + '.', icon('eye', 'mt-1 size-4 ' + MUTED), body + '</tbody></table></div>');
+    return insightCard(i, 'What to enhance next', 'Compared with ' + esc(g.label) + '.', icon('eye', 'mt-1 size-4 ' + MUTED), body + '</tbody></table></div>');
   }
 
   // "930K + Lv. 100" on the timeline means power and a character level.
@@ -1380,10 +1539,29 @@
     return '<div class="mt-4 space-y-3">' + row(a, tone) + row(b, 'bg-zinc-400 dark:bg-zinc-500') + '</div>';
   }
 
+  // Tanks and healers are in Conquest to soak the bosses' damage and keep the
+  // raid alive, so their own damage is never judged against power.
+  var SUPPORT_ROLES = {
+    guardian: { role: 'Tank', text: 'Guardians are our tanks: you take the damage from the bosses so everyone else can keep attacking.' },
+    dominator: { role: 'Healer', text: 'Dominators are our healers: you keep the whole raid alive through the bosses\' damage.' }
+  };
+
+  function supportDamageCard(p, i, role) {
+    var m = state.meta, useGain = p.dmgGain != null, cls = p.profile['class'];
+    var body = '<p class="mt-4 text-sm">' + esc(role.text) + ' Your damage will always be low next to the damage dealers. That is expected, so it is not held against your power here.</p>' +
+      '<p class="mt-3 text-sm font-medium">Your presence in Conquest is indispensable. Please join every run you can, we need you there.</p>';
+    if (p.dmg_n != null) body += '<p class="mt-4 flex items-baseline gap-2"><span class="text-2xl font-semibold tracking-tight">' + esc(useGain ? fmtNum(p.dmgGain) : p.dmg) + '</span>' +
+      '<span class="text-sm ' + MUTED + '">Conquest damage' + (useGain ? ' since ' + esc(m.previousLabel) : ' so far') + ', for reference</span></p>';
+    if (p.dmg_n != null && p.classSize >= 3 && p.cpos.dmg_n) body += cardFoot(esc('Among ' + p.classSize + ' ' + cls + 's: ' + ordinal(p.cpos.dmg_n) + ' on Conquest damage.'));
+    return insightCard(i, 'Your role in Conquest', esc(role.role) + ' first, damage second.', chip('good', 'Indispensable'), body);
+  }
+
   // Conquest damage is a running total, so where an earlier snapshot exists the
   // comparison uses what was dealt since then; that is fair to newer members.
   function damageCard(p, i) {
     var m = state.meta, title = 'Punching above your weight?';
+    var support = SUPPORT_ROLES[classKey(p)];
+    if (support) return supportDamageCard(p, i, support);
     if (p.dmg_n == null) return insightCard(i, title, '', icon('sword', 'mt-1 size-4 ' + MUTED), '<p class="mt-4 text-sm ' + MUTED + '">No Conquest damage is recorded for this player in this snapshot.</p>');
     // Someone who joined since the last snapshot has a few days of damage against
     // everyone else's running total, so they get no verdict yet.
@@ -1392,7 +1570,7 @@
       cardFoot('Joined since ' + esc(m.previousLabel) + '. Conquest damage is a running total, so a fair comparison starts with the next snapshot, using what each member dealt in between.'));
     var useGain = p.dmgGain != null;
     var get = function (x) { return useGain ? x.dmgGain : x.dmg_n; };
-    var peers = p.power_n == null ? [] : state.players.filter(function (x) { return x !== p && x.power_n != null && get(x) != null; })
+    var peers = p.power_n == null ? [] : state.players.filter(function (x) { return x !== p && !SUPPORT_ROLES[classKey(x)] && x.power_n != null && get(x) != null; })
       .sort(function (a, b) { return Math.abs(a.power_n - p.power_n) - Math.abs(b.power_n - p.power_n); }).slice(0, 10);
     var mid = median(peers.map(get)), body = '', aside = icon('sword', 'mt-1 size-4 ' + MUTED);
     var what = useGain ? 'Conquest damage since ' + esc(m.previousLabel) : 'Conquest damage';
@@ -1421,7 +1599,7 @@
     var tone = !(p.week_n > 0) ? 'bad' : mid != null && p.week_n < mid ? 'warn' : 'good';
     var tick = top > 0 && mid != null ? Math.min(100, Math.round(100 * mid / top)) : null;
     var body = '<p class="mt-4 flex items-baseline gap-2"><span class="text-3xl font-semibold tracking-tight">' + (top > 0 ? Math.round(100 * p.week_n / top) : 0) + '%</span>' +
-      '<span class="text-sm ' + MUTED + '">of this week\'s top, ' + esc(fmtNum(top)) + '</span></p>' +
+      '<span class="text-sm ' + MUTED + '">of the top donor\'s ' + esc(fmtNum(top)) + ' this week</span></p>' +
       '<div class="relative mt-4">' + meter(top > 0 ? p.week_n / top : 0, tone === 'good' ? 'bg-emerald-500' : tone === 'warn' ? 'bg-amber-500' : 'bg-red-500') +
       (tick != null ? '<span class="absolute -top-1 h-3.5 w-0.5 rounded-full bg-zinc-400 dark:bg-zinc-500" style="left:' + tick + '%" title="Typical member"></span>' : '') + '</div>' +
       '<div class="mt-1.5 flex justify-between gap-3 text-xs ' + MUTED + '"><span>You <b class="font-medium text-zinc-700 dark:text-zinc-200">' + esc(p.week) + '</b></span>' +
@@ -1429,9 +1607,9 @@
     var lines = [];
     if (m.totalWeek > 0) lines.push((Math.round(1000 * p.week_n / m.totalWeek) / 10) + '% of the guild\'s ' + fmtNum(m.totalWeek) + ' this week. An even split would be ' + (Math.round(1000 / m.memberCount) / 10) + '%.');
     if (m.previousLabel && !p.prev) lines.push('Joined since ' + m.previousLabel + ', so this may be a part week.');
-    if (p.totalGain != null && m.totalGainMedian != null) lines.push('Added ' + fmtNum(p.totalGain) + ' to your total since ' + m.previousLabel + '. The typical member added ' + fmtNum(m.totalGainMedian) + '.');
+    if (p.totalGain != null && m.totalGainMedian != null) lines.push('You donated ' + fmtNum(p.totalGain) + ' since ' + m.previousLabel + '. Half the guild donated ' + fmtNum(m.totalGainMedian) + ' or more.');
     if (lines.length) body += cardFoot(lines.map(esc).join('<br>'));
-    return insightCard(i, 'Your contribution this week', 'Weekly contribution against the rest of the guild.',
+    return insightCard(i, 'Your contribution this week', 'What you donated this week, against the rest of the guild.',
       chip(tone, tone === 'bad' ? 'Nothing yet' : tone === 'warn' ? 'Below typical' : 'On par or better'), body);
   }
 
@@ -1515,7 +1693,7 @@
 
     if (p.profile) {
       var borrowed = pr.snapshot && pr.snapshot !== m.dir;
-      if (borrowed) html += '<p class="mt-6 flex items-center gap-2 text-xs ' + MUTED + ' ' + ANIM + '" style="--i:' + i++ + '">' + icon('clock', 'size-3.5') + 'No profile capture in this snapshot. Class, stats and upgrades below are from ' + esc(fmtDay(pr.snapshot)) + '; power and contributions are current.</p>';
+      if (borrowed) html += '<p class="mt-6 flex items-center gap-2 text-xs ' + MUTED + ' ' + ANIM + '" style="--i:' + i++ + '">' + icon('clock', 'size-3.5') + 'No profile capture in this snapshot. Class, stats and enhancements below are from ' + esc(fmtDay(pr.snapshot)) + '; power and contributions are current.</p>';
       html += '<div class="' + (borrowed ? 'mt-3' : 'mt-6') + ' grid gap-4 lg:grid-cols-2">';
       var stats = [['atk', 'Attack', 'sword', 'bg-red-500'], ['def', 'Defense', 'shield', 'bg-blue-500'], ['hp', 'HP', 'heart', 'bg-emerald-500'], ['spd', 'Speed', 'bolt', 'bg-amber-500']];
       html += '<section class="' + CARD + ' ' + ANIM + '" style="--i:' + i++ + '"><div class="border-b border-zinc-200/70 p-5 dark:border-white/10"><h2 class="text-base font-semibold">Combat stats</h2><p class="text-sm ' + MUTED + '">Bars are relative to the best value in the guild.' + (was ? ' Changes are since the ' + esc(fmtDay(was.snapshot)) + ' capture.' : '') + '</p></div>' +
@@ -1543,9 +1721,9 @@
       });
       html += '</div></section>';
 
-      html += '<section class="' + CARD + ' ' + ANIM + '" style="--i:' + i++ + '"><div class="border-b border-zinc-200/70 p-5 dark:border-white/10"><h2 class="text-base font-semibold">Upgrades</h2><p class="text-sm ' + MUTED + '">Equipment enhancement and technique and charm levels.</p></div>' +
+      html += '<section class="' + CARD + ' ' + ANIM + '" style="--i:' + i++ + '"><div class="border-b border-zinc-200/70 p-5 dark:border-white/10"><h2 class="text-base font-semibold">Enhancements</h2><p class="text-sm ' + MUTED + '">Enhancement levels for equipment and skills (techniques and charms).</p></div>' +
         '<div class="space-y-5 p-5">' +
-        upgradeGroup(p, 'Equip', pr.gear || [], 5, ['blade', 'tome', 'belt', 'armor', 'boots'], '+', 'grid-cols-5', 'gear', was && was.gear) +
+        upgradeGroup(p, 'Equipment', pr.gear || [], 5, ['blade', 'tome', 'belt', 'armor', 'boots'], '+', 'grid-cols-5', 'gear', was && was.gear) +
         upgradeGroup(p, 'Technique', pr.technique || [], 4, ['spark', 'spark', 'spark', 'spark'], 'Lv. ', 'grid-cols-4', 'tech', was && was.technique) +
         upgradeGroup(p, 'Charm', pr.charm || [], 4, ['rune', 'rune', 'rune', 'rune'], 'Lv. ', 'grid-cols-4', 'charm', was && was.charm) +
         '</div></section></div>';
@@ -1556,7 +1734,7 @@
 
     app.innerHTML = html;
     setDock('<div class="mx-auto flex max-w-6xl items-center gap-2 px-4 py-2 pb-[calc(env(safe-area-inset-bottom,0px)+8px)]">' +
-      '<a class="' + BTN + '" href="' + esc(link('rankings')) + '" aria-label="All rankings">' + icon('back', 'size-4') + '</a>' +
+      '<a class="' + BTN + '" href="' + esc(link('members')) + '" aria-label="All members">' + icon('back', 'size-4') + '</a>' +
       (prev ? '<a class="' + BTN + ' min-w-0 flex-1 justify-center" href="' + esc(link(prev.slug)) + '">' + icon('back', 'size-4') + '<span class="truncate">' + esc(prev.name) + '</span></a>' : '<span class="' + BTN + ' flex-1 justify-center opacity-40">First</span>') +
       (next ? '<a class="' + BTN + ' min-w-0 flex-1 justify-center" href="' + esc(link(next.slug)) + '"><span class="truncate">' + esc(next.name) + '</span>' + icon('next', 'size-4') + '</a>' : '<span class="' + BTN + ' flex-1 justify-center opacity-40">Last</span>') +
       '</div>');
@@ -1608,7 +1786,7 @@
   // Back link and, on wide screens, the neighbours in the current sort order.
   function topBar(slug, prev, next, i) {
     return '<div class="mb-4 flex items-center justify-between gap-2 ' + ANIM + '" style="--i:' + i + '">' +
-      '<a class="' + GHOST + ' -ml-3" href="' + esc(link('rankings')) + '">' + icon('back', 'size-4') + 'All rankings</a>' +
+      '<a class="' + GHOST + ' -ml-3" href="' + esc(link('members')) + '">' + icon('back', 'size-4') + 'All members</a>' +
       '<div class="hidden gap-2 sm:flex">' + navBtn(prev, 'back', 'Previous') + navBtn(next, 'next', 'Next') + '</div></div>';
   }
 
@@ -1681,6 +1859,7 @@
     'Zone': 'bg-zinc-100 text-zinc-700 dark:bg-zinc-700 dark:text-zinc-200'
   };
   var REGION_STYLE = ['border-emerald-400', 'border-amber-400', 'border-sky-400', 'border-violet-400', 'border-rose-400'];
+  var REGION_DOT = ['bg-emerald-400', 'bg-amber-400', 'bg-sky-400', 'bg-violet-400', 'bg-rose-400'];
 
   function catBadge(c) {
     return '<span class="inline-flex shrink-0 items-center rounded-md px-1.5 py-0.5 text-[11px] font-semibold ' + (CAT_STYLE[c] || CAT_STYLE.Zone) + '">' + esc(c) + '</span>';
@@ -1717,7 +1896,7 @@
 
   // Dungeons on the timeline are "Name - Difficulty (Power: X)" items. The
   // current one is the latest to have opened; entries that add a difficulty to
-  // the same dungeon later (an Abyss tier, say) are folded into it.
+  // the same dungeon later (an Abyss difficulty, say) are folded into it.
   function tlDungeons(t) {
     var out = [];
     t.entries.forEach(function (e) {
@@ -1763,19 +1942,37 @@
     var i = 0;
     var html = '<section class="mb-5 flex flex-wrap items-end justify-between gap-4 ' + ANIM + '" style="--i:' + i++ + '" aria-label="Timeline">' +
       '<div class="min-w-0"><p class="text-xs font-medium uppercase tracking-wide ' + MUTED + '">' + esc(m_server()) + ' server timeline</p>' +
-      '<h1 class="mt-0.5 text-3xl font-semibold tracking-tight sm:text-4xl">Day ' + today + '</h1>' +
-      '<p class="mt-1 text-sm ' + MUTED + '">Opened ' + fmtLong(tlStart(t)) + ' ' + tlStart(t).getFullYear() + '. ' + (region ? 'Currently in ' + esc(region.name) + ', day ' + (today - region.day + 1) + ' of the region.' : '') + '</p></div>' +
+      '<h1 class="mt-0.5 text-3xl font-semibold tracking-tight sm:text-4xl">Day ' + today + '</h1></div>' +
       deco('timeline', 'hidden h-36 w-auto -my-4 mr-4 self-end lg:block') + '</section>';
 
-    // Region strip
-    html += '<section class="' + CARD + ' mb-4 p-4 ' + ANIM + '" style="--i:' + i++ + '" aria-label="Regions"><div class="flex gap-2 overflow-x-auto pb-1">';
-    t.regions.forEach(function (r, k) {
-      var open = today >= r.day, cur = region && region.name === r.name;
-      html += '<div class="flex min-w-[9.5rem] shrink-0 flex-col rounded-xl border-l-4 ' + REGION_STYLE[r.tier] + ' bg-white/60 px-3 py-2 dark:bg-white/5' + (cur ? ' ring-2 ring-zinc-900/80 dark:ring-white/70' : '') + (open ? '' : ' opacity-60') + '">' +
-        '<span class="text-xs ' + MUTED + '">Region ' + (k + 1) + (cur ? ', current' : open ? ', open' : '') + '</span><span class="font-semibold">' + esc(r.name) + '</span>' +
-        '<span class="text-xs ' + MUTED + '">Day ' + r.day + ', ' + fmtLong(tlDate(t, r.day)) + '</span></div>';
-    });
-    html += '</div></section>';
+    // Regions: the current one with progress to the next, what is still to
+    // come, and the earlier ones folded away.
+    var at = region ? t.regions.indexOf(region) : -1, nextRegion = t.regions[at + 1] || null;
+    var earlier = t.regions.slice(0, Math.max(at, 0)), later = t.regions.slice(at + 1);
+    var regionRow = function (r, k) {
+      var diff = r.day - today;
+      return '<li class="flex items-center gap-3 py-2.5"><span class="h-8 w-1 shrink-0 rounded-full ' + REGION_DOT[r.tier] + '"></span>' +
+        '<div class="min-w-0 flex-1"><p class="truncate font-medium">' + esc(r.name) + '</p><p class="text-xs ' + MUTED + '">Region ' + (k + 1) + '</p></div>' +
+        '<div class="shrink-0 text-right"><p class="text-sm tabular-nums">' + (diff > 0 ? relDay(diff) : 'Day ' + r.day) + '</p><p class="text-xs ' + MUTED + '">' + (diff > 0 ? 'Day ' + r.day + ', ' : '') + fmtLong(tlDate(t, r.day)) + '</p></div></li>';
+    };
+    if (region) {
+      var span = nextRegion ? nextRegion.day - region.day : null, into = today - region.day + 1;
+      html += '<section class="' + CARD + ' mb-4 ' + ANIM + '" style="--i:' + i++ + '" aria-label="Regions"><div class="grid lg:grid-cols-2">' +
+        '<div class="p-5"><p class="text-xs font-medium uppercase tracking-wide ' + MUTED + '">Current region, ' + (at + 1) + ' of ' + t.regions.length + '</p>' +
+        '<p class="mt-1 flex items-center gap-2.5 text-2xl font-semibold tracking-tight"><span class="h-6 w-1 shrink-0 rounded-full ' + REGION_DOT[region.tier] + '"></span>' + esc(region.name) + '</p>' +
+        '<p class="mt-1 text-sm ' + MUTED + '">Opened day ' + region.day + ', ' + fmtLong(tlDate(t, region.day)) + '.</p>' +
+        (nextRegion ? '<div class="mt-5"><div class="flex items-baseline justify-between gap-3 text-sm"><span class="font-medium">Day ' + into + ' of ' + span + '</span>' +
+          '<span class="text-xs ' + MUTED + '">' + esc(nextRegion.name) + ' ' + relDay(nextRegion.day - today).toLowerCase() + '</span></div>' +
+          '<div class="mt-1.5">' + meter(Math.min(1, into / span), 'bg-zinc-900 dark:bg-zinc-100') + '</div></div>'
+          : '<p class="mt-5 text-sm ' + MUTED + '">This is the last region on the schedule.</p>') + '</div>' +
+        '<div class="border-t border-zinc-200/70 p-5 lg:border-l lg:border-t-0 dark:border-white/10"><p class="text-xs font-medium uppercase tracking-wide ' + MUTED + '">Still to come</p>' +
+        (later.length ? '<ul class="mt-1 divide-y divide-zinc-200/60 dark:divide-white/5">' + later.map(function (r, k) { return regionRow(r, at + 1 + k); }).join('') + '</ul>'
+          : '<p class="mt-2 text-sm ' + MUTED + '">Every region is open.</p>') + '</div></div>' +
+        (earlier.length ? '<details class="group border-t border-zinc-200/70 dark:border-white/10"><summary class="flex cursor-pointer list-none select-none items-center gap-2 px-5 py-3 text-sm font-medium transition-colors hover:bg-zinc-900/5 dark:hover:bg-white/5 [&::-webkit-details-marker]:hidden">' +
+          icon('down', 'size-4 transition-transform group-open:rotate-180') + 'Show the ' + earlier.length + ' earlier region' + (earlier.length === 1 ? '' : 's') + '</summary>' +
+          '<ul class="divide-y divide-zinc-200/60 px-5 pb-2 dark:divide-white/5">' + earlier.map(regionRow).join('') + '</ul></details>' : '') +
+        '</section>';
+    }
 
     // Day groups
     var past = list.filter(function (e) { return e.day < today; }), future = list.filter(function (e) { return e.day >= today; });
@@ -1806,6 +2003,7 @@
     html += groups(future, true) + '</section>';
     html += '<p class="mt-6 text-xs ' + MUTED + '">Schedule adapted from <a class="underline underline-offset-2" href="https://qenu.github.io/ethna-timeline/?start=20260703&lang=en" target="_blank" rel="noopener">Ethna Timeline</a> by Nayuta. Days count from the server opening, and dates are in your local time zone.</p>';
     app.innerHTML = html;
+    animateMeters();
     setDock('');
     document.title = 'Timeline | ' + state.meta.guild;
   }
@@ -1859,6 +2057,7 @@
     renderNav(slug);
     if (!slug) { setDock(''); renderDashboard(); window.scrollTo(0, 0); return; }
     if (slug === 'rankings') { setDock(''); renderRankings(); window.scrollTo(0, 0); return; }
+    if (slug === 'members') { setDock(''); renderMembers(); window.scrollTo(0, 0); return; }
     if (slug === 'timeline') {
       loadTimeline().then(renderTimeline).catch(function (err) { setDock(''); app.innerHTML = '<p class="rounded-xl border border-white/70 bg-white/50 p-4 text-sm backdrop-blur-md ' + MUTED + '">Could not load the timeline. ' + esc(err && err.message) + '</p>'; });
       window.scrollTo(0, 0); return;
