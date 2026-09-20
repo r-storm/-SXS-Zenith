@@ -1,0 +1,784 @@
+{
+  "capturedAt": "2026-09-20T16:07:22.000Z",
+  "label": "Week 2",
+  "roster": [
+    {
+      "name": "AsterBlaze",
+      "power": "15.8M",
+      "rank": "Champion III",
+      "week": "1.35K",
+      "total": "15.4K",
+      "login": "Online",
+      "role": "Leader"
+    },
+    {
+      "name": "Riven",
+      "power": "12.2M",
+      "rank": "Champion III",
+      "week": "1.53K",
+      "total": "18.2K",
+      "login": "3h",
+      "role": "Deputy"
+    },
+    {
+      "name": "Atsi",
+      "power": "21.1M",
+      "rank": "Champion III",
+      "week": "1.98K",
+      "total": "17.6K",
+      "login": "Online",
+      "role": "Member"
+    },
+    {
+      "name": "UnorthodoxStyle",
+      "power": "16M",
+      "rank": "Champion III",
+      "week": "1.65K",
+      "total": "1.65K",
+      "login": "Online",
+      "role": "Member"
+    },
+    {
+      "name": "ZEUS",
+      "power": "13.8M",
+      "rank": "Champion III",
+      "week": "1.98K",
+      "total": "17.7K",
+      "login": "Online",
+      "role": "Member"
+    },
+    {
+      "name": "Sulenta",
+      "power": "12.6M",
+      "rank": "Champion III",
+      "week": "1.77K",
+      "total": "2.36K",
+      "login": "Online",
+      "role": "Member"
+    },
+    {
+      "name": "Beicin",
+      "power": "12.6M",
+      "rank": "Champion III",
+      "week": "1.91K",
+      "total": "5.12K",
+      "login": "Online",
+      "role": "Member"
+    },
+    {
+      "name": "Vetali",
+      "power": "12.2M",
+      "rank": "Champion III",
+      "week": "1.9K",
+      "total": "17.9K",
+      "login": "Online",
+      "role": "Member"
+    },
+    {
+      "name": "Ouvreboites",
+      "power": "11.9M",
+      "rank": "Champion III",
+      "week": "1.99K",
+      "total": "16.1K",
+      "login": "Online",
+      "role": "Member"
+    },
+    {
+      "name": "Schwartz",
+      "power": "11.3M",
+      "rank": "Champion III",
+      "week": "1.74K",
+      "total": "8.91K",
+      "login": "Online",
+      "role": "Member"
+    },
+    {
+      "name": "Hanaroll",
+      "power": "10.6M",
+      "rank": "Champion III",
+      "week": "1.89K",
+      "total": "10.7K",
+      "login": "Online",
+      "role": "Member"
+    },
+    {
+      "name": "Meowxyz",
+      "power": "9.18M",
+      "rank": "Champion III",
+      "week": "1.21K",
+      "total": "11.2K",
+      "login": "Online",
+      "role": "Member"
+    },
+    {
+      "name": "Xember",
+      "power": "8.71M",
+      "rank": "Champion III",
+      "week": "1.97K",
+      "total": "17.9K",
+      "login": "Online",
+      "role": "Member"
+    },
+    {
+      "name": "Amingal",
+      "power": "12.6M",
+      "rank": "Champion III",
+      "week": "1.24K",
+      "total": "1.24K",
+      "login": "1m",
+      "role": "Member"
+    },
+    {
+      "name": "kabojjin",
+      "power": "12.5M",
+      "rank": "Champion III",
+      "week": "1.96K",
+      "total": "13.1K",
+      "login": "1m",
+      "role": "Member"
+    },
+    {
+      "name": "Billiana",
+      "power": "14.1M",
+      "rank": "Champion III",
+      "week": "1.8K",
+      "total": "3.09K",
+      "login": "1m",
+      "role": "Member"
+    },
+    {
+      "name": "Mila",
+      "power": "8.12M",
+      "rank": "Champion III",
+      "week": "1.7K",
+      "total": "8.8K",
+      "login": "6m",
+      "role": "Member"
+    },
+    {
+      "name": "Awrath",
+      "power": "10.8M",
+      "rank": "Champion III",
+      "week": "2.01K",
+      "total": "5.72K",
+      "login": "6m",
+      "role": "Member"
+    },
+    {
+      "name": "Philins",
+      "power": "11M",
+      "rank": "Champion III",
+      "week": "1.84K",
+      "total": "18.5K",
+      "login": "8m",
+      "role": "Member"
+    },
+    {
+      "name": "Spotschi",
+      "power": "12.4M",
+      "rank": "Champion III",
+      "week": "1.9K",
+      "total": "6.85K",
+      "login": "11m",
+      "role": "Member"
+    },
+    {
+      "name": "Ballistics",
+      "power": "23.7M",
+      "rank": "Champion III",
+      "week": "1.98K",
+      "total": "20.2K",
+      "login": "15m",
+      "role": "Member"
+    },
+    {
+      "name": "1e",
+      "power": "9.98M",
+      "rank": "Champion III",
+      "week": "2.01K",
+      "total": "6.94K",
+      "login": "18m",
+      "role": "Member"
+    },
+    {
+      "name": "Karny",
+      "power": "16.3M",
+      "rank": "Champion III",
+      "week": "1.97K",
+      "total": "3.38K",
+      "login": "19m",
+      "role": "Member"
+    },
+    {
+      "name": "BanDalgom",
+      "power": "12M",
+      "rank": "Champion III",
+      "week": "1.76K",
+      "total": "1.84K",
+      "login": "20m",
+      "role": "Member"
+    },
+    {
+      "name": "IBlank",
+      "power": "11.5M",
+      "rank": "Champion III",
+      "week": "1.86K",
+      "total": "5.47K",
+      "login": "20m",
+      "role": "Member"
+    },
+    {
+      "name": "Yuri_Adakada",
+      "power": "9.7M",
+      "rank": "Champion III",
+      "week": "1.9K",
+      "total": "1.9K",
+      "login": "21m",
+      "role": "Member"
+    },
+    {
+      "name": "Vizir",
+      "power": "8.33M",
+      "rank": "Champion III",
+      "week": "1.91K",
+      "total": "8.18K",
+      "login": "25m",
+      "role": "Member"
+    },
+    {
+      "name": "XLemonL",
+      "power": "19.2M",
+      "rank": "Champion III",
+      "week": "1.87K",
+      "total": "20.5K",
+      "login": "31m",
+      "role": "Member"
+    },
+    {
+      "name": "Sparklie",
+      "power": "12.5M",
+      "rank": "Champion III",
+      "week": "1.89K",
+      "total": "14.4K",
+      "login": "32m",
+      "role": "Member"
+    },
+    {
+      "name": "Naki",
+      "power": "17.6M",
+      "rank": "Champion III",
+      "week": "1.96K",
+      "total": "20.3K",
+      "login": "34m",
+      "role": "Member"
+    },
+    {
+      "name": "etna",
+      "power": "12.7M",
+      "rank": "Champion III",
+      "week": "1.72K",
+      "total": "19K",
+      "login": "35m",
+      "role": "Member"
+    },
+    {
+      "name": "JetPilot",
+      "power": "12.1M",
+      "rank": "Champion III",
+      "week": "1.58K",
+      "total": "10.6K",
+      "login": "36m",
+      "role": "Member"
+    },
+    {
+      "name": "CingCing",
+      "power": "13.3M",
+      "rank": "Champion III",
+      "week": "1.82K",
+      "total": "17.3K",
+      "login": "38m",
+      "role": "Member"
+    },
+    {
+      "name": "kyo.",
+      "power": "11.6M",
+      "rank": "Champion III",
+      "week": "1.96K",
+      "total": "20.8K",
+      "login": "42m",
+      "role": "Member"
+    },
+    {
+      "name": "KoxTLiTe",
+      "power": "10.5M",
+      "rank": "Champion III",
+      "week": "1.92K",
+      "total": "16K",
+      "login": "48m",
+      "role": "Member"
+    },
+    {
+      "name": "VuDuh",
+      "power": "8.95M",
+      "rank": "Champion III",
+      "week": "1.74K",
+      "total": "16.6K",
+      "login": "48m",
+      "role": "Member"
+    },
+    {
+      "name": "CronosLogia",
+      "power": "13.1M",
+      "rank": "Champion III",
+      "week": "1.89K",
+      "total": "17.3K",
+      "login": "50m",
+      "role": "Member"
+    },
+    {
+      "name": "DerFussel",
+      "power": "9.83M",
+      "rank": "Champion III",
+      "week": "1.96K",
+      "total": "6.98K",
+      "login": "54m",
+      "role": "Member"
+    },
+    {
+      "name": "Baki",
+      "power": "17.2M",
+      "rank": "Champion III",
+      "week": "1.98K",
+      "total": "19.7K",
+      "login": "1h",
+      "role": "Member"
+    },
+    {
+      "name": "soulmaster",
+      "power": "10.8M",
+      "rank": "Champion III",
+      "week": "1.73K",
+      "total": "19.7K",
+      "login": "1h",
+      "role": "Member"
+    },
+    {
+      "name": "Lyrix",
+      "power": "11.8M",
+      "rank": "Champion III",
+      "week": "1.98K",
+      "total": "19K",
+      "login": "1h",
+      "role": "Member"
+    },
+    {
+      "name": "Xerei",
+      "power": "14.1M",
+      "rank": "Champion III",
+      "week": "1.74K",
+      "total": "10.7K",
+      "login": "1h",
+      "role": "Member"
+    },
+    {
+      "name": "KittyLinwe",
+      "power": "11.9M",
+      "rank": "Champion III",
+      "week": "1.92K",
+      "total": "5.34K",
+      "login": "1h",
+      "role": "Member"
+    },
+    {
+      "name": "frumpy_gorilla",
+      "power": "11.6M",
+      "rank": "Champion III",
+      "week": "1.87K",
+      "total": "16.1K",
+      "login": "1h",
+      "role": "Member"
+    },
+    {
+      "name": "vDk",
+      "power": "10.2M",
+      "rank": "Champion III",
+      "week": "1.81K",
+      "total": "9.31K",
+      "login": "1h",
+      "role": "Member"
+    },
+    {
+      "name": "Tay",
+      "power": "13.2M",
+      "rank": "Champion III",
+      "week": "1.78K",
+      "total": "2.04K",
+      "login": "1h",
+      "role": "Member"
+    },
+    {
+      "name": "TheLorax",
+      "power": "11.6M",
+      "rank": "Champion III",
+      "week": "1.65K",
+      "total": "20.3K",
+      "login": "2h",
+      "role": "Member"
+    },
+    {
+      "name": "Evilcookie",
+      "power": "14.3M",
+      "rank": "Champion III",
+      "week": "1.87K",
+      "total": "19.7K",
+      "login": "2h",
+      "role": "Member"
+    },
+    {
+      "name": "Pretender",
+      "power": "11.6M",
+      "rank": "Champion III",
+      "week": "0",
+      "total": "0",
+      "login": "4h",
+      "role": "Member"
+    },
+    {
+      "name": "GMango",
+      "power": "10.2M",
+      "rank": "Champion III",
+      "week": "970",
+      "total": "6.93K",
+      "login": "5h",
+      "role": "Member"
+    },
+    {
+      "name": "yuuta",
+      "power": "11.7M",
+      "rank": "Champion III",
+      "week": "1.58K",
+      "total": "15K",
+      "login": "9h",
+      "role": "Member"
+    },
+    {
+      "name": "Yukan",
+      "power": "9.5M",
+      "rank": "Champion III",
+      "week": "1.54K",
+      "total": "15.3K",
+      "login": "10h",
+      "role": "Member"
+    },
+    {
+      "name": "Shinimya",
+      "power": "11.5M",
+      "rank": "Champion III",
+      "week": "1.62K",
+      "total": "19.5K",
+      "login": "10h",
+      "role": "Member"
+    },
+    {
+      "name": "Rice...",
+      "power": "9.32M",
+      "rank": "Champion III",
+      "week": "1.52K",
+      "total": "19.5K",
+      "login": "10h",
+      "role": "Member"
+    },
+    {
+      "name": "silenthitter",
+      "power": "18M",
+      "rank": "Champion III",
+      "week": "10",
+      "total": "15.2K",
+      "login": "12h",
+      "role": "Member"
+    },
+    {
+      "name": "Skulk",
+      "power": "10.4M",
+      "rank": "Champion III",
+      "week": "1.28K",
+      "total": "13.9K",
+      "login": "14h",
+      "role": "Member"
+    },
+    {
+      "name": "Shai-roa",
+      "power": "8.91M",
+      "rank": "Champion III",
+      "week": "1.43K",
+      "total": "4.57K",
+      "login": "16h",
+      "role": "Member"
+    },
+    {
+      "name": "AJarofPicklez",
+      "power": "8.46M",
+      "rank": "Champion III",
+      "week": "1.62K",
+      "total": "4.94K",
+      "login": "21h",
+      "role": "Member"
+    },
+    {
+      "name": "Dulc",
+      "power": "9.17M",
+      "rank": "Champion III",
+      "week": "1.39K",
+      "total": "4.23K",
+      "login": "1d",
+      "role": "Member"
+    },
+    {
+      "name": "Pavllitto",
+      "power": "8.12M",
+      "rank": "Champion III",
+      "week": "790",
+      "total": "11.3K",
+      "login": "2d",
+      "role": "Member"
+    }
+  ],
+  "conquest": [
+    {
+      "name": "Ballistics",
+      "dmg": "91.5B"
+    },
+    {
+      "name": "XLemonL",
+      "dmg": "34.2B"
+    },
+    {
+      "name": "Naki",
+      "dmg": "22.5B"
+    },
+    {
+      "name": "Baki",
+      "dmg": "19.6B"
+    },
+    {
+      "name": "Xerei",
+      "dmg": "12B"
+    },
+    {
+      "name": "AsterBlaze",
+      "dmg": "8.13B"
+    },
+    {
+      "name": "Evilcookie",
+      "dmg": "6.62B"
+    },
+    {
+      "name": "Atsi",
+      "dmg": "5.38B"
+    },
+    {
+      "name": "CingCing",
+      "dmg": "5.18B"
+    },
+    {
+      "name": "CronosLogia",
+      "dmg": "5.15B"
+    },
+    {
+      "name": "Vetali",
+      "dmg": "5.07B"
+    },
+    {
+      "name": "silenthitter",
+      "dmg": "4.62B"
+    },
+    {
+      "name": "Spotschi",
+      "dmg": "4.17B"
+    },
+    {
+      "name": "kabojjin",
+      "dmg": "3.88B"
+    },
+    {
+      "name": "Karny",
+      "dmg": "3.74B"
+    },
+    {
+      "name": "Billiana",
+      "dmg": "3.51B"
+    },
+    {
+      "name": "Sparklie",
+      "dmg": "3.36B"
+    },
+    {
+      "name": "frumpy_gorilla",
+      "dmg": "3.35B"
+    },
+    {
+      "name": "kyo.",
+      "dmg": "3.25B"
+    },
+    {
+      "name": "JetPilot",
+      "dmg": "3.19B"
+    },
+    {
+      "name": "Shinimya",
+      "dmg": "3.14B"
+    },
+    {
+      "name": "Philins",
+      "dmg": "2.95B"
+    },
+    {
+      "name": "Lyrix",
+      "dmg": "2.94B"
+    },
+    {
+      "name": "Ouvreboites",
+      "dmg": "2.87B"
+    },
+    {
+      "name": "UnorthodoxStyle",
+      "dmg": "2.61B"
+    },
+    {
+      "name": "soulmaster",
+      "dmg": "2.55B"
+    },
+    {
+      "name": "KoxTLiTe",
+      "dmg": "2.47B"
+    },
+    {
+      "name": "Beicin",
+      "dmg": "2.46B"
+    },
+    {
+      "name": "vDk",
+      "dmg": "2.07B"
+    },
+    {
+      "name": "Awrath",
+      "dmg": "1.65B"
+    },
+    {
+      "name": "DerFussel",
+      "dmg": "1.42B"
+    },
+    {
+      "name": "1e",
+      "dmg": "1.32B"
+    },
+    {
+      "name": "Riven",
+      "dmg": "1.25B"
+    },
+    {
+      "name": "Mila",
+      "dmg": "1.13B"
+    },
+    {
+      "name": "Hanaroll",
+      "dmg": "1.12B"
+    },
+    {
+      "name": "IBlank",
+      "dmg": "972M"
+    },
+    {
+      "name": "Rice...",
+      "dmg": "904M"
+    },
+    {
+      "name": "Xember",
+      "dmg": "858M"
+    },
+    {
+      "name": "Schwartz",
+      "dmg": "705M"
+    },
+    {
+      "name": "TheLorax",
+      "dmg": "633M"
+    },
+    {
+      "name": "Yukan",
+      "dmg": "625M"
+    },
+    {
+      "name": "Pavllitto",
+      "dmg": "622M"
+    },
+    {
+      "name": "Skulk",
+      "dmg": "603M"
+    },
+    {
+      "name": "etna",
+      "dmg": "593M"
+    },
+    {
+      "name": "KittyLinwe",
+      "dmg": "550M"
+    },
+    {
+      "name": "VuDuh",
+      "dmg": "479M"
+    },
+    {
+      "name": "yuuta",
+      "dmg": "467M"
+    },
+    {
+      "name": "Tay",
+      "dmg": "369M"
+    },
+    {
+      "name": "Sulenta",
+      "dmg": "353M"
+    },
+    {
+      "name": "ZEUS",
+      "dmg": "336M"
+    },
+    {
+      "name": "Dulc",
+      "dmg": "257M"
+    },
+    {
+      "name": "Vizir",
+      "dmg": "221M"
+    },
+    {
+      "name": "GMango",
+      "dmg": "213M"
+    },
+    {
+      "name": "AJarofPicklez",
+      "dmg": "190M"
+    },
+    {
+      "name": "Amingal",
+      "dmg": "139M"
+    },
+    {
+      "name": "Meowxyz",
+      "dmg": "133M"
+    },
+    {
+      "name": "Yuri_Adakada",
+      "dmg": "72.6M"
+    },
+    {
+      "name": "BanDalgom",
+      "dmg": "71.9M"
+    },
+    {
+      "name": "Shai-roa",
+      "dmg": "20.7M"
+    }
+  ]
+}
