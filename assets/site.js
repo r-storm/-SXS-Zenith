@@ -420,7 +420,7 @@
 
   // Head-and-shoulders crop of the member's character from the capture, then
   // the class emblem. The photo hides itself when a snapshot has no avatars.
-  var AVATAR_SIZES = { sm: ['size-10', 'size-7', 'size-4'], lg: ['size-16', 'size-11', 'size-7'] };
+  var AVATAR_SIZES = { sm: ['size-10', 'size-7', 'size-4'], lg: ['size-16', 'size-11', 'size-7'], xl: ['size-20', 'size-14', 'size-9'] };
 
   function avatar(p, size, ring) {
     var key = classKey(p);
@@ -948,31 +948,46 @@
   // Dashboard cards about the guild as a whole. Anything that compares with the
   // previous snapshot only counts members who are in both.
 
-  // Podium rows share one size; only the row tint, medal and avatar ring differ.
+  // The top three stand on a podium, first in the middle, second on the left
+  // and third on the right; everyone after that is a plain list underneath.
   var PODIUM = [
-    { row: 'bg-gradient-to-r from-amber-300/50 via-amber-200/25 to-transparent ring-1 ring-inset ring-amber-400/50 shadow-[0_0_28px_-10px] shadow-amber-400/60 dark:from-amber-400/25 dark:via-amber-400/10 dark:ring-amber-400/40',
-      medal: 'size-6 bg-gradient-to-br from-amber-300 to-amber-500 text-amber-950 shadow shadow-amber-500/40', ring: 'ring-amber-400' },
-    { row: 'bg-gradient-to-r from-zinc-300/60 via-zinc-200/30 to-transparent ring-1 ring-inset ring-zinc-400/50 dark:from-zinc-300/20 dark:via-zinc-300/10 dark:ring-zinc-300/30',
-      medal: 'size-6 bg-gradient-to-br from-zinc-200 to-zinc-400 text-zinc-900', ring: 'ring-zinc-300 dark:ring-zinc-400' },
-    { row: 'bg-gradient-to-r from-orange-300/45 via-orange-200/20 to-transparent ring-1 ring-inset ring-orange-400/40 dark:from-orange-500/20 dark:via-orange-500/10 dark:ring-orange-400/30',
-      medal: 'size-6 bg-gradient-to-br from-orange-300 to-orange-600 text-orange-950', ring: 'ring-orange-400 dark:ring-orange-500' }
+    { step: 'h-16 from-amber-300/70 to-amber-200/20 ring-amber-400/50 shadow-[0_0_32px_-8px] shadow-amber-400/50 dark:from-amber-400/35 dark:to-amber-400/5 dark:ring-amber-400/40',
+      num: 'text-2xl text-amber-700 dark:text-amber-300', ring: 'ring-amber-400', av: 'xl', name: 'text-base', value: 'text-xl' },
+    { step: 'h-11 from-zinc-300/80 to-zinc-200/20 ring-zinc-400/50 dark:from-zinc-300/25 dark:to-zinc-300/5 dark:ring-zinc-300/30',
+      num: 'text-lg text-zinc-600 dark:text-zinc-300', ring: 'ring-zinc-300 dark:ring-zinc-400', av: 'lg', name: 'text-sm', value: 'text-base' },
+    { step: 'h-8 from-orange-300/70 to-orange-200/20 ring-orange-400/40 dark:from-orange-500/30 dark:to-orange-500/5 dark:ring-orange-400/30',
+      num: 'text-base text-orange-700 dark:text-orange-300', ring: 'ring-orange-400 dark:ring-orange-500', av: 'lg', name: 'text-sm', value: 'text-base' }
   ];
 
+  function podiumPlace(r, k) {
+    if (!r) return '<li aria-hidden="true"></li>';
+    var pod = PODIUM[k];
+    return '<li class="flex min-w-0 flex-col items-center text-center" style="order:' + [2, 1, 3][k] + '">' +
+      '<div class="flex justify-center">' + avatar(r.p, pod.av, pod.ring) + '</div>' +
+      '<a class="mt-2 block max-w-full truncate font-semibold hover:underline ' + pod.name + '" href="' + esc(link(r.p.slug)) + '">' + esc(r.p.name) + '</a>' +
+      '<p class="font-semibold leading-tight tabular-nums text-emerald-600 dark:text-emerald-400 ' + pod.value + '">' + esc(r.value) +
+      (r.unit ? ' <span class="text-xs font-medium ' + MUTED + '">' + esc(r.unit) + '</span>' : '') + '</p>' +
+      '<p class="mt-0.5 max-w-full truncate text-xs ' + MUTED + '">' + esc(r.sub) + '</p>' +
+      '<div class="mt-2 grid w-full place-items-center rounded-t-xl bg-gradient-to-b ring-1 ring-inset ' + pod.step + '"><span class="font-bold tabular-nums ' + pod.num + '">' + (k + 1) + '</span></div></li>';
+  }
+
   function moversCard(i, title, sub, rows) {
-    var body = '<ol class="mt-3 space-y-1.5">';
-    rows.forEach(function (r, k) {
-      var pod = PODIUM[k];
-      body += '<li class="flex items-center gap-3 rounded-xl px-3 text-sm ' + (pod ? 'py-2 ' + pod.row : 'py-1.5') + '">' +
-        (pod ? '<span class="grid w-7 shrink-0 place-items-center"><span class="grid place-items-center rounded-full text-xs font-bold tabular-nums ' + pod.medal + '">' + (k + 1) + '</span></span>'
-          : '<span class="w-7 shrink-0 text-center text-xs tabular-nums ' + MUTED + '">' + (k + 1) + '</span>') +
-        avatar(r.p, 'sm', pod ? pod.ring : '') +
-        '<div class="min-w-0 flex-1"><a class="block truncate hover:underline ' + (pod ? 'font-semibold' : 'font-medium') + '" href="' + esc(link(r.p.slug)) + '">' + esc(r.p.name) + '</a>' +
-        '<p class="truncate text-xs ' + MUTED + '">' + esc(r.sub) + '</p></div>' +
-        '<div class="shrink-0 text-right"><p class="font-semibold leading-tight tabular-nums text-emerald-600 dark:text-emerald-400 ' + (pod ? 'text-[15px]' : 'text-sm') + '">' + esc(r.value) + '</p>' +
-        (r.unit ? '<p class="text-[11px] leading-tight ' + MUTED + '">' + esc(r.unit) + '</p>' : '') + '</div></li>';
-    });
-    if (!rows.length) body += '<li class="py-3 text-sm ' + MUTED + '">Nobody moved on this one.</li>';
-    return insightCard(i, title, sub, '', body + '</ol>');
+    if (!rows.length) return insightCard(i, title, sub, '', '<p class="mt-4 text-center text-sm ' + MUTED + '">Nobody moved on this one.</p>', '', true);
+    // List order stays 1, 2, 3 for screen readers; CSS order puts first place in the middle.
+    var body = '<ol class="mt-5 grid grid-cols-3 items-end gap-2 border-b border-zinc-200/70 sm:gap-3 dark:border-white/10">' +
+      podiumPlace(rows[0], 0) + podiumPlace(rows[1], 1) + podiumPlace(rows[2], 2) + '</ol>';
+    if (rows.length > 3) {
+      body += '<ol class="mt-2 divide-y divide-zinc-200/60 dark:divide-white/5" start="4">';
+      rows.slice(3).forEach(function (r, k) {
+        body += '<li class="flex items-center gap-3 py-2 text-sm"><span class="w-5 shrink-0 text-center text-xs tabular-nums ' + MUTED + '">' + (k + 4) + '</span>' + avatar(r.p) +
+          '<div class="min-w-0 flex-1"><a class="block truncate font-medium hover:underline" href="' + esc(link(r.p.slug)) + '">' + esc(r.p.name) + '</a>' +
+          '<p class="truncate text-xs ' + MUTED + '">' + esc(r.sub) + '</p></div>' +
+          '<span class="shrink-0 text-sm font-semibold tabular-nums text-emerald-600 dark:text-emerald-400">' + esc(r.value) +
+          (r.unit ? ' <span class="text-xs font-medium ' + MUTED + '">' + esc(r.unit) + '</span>' : '') + '</span></li>';
+      });
+      body += '</ol>';
+    }
+    return insightCard(i, title, sub, '', body, '', true);
   }
 
   // Upgrade levels added across the named slot groups since the earlier profile
@@ -1019,35 +1034,49 @@
     return out;
   }
 
+  // The look of these cards (running border light, halo, crown, sheen) lives in site.css under .mvp.
   function mvpSection(i) {
     var list = classMvps();
     if (!list.length) return '';
     var html = '<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">';
     list.forEach(function (x, k) {
-      var p = x.mvp.p;
-      var body = '<div class="mt-4 flex items-center gap-3">' + avatar(p, 'lg') + '<div class="min-w-0"><a class="block truncate text-lg font-semibold tracking-tight hover:underline" href="' + esc(link(p.slug)) + '">' + esc(p.name) + '</a>' +
-        '<p class="text-xs ' + MUTED + '">Avg rank ' + (Math.round(10 * x.mvp.total / x.mvp.n) / 10) + ' among ' + x.size + ' ' + esc(x.cls.label) + 's</p></div></div>' +
-        '<ul class="mt-4 space-y-1.5 text-sm">';
+      var p = x.mvp.p, key = x.cls.key, firsts = 0;
+      var tiles = '';
       MVP_METRICS.forEach(function (mt, j) {
         var r = x.mvp.places[j];
         if (!r) return;
-        body += '<li class="flex items-baseline justify-between gap-3"><span class="min-w-0 truncate">' + esc(mt[2](r.value)) + '</span>' +
-          '<span class="shrink-0 text-xs tabular-nums ' + (r.place === 1 ? 'font-semibold text-zinc-900 dark:text-zinc-50' : MUTED) + '">' + ordinal(r.place) + ' in class</span></li>';
+        var text = mt[2](r.value), cut = text.indexOf(' '), top = r.place === 1;
+        if (top) firsts++;
+        tiles += '<li class="rounded-xl border px-2 py-2 ' + (top ? 'border-amber-400/50 bg-amber-400/10' : 'border-zinc-200/70 bg-white/50 dark:border-white/10 dark:bg-white/5') + '">' +
+          '<p class="text-base font-semibold leading-tight tabular-nums">' + esc(text.slice(0, cut)) + '</p>' +
+          '<p class="truncate text-[11px] ' + MUTED + '">' + esc(text.slice(cut + 1)) + '</p>' +
+          '<p class="mt-1 inline-flex items-center gap-1 text-[11px] font-semibold ' + (top ? 'text-amber-700 dark:text-amber-300' : MUTED) + '">' + (top ? icon('trophy', 'size-3') : '') + ordinal(r.place) + ' in class</p></li>';
       });
-      body += '</ul>';
-      if (x.runnerUp) body += cardFoot('Runner-up: <a class="font-medium text-zinc-900 hover:underline dark:text-zinc-50" href="' + esc(link(x.runnerUp.p.slug)) + '">' + esc(x.runnerUp.p.name) + '</a>');
-      html += insightCard(i + k, esc(x.cls.label) + ' MVP', 'Best all-round gains in class.', '<img class="size-7 shrink-0 object-contain" src="assets/img/classes/' + x.cls.key + '.png" alt="">', body);
+      html += '<section class="mvp mvp-' + key + ' ' + ANIM + '" style="--i:' + (i + k) + '" aria-label="' + esc(x.cls.label) + ' MVP: ' + esc(p.name) + '"><span class="mvp-border" aria-hidden="true"></span>' +
+        '<div class="mvp-inner flex flex-col items-center p-5 text-center">' +
+        '<img class="pointer-events-none absolute -right-8 -top-8 size-40 rotate-12 select-none object-contain opacity-[0.08]" src="assets/img/classes/' + key + '.png" alt="">' +
+        '<span class="mvp-sheen" aria-hidden="true"></span>' +
+        '<p class="inline-flex items-center gap-1.5 rounded-full bg-' + key + '/15 px-3 py-1 text-xs font-bold uppercase tracking-widest text-zinc-800 ring-1 ring-inset ring-' + key + '/40 dark:text-' + key + '">' +
+        '<img class="size-4 object-contain" src="assets/img/classes/' + key + '.png" alt="">' + esc(x.cls.label) + ' MVP</p>' +
+        '<div class="relative isolate mt-7">' + icon('crown', 'mvp-crown absolute -top-6 left-1/2 -ml-3.5 size-7 text-amber-400') +
+        '<span class="mvp-halo" aria-hidden="true"></span>' +
+        '<div class="flex">' + avatar(p, 'xl', 'ring-' + key) + '</div></div>' +
+        '<a class="mt-3 block max-w-full truncate text-xl font-bold tracking-tight hover:underline" href="' + esc(link(p.slug)) + '">' + esc(p.name) + '</a>' +
+        '<p class="text-xs ' + MUTED + '">' + (firsts ? 'Best in class on ' + firsts + ' of ' + x.mvp.n + '. ' : '') + 'Avg rank ' + (Math.round(10 * x.mvp.total / x.mvp.n) / 10) + ' among ' + x.size + ' ' + esc(x.cls.label) + 's.</p>' +
+        '<ul class="mt-4 grid w-full grid-cols-2 gap-2">' + tiles + '</ul>' +
+        (x.runnerUp ? '<p class="mt-auto w-full pt-4 text-xs ' + MUTED + '">Runner-up: <a class="font-medium text-zinc-900 hover:underline dark:text-zinc-50" href="' + esc(link(x.runnerUp.p.slug)) + '">' + esc(x.runnerUp.p.name) + '</a></p>' : '') +
+        '</div></section>';
     });
     return html + '</div>';
   }
 
   function moversSection(i) {
     var m = state.meta, both = state.players.filter(function (p) { return p.prev; });
-    var top = function (get) { return both.filter(function (p) { return get(p) > 0; }).sort(function (a, b) { return get(b) - get(a); }).slice(0, 5); };
+    var top = function (get) { return both.filter(function (p) { return get(p) > 0; }).sort(function (a, b) { return get(b) - get(a); }).slice(0, 8); };
     var dealt = both.reduce(function (a, p) { return a + (p.dmgGain || 0); }, 0);
     var added = levelsAdded;
     var levels = function (n) { return n === 1 ? 'level' : 'levels'; };
-    return '<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">' +
+    return '<div class="grid gap-4 md:grid-cols-2">' +
       moversCard(i, 'Biggest power gains', 'Most power added.', top(function (p) { return p.growth.power; }).map(function (p) {
         return { p: p, value: '+' + fmtNum(p.growth.power), sub: p.prev.power + ' to ' + p.power };
       })) +
@@ -1060,10 +1089,10 @@
       moversCard(i + 3, 'Most equipment enhanced', 'Enhancement levels added to equipment.', top(function (p) { return added(p, ['gear']); }).map(function (p) {
         return { p: p, value: '+' + added(p, ['gear']), unit: levels(added(p, ['gear'])), sub: 'avg +' + Math.round(p.prev.stat_n.gear) + ' to +' + Math.round(p.stat_n.gear) };
       })) +
-      moversCard(i + 4, 'Most skills enhanced', 'Enhancement levels added to techniques and charms.', top(function (p) { return added(p, ['technique', 'charm']); }).map(function (p) {
+      moversCard(i + 4, 'Most skills enhanced', 'Enhancement levels added to skills.', top(function (p) { return added(p, ['technique', 'charm']); }).map(function (p) {
         return { p: p, value: '+' + added(p, ['technique', 'charm']), unit: levels(added(p, ['technique', 'charm'])), sub: 'tech +' + added(p, ['technique']) + ', charm +' + added(p, ['charm']) };
       })) +
-      moversCard(i + 5, 'Most donated', 'Contribution donated to the guild in the period.', top(function (p) { return p.totalGain; }).map(function (p) {
+      moversCard(i + 5, 'Most donated', 'Total Contribution earned through donations.', top(function (p) { return p.totalGain; }).map(function (p) {
         return { p: p, value: '+' + fmtNum(p.totalGain), sub: p.prev.total + ' to ' + p.total };
       })) + '</div>';
   }
@@ -1358,9 +1387,10 @@
     return '<div class="mt-auto pt-4"><p class="border-t border-zinc-200/70 pt-3 text-sm ' + MUTED + ' dark:border-white/10">' + html + '</p></div>';
   }
 
-  function insightCard(i, title, sub, aside, body, extra) {
+  // centered suits a card with nothing beside its title, like the podium cards.
+  function insightCard(i, title, sub, aside, body, extra, centered) {
     return '<section class="' + CARD + ' flex h-full flex-col p-5 ' + (extra || '') + ' ' + ANIM + '" style="--i:' + Math.min(i, 14) + '">' +
-      '<div class="flex items-start justify-between gap-3"><div class="min-w-0"><h2 class="text-base font-semibold">' + title + '</h2>' +
+      '<div class="flex items-start gap-3 ' + (centered ? 'justify-center text-center' : 'justify-between') + '"><div class="min-w-0"><h2 class="text-base font-semibold">' + title + '</h2>' +
       (sub ? '<p class="text-sm ' + MUTED + '">' + sub + '</p>' : '') + '</div>' + (aside || '') + '</div>' + body + '</section>';
   }
 
