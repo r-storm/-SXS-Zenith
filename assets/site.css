@@ -13,7 +13,7 @@ input[type="search"]::-webkit-search-cancel-button { -webkit-appearance: none; }
 .stagger { animation-delay: calc(var(--i, 0) * 40ms); }
 
 /* Class MVP cards: a slow light running round the border in the class colour,
-   a glow behind the avatar, a bobbing crown and a passing sheen.
+   a glow behind the avatar and a bobbing crown.
    --c is the class colour as an RGB triplet. */
 .mvp { --c: 113 113 122; position: relative; isolation: isolate; overflow: hidden; border-radius: 1rem; padding: 1.5px; box-shadow: 0 0 44px -14px rgb(var(--c) / 0.65); transition: box-shadow 0.5s; }
 .mvp:hover { box-shadow: 0 0 56px -10px rgb(var(--c) / 0.85); }
@@ -22,13 +22,12 @@ input[type="search"]::-webkit-search-cancel-button { -webkit-appearance: none; }
 .mvp-conqueror { --c: 239 68 68; }
 .mvp-guardian { --c: 245 158 11; }
 .mvp-border { position: absolute; inset: -60%; z-index: -1; background: conic-gradient(rgb(var(--c) / 0.25), rgb(var(--c)) 18%, #fde68a 25%, rgb(var(--c)) 32%, rgb(var(--c) / 0.25) 50%, rgb(var(--c)) 68%, #fde68a 75%, rgb(var(--c)) 82%, rgb(var(--c) / 0.25)); animation: mvp-spin 7s linear infinite; }
-.mvp-inner { position: relative; overflow: hidden; height: 100%; border-radius: calc(1rem - 1.5px); background: radial-gradient(120% 70% at 50% 0%, rgb(var(--c) / 0.16), transparent 70%), rgb(255 255 255 / 0.94); }
-@media (prefers-color-scheme: dark) { .mvp-inner { background: radial-gradient(120% 70% at 50% 0%, rgb(var(--c) / 0.22), transparent 70%), rgb(12 12 14 / 0.94); } }
-.mvp-sheen { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(105deg, transparent 40%, rgb(255 255 255 / 0.16) 50%, transparent 60%); transform: translateX(-120%); animation: mvp-sheen 5.5s ease-in-out infinite; animation-delay: calc(var(--i, 0) * 0.45s + 1s); }
+/* Solid surface: a see-through one lets the spinning border layer show as a bar across the card. */
+.mvp-inner { position: relative; overflow: hidden; height: 100%; border-radius: calc(1rem - 1.5px); background: radial-gradient(120% 70% at 50% 0%, rgb(var(--c) / 0.16), transparent 70%), rgb(255 255 255); }
+@media (prefers-color-scheme: dark) { .mvp-inner { background: radial-gradient(120% 70% at 50% 0%, rgb(var(--c) / 0.22), transparent 70%), rgb(12 12 14); } }
 .mvp-halo { position: absolute; inset: -14px; z-index: -1; border-radius: 9999px; background: radial-gradient(closest-side, rgb(var(--c) / 0.75), rgb(var(--c) / 0.25) 60%, transparent); filter: blur(10px); animation: mvp-pulse 3.2s ease-in-out infinite; }
 .mvp-crown { animation: mvp-bob 2.8s ease-in-out infinite; filter: drop-shadow(0 0 8px rgb(251 191 36 / 0.8)); }
 @keyframes mvp-spin { to { transform: rotate(360deg); } }
-@keyframes mvp-sheen { 0%, 55% { transform: translateX(-120%); } 85%, 100% { transform: translateX(120%); } }
 @keyframes mvp-pulse { 0%, 100% { opacity: 0.55; transform: scale(0.94); } 50% { opacity: 1; transform: scale(1.06); } }
 @keyframes mvp-bob { 0%, 100% { transform: translateY(0) rotate(-4deg); } 50% { transform: translateY(-4px) rotate(4deg); } }
 
@@ -37,7 +36,7 @@ input[type="search"]::-webkit-search-cancel-button { -webkit-appearance: none; }
   .meter > i { transition: none; }
   .stagger { animation: none !important; }
   .mvp { transition: none; }
-  .mvp-border, .mvp-sheen, .mvp-halo, .mvp-crown { animation: none; }
+  .mvp-border, .mvp-halo, .mvp-crown { animation: none; }
 }
 
 /* Glass fallback: solid surfaces when the viewer prefers less transparency

@@ -529,13 +529,6 @@
     return out;
   }
 
-  function fantomonBadge(pr) {
-    var sp = fantomonSpecies(pr), renamed = fantomonRenamed(pr);
-    if (!sp && !pr.fantomon) return '';
-    return '<span class="' + BADGE + '">' + icon('fantomon', 'size-3 text-red-500') + esc(sp || pr.fantomon) +
-      (renamed ? ' <span class="' + MUTED + '">"' + esc(renamed) + '"</span>' : '') + '</span>';
-  }
-
   function roleBadge(p) {
     if (p.role === 'Leader') return '<span class="' + BADGE + ' text-amber-700 dark:text-amber-400">' + icon('crown', 'size-3') + 'Leader</span>';
     if (p.role === 'Deputy') return '<span class="' + BADGE + ' text-violet-700 dark:text-violet-400">' + icon('star', 'size-3') + 'Deputy</span>';
@@ -967,7 +960,7 @@
       '<a class="mt-2 block max-w-full truncate font-semibold hover:underline ' + pod.name + '" href="' + esc(link(r.p.slug)) + '">' + esc(r.p.name) + '</a>' +
       '<p class="font-semibold leading-tight tabular-nums text-emerald-600 dark:text-emerald-400 ' + pod.value + '">' + esc(r.value) +
       (r.unit ? ' <span class="text-xs font-medium ' + MUTED + '">' + esc(r.unit) + '</span>' : '') + '</p>' +
-      '<p class="mt-0.5 max-w-full truncate text-xs ' + MUTED + '">' + esc(r.sub) + '</p>' +
+      (Array.isArray(r.sub) ? '<p class="mt-0.5 max-w-full text-xs leading-snug ' + MUTED + '">' + r.sub.map(esc).join('<br>') + '</p>' : '<p class="mt-0.5 max-w-full truncate text-xs ' + MUTED + '">' + esc(r.sub) + '</p>') +
       '<div class="mt-2 grid w-full place-items-center rounded-t-xl bg-gradient-to-b ring-1 ring-inset ' + pod.step + '"><span class="font-bold tabular-nums ' + pod.num + '">' + (k + 1) + '</span></div></li>';
   }
 
@@ -981,7 +974,7 @@
       rows.slice(3).forEach(function (r, k) {
         body += '<li class="flex items-center gap-3 py-2 text-sm"><span class="w-5 shrink-0 text-center text-xs tabular-nums ' + MUTED + '">' + (k + 4) + '</span>' + avatar(r.p) +
           '<div class="min-w-0 flex-1"><a class="block truncate font-medium hover:underline" href="' + esc(link(r.p.slug)) + '">' + esc(r.p.name) + '</a>' +
-          '<p class="truncate text-xs ' + MUTED + '">' + esc(r.sub) + '</p></div>' +
+          (Array.isArray(r.sub) ? '<p class="text-xs leading-snug ' + MUTED + '">' + r.sub.map(esc).join(', ') + '</p></div>' : '<p class="truncate text-xs ' + MUTED + '">' + esc(r.sub) + '</p></div>') +
           '<span class="shrink-0 text-sm font-semibold tabular-nums text-emerald-600 dark:text-emerald-400">' + esc(r.value) +
           (r.unit ? ' <span class="text-xs font-medium ' + MUTED + '">' + esc(r.unit) + '</span>' : '') + '</span></li>';
       });
@@ -1034,7 +1027,7 @@
     return out;
   }
 
-  // The look of these cards (running border light, halo, crown, sheen) lives in site.css under .mvp.
+  // The look of these cards (running border light, halo, crown) lives in site.css under .mvp.
   function mvpSection(i) {
     var list = classMvps();
     if (!list.length) return '';
@@ -1055,7 +1048,6 @@
       html += '<section class="mvp mvp-' + key + ' ' + ANIM + '" style="--i:' + (i + k) + '" aria-label="' + esc(x.cls.label) + ' MVP: ' + esc(p.name) + '"><span class="mvp-border" aria-hidden="true"></span>' +
         '<div class="mvp-inner flex flex-col items-center p-5 text-center">' +
         '<img class="pointer-events-none absolute -right-8 -top-8 size-40 rotate-12 select-none object-contain opacity-[0.08]" src="assets/img/classes/' + key + '.png" alt="">' +
-        '<span class="mvp-sheen" aria-hidden="true"></span>' +
         '<p class="inline-flex items-center gap-1.5 rounded-full bg-' + key + '/15 px-3 py-1 text-xs font-bold uppercase tracking-widest text-zinc-800 ring-1 ring-inset ring-' + key + '/40 dark:text-' + key + '">' +
         '<img class="size-4 object-contain" src="assets/img/classes/' + key + '.png" alt="">' + esc(x.cls.label) + ' MVP</p>' +
         '<div class="relative isolate mt-7">' + icon('crown', 'mvp-crown absolute -top-6 left-1/2 -ml-3.5 size-7 text-amber-400') +
@@ -1090,7 +1082,7 @@
         return { p: p, value: '+' + added(p, ['gear']), unit: levels(added(p, ['gear'])), sub: 'avg +' + Math.round(p.prev.stat_n.gear) + ' to +' + Math.round(p.stat_n.gear) };
       })) +
       moversCard(i + 4, 'Most skills enhanced', 'Enhancement levels added to skills.', top(function (p) { return added(p, ['technique', 'charm']); }).map(function (p) {
-        return { p: p, value: '+' + added(p, ['technique', 'charm']), unit: levels(added(p, ['technique', 'charm'])), sub: 'tech +' + added(p, ['technique']) + ', charm +' + added(p, ['charm']) };
+        return { p: p, value: '+' + added(p, ['technique', 'charm']), unit: levels(added(p, ['technique', 'charm'])), sub: ['Skill Technique +' + added(p, ['technique']), 'Skill Charm +' + added(p, ['charm'])] };
       })) +
       moversCard(i + 5, 'Most donated', 'Total Contribution earned through donations.', top(function (p) { return p.totalGain; }).map(function (p) {
         return { p: p, value: '+' + fmtNum(p.totalGain), sub: p.prev.total + ' to ' + p.total };
@@ -1423,25 +1415,53 @@
     var pr = p.profile;
     if (!pr) return '';
     var g = peerGroup(p), items = [];
-    var groups = [['gear', 'Equipment', '+', pr.gear, 'equipment'], ['tech', 'Technique', 'Lv. ', pr.technique, 'technique'], ['charm', 'Charm', 'Lv. ', pr.charm, 'charm']];
+    var groups = [['gear', 'Equipment', '+', pr.gear, 'equipment'], ['tech', 'Skill Technique', 'Lv. ', pr.technique, 'Skill Technique'], ['charm', 'Skill Charm', 'Lv. ', pr.charm, 'Skill Charm']];
 
-    var behind = groups.map(function (x) {
-      var v = p.stat_n[x[0]], avg = g.avg[x[0]];
-      return v == null || avg == null ? null : { g: x, diff: Math.round(v) - Math.round(avg), v: v, avg: avg };
-    }).filter(function (x) { return x && x.diff <= -1; }).sort(function (a, b) { return a.diff - b.diff; });
-    behind.forEach(function (x, k) {
-      items.push({ tone: 'warn', ic: 'up', title: (k === 0 ? 'Biggest gap: ' : 'Also behind: ') + x.g[4],
-        text: 'Your average is ' + x.g[2] + Math.round(x.v) + ', ' + Math.abs(x.diff) + (Math.abs(x.diff) === 1 ? ' enhancement level' : ' enhancement levels') + ' under the ' + g.name + ' average of ' + x.g[2] + Math.round(x.avg) + '.' });
+    // Each line is a title, a badge with the size of the gap, and a row of facts, so nothing has to be read as a sentence.
+    var round = Math.round, peerLabel = g.name.charAt(0).toUpperCase() + g.name.slice(1);
+    var gearGap = p.stat_n.gear != null && g.avg.gear != null ? round(g.avg.gear) - round(p.stat_n.gear) : 0;
+
+    // Skills get one line: against the member's own character level when that
+    // gap is unusual, otherwise against the class. Technique and charm are never
+    // listed separately, they say the same thing twice.
+    var skillLag = function (x) {
+      var lv = x.profile && x.profile.level, t = x.stat_n.tech, c = x.stat_n.charm;
+      return lv == null || t == null || c == null ? null : lv - (t + c) / 2;
+    };
+    var tech = p.stat_n.tech, charm = p.stat_n.charm, skillItem = null, skillGap = 0;
+    if (tech != null && charm != null) {
+      var lag = skillLag(p), usual = median(state.players.map(skillLag));
+      var peerSkills = g.avg.tech != null && g.avg.charm != null ? (g.avg.tech + g.avg.charm) / 2 : null;
+      skillGap = peerSkills != null ? round(peerSkills) - round((tech + charm) / 2) : 0;
+      var skillFacts = [['Skill Technique', 'Lv. ' + round(tech)], ['Skill Charm', 'Lv. ' + round(charm)]];
+      if (lag != null && usual != null && lag - usual >= 3) skillItem = { tone: 'warn', ic: 'spark', title: 'Skills behind your level', badge: round(lag) + ' behind',
+        facts: skillFacts.concat([['Your level', String(pr.level)]], skillGap >= 1 ? [[peerLabel + ' average', 'Lv. ' + round(peerSkills)]] : []),
+        note: 'Half the guild is no more than ' + round(usual) + ' behind their level.' };
+      else if (skillGap >= 1) skillItem = { tone: 'warn', ic: 'spark', title: 'skills', badge: '-' + skillGap,
+        facts: skillFacts.concat([[peerLabel + ' average', 'Lv. ' + round(peerSkills)]]) };
+    }
+    // pri orders the list: the card shows the four most useful lines, not everything.
+    var gearItem = gearGap >= 1 ? { tone: 'warn', ic: 'up', title: 'equipment', badge: '-' + gearGap,
+      facts: [['You', '+' + round(p.stat_n.gear)], [peerLabel + ' average', '+' + round(g.avg.gear)]] } : null;
+    var behind = [gearItem, skillItem].filter(Boolean);
+    // The bigger gap leads; a "behind your level" line keeps its own title.
+    if (gearItem && skillItem && skillGap > gearGap) behind.reverse();
+    behind.forEach(function (it, k) {
+      it.pri = k === 0 ? 1 : 2;
+      if (it.title === 'equipment' || it.title === 'skills') it.title = (k === 0 ? 'Biggest gap: ' : 'Also behind: ') + it.title;
+      items.push(it);
     });
 
+    var uneven = 0;
     groups.forEach(function (x) {
       var vals = (x[3] || []).map(intOf), known = vals.filter(function (v) { return v != null; });
       if (known.length < 2) return;
       var lo = Math.min.apply(null, known), hi = Math.max.apply(null, known);
       if (hi - lo < (x[0] === 'gear' ? 10 : 3)) return;
       var at = vals.indexOf(lo);
-      items.push({ tone: 'warn', ic: 'updown', title: 'Uneven ' + x[4],
-        text: (x[0] === 'gear' ? 'Your ' + GEAR_SLOTS[at] : 'Slot ' + (at + 1)) + ' is at ' + x[2] + lo + ' while your best is ' + x[2] + hi + '.' });
+      var slot = x[0] === 'gear' ? GEAR_SLOTS[at].charAt(0).toUpperCase() + GEAR_SLOTS[at].slice(1) : 'Slot ' + (at + 1);
+      items.push({ pri: uneven++ ? 7 : 3, tone: 'warn', ic: 'updown', title: 'Uneven ' + x[4], badge: '-' + (hi - lo),
+        facts: [['Lowest: ' + slot, x[2] + lo], ['Your best', x[2] + hi]] });
     });
 
     var stats = [['atk', 'attack'], ['def', 'defense'], ['hp', 'HP'], ['spd', 'speed']].map(function (s) {
@@ -1449,30 +1469,146 @@
       return v == null || !avg ? null : { label: s[1], v: v, avg: avg, rel: (v - avg) / avg };
     }).filter(Boolean).sort(function (a, b) { return a.rel - b.rel; });
     var weak = stats[0], strong = stats[stats.length - 1];
-    if (weak && weak.rel <= -0.1) items.push({ tone: 'warn', ic: 'down', title: 'Weakest stat: ' + weak.label,
-      text: fmtNum(weak.v) + ' is ' + Math.round(-weak.rel * 100) + '% under the ' + g.name + ' average of ' + fmtNum(weak.avg) + '.' });
-    if (!behind.length) items.unshift({ tone: 'good', ic: 'trophy', title: 'Enhancements on track',
-      text: 'Equipment and skills are all level with or ahead of the ' + g.name + ' average.' });
-    if (strong && strong !== weak && strong.rel >= 0.1) items.push({ tone: 'good', ic: 'star', title: 'Strongest stat: ' + strong.label,
-      text: fmtNum(strong.v) + ' is ' + Math.round(strong.rel * 100) + '% over the ' + g.name + ' average of ' + fmtNum(strong.avg) + '.' });
+    if (weak && weak.rel <= -0.1) items.push({ pri: 4, tone: 'warn', ic: 'down', title: 'Weakest stat: ' + weak.label, badge: '-' + round(-weak.rel * 100) + '%',
+      facts: [['You', fmtNum(weak.v)], [peerLabel + ' average', fmtNum(weak.avg)]] });
+    if (!behind.length) items.push({ pri: 0, tone: 'good', ic: 'trophy', title: 'Enhancements on track',
+      note: 'Equipment and skills are level with or ahead of the ' + g.name + ' average.' });
+    if (strong && strong !== weak && strong.rel >= 0.1) items.push({ pri: 8, tone: 'good', ic: 'star', title: 'Strongest stat: ' + strong.label, badge: '+' + round(strong.rel * 100) + '%',
+      facts: [['You', fmtNum(strong.v)], [peerLabel + ' average', fmtNum(strong.avg)]] });
 
-    var body = '<ul class="mt-4 space-y-3">';
-    items.slice(0, 4).forEach(function (it) {
-      body += '<li class="flex items-start gap-3"><span class="mt-0.5 grid size-8 shrink-0 place-items-center rounded-md border ' + CHIP[it.tone] + '">' + icon(it.ic, 'size-4') + '</span>' +
-        '<div class="min-w-0 text-sm"><p class="font-medium">' + esc(it.title) + '</p><p class="' + MUTED + '">' + esc(it.text) + '</p></div></li>';
+    // Fantomon: information, not a verdict. Only when the class has a clear favourite.
+    var ck = classKey(p), mine = pr.fantomonSpecies || pr.fantomon;
+    if (ck !== 'unknown' && mine) {
+      var mates = state.players.filter(function (x) { return classKey(x) === ck && x.profile && (x.profile.fantomonSpecies || x.profile.fantomon); }), counts = {};
+      mates.forEach(function (x) { var sp = x.profile.fantomonSpecies || x.profile.fantomon; counts[sp] = (counts[sp] || 0) + 1; });
+      var fav = Object.keys(counts).sort(function (a, b) { return counts[b] - counts[a]; })[0];
+      if (mates.length >= 4 && fav !== mine && counts[fav] / mates.length >= 0.6) items.push({ pri: 6, tone: 'flat', ic: 'fantomon', title: 'Most ' + pr['class'] + 's run ' + fav,
+        facts: [['You run', mine], [pr['class'] + 's on ' + fav, counts[fav] + ' of ' + mates.length]] });
+    }
+
+    items.sort(function (a, b) { return a.pri - b.pri; });
+    // Guild advice sits under the line it belongs to: Raw Ore for equipment,
+    // Battle Essence for skills. Icons are local copies from the game's item set.
+    var shown = items.slice(0, 4);
+    var item = function (file, size) { return '<img class="' + (size || 'size-5') + ' shrink-0 object-contain" src="assets/img/items/' + file + '.png" alt="" loading="lazy" decoding="async">'; };
+    var tipHead = function (text) { return '<p class="text-[11px] font-semibold uppercase tracking-wider text-emerald-800/80 dark:text-emerald-300/80">' + text + '</p>'; };
+    // A green panel: what to do up top, the main steps as highlighted rows on the
+    // left, the supporting detail on the right (chips for sources, lines for notes).
+    var panel = function (lead, title, sub, rowsHead, rows, sideHead, side, chips) {
+      return '<div class="mt-4 overflow-hidden rounded-xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-emerald-50/40 text-sm dark:border-emerald-800/60 dark:from-emerald-950/50 dark:to-emerald-950/10">' +
+        '<div class="flex items-center gap-3 border-b border-emerald-200/70 p-4 dark:border-emerald-800/40">' +
+        '<span class="grid size-11 shrink-0 place-items-center rounded-lg bg-white/70 text-emerald-700 ring-1 ring-inset ring-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-300 dark:ring-emerald-700/40">' + lead + '</span>' +
+        '<div class="min-w-0 flex-1"><p class="text-[11px] font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">Recommendation</p>' +
+        '<p class="font-semibold leading-tight">' + title + '</p><p class="text-xs ' + MUTED + '">' + sub + '</p></div></div>' +
+        '<div class="grid gap-4 p-4 ' + (rows ? 'lg:grid-cols-2 lg:gap-6' : '') + '">' +
+        (rows ? '<div>' + tipHead(rowsHead) + '<ul class="mt-2 space-y-2">' + rows.map(function (x) {
+          return '<li class="flex items-start gap-2.5 rounded-lg bg-emerald-500/10 px-3 py-2 font-medium ring-1 ring-inset ring-emerald-500/20">' + x[0] + '<span>' + x[1] + '</span></li>';
+        }).join('') + '</ul></div>' : '') +
+        '<div>' + tipHead(sideHead) + (chips ? '<ul class="mt-2 flex flex-wrap gap-2">' + side.map(function (x) {
+          return '<li class="rounded-md border border-emerald-200/80 bg-white/60 px-2 py-1 text-xs dark:border-emerald-800/50 dark:bg-emerald-950/40">' + x + '</li>';
+        }).join('') + '</ul>' : '<ul class="mt-2 space-y-2">' + side.map(function (x) {
+          return '<li class="flex items-start gap-2"><span class="mt-2 size-1.5 shrink-0 rounded-full bg-emerald-500"></span><span>' + x + '</span></li>';
+        }).join('') + '</ul>') + '</div></div></div>';
+    };
+    var tip = function (file, name, what, sources, best) {
+      return panel(item(file, 'size-8'), 'Earn more ' + name, 'It raises ' + what + '.', 'Best ways', best && best.map(function (x) { return [item(x[0]), x[1]]; }), 'All sources', sources, true);
+    };
+    // Combat stats come from equipment, and new equipment comes from the daily dungeon.
+    var num = function (n) { return '<span class="mt-px grid size-5 shrink-0 place-items-center rounded-full bg-emerald-600 text-[11px] font-bold text-white dark:bg-emerald-500 dark:text-emerald-950">' + n + '</span>'; };
+    var dungeonTip = function () {
+      return panel(icon('shield', 'size-6'), 'Max out your daily dungeon runs', 'Combat stats come from equipment, and the daily dungeon is where new equipment comes from.', 'What to do', [
+        [num(1), 'Run the dungeon all 4 times every day: 2 runs are free, and the 2 extra cost 100 and 150 Dawnium.'],
+        [num(2), 'Work towards the full set of the newest Mythic or Divine equipment from the current dungeon.'],
+        [num(3), 'When a new dungeon opens, switch to its Normal difficulty straight away. It beats staying on the previous dungeon\'s Nightmare.']
+      ], 'Good to know', [
+        'An S class rating is required. Your rating depends on how far you get, so plan your path to reach the boss. If you do not get S class, do not claim the chest.',
+        'Shards from an older dungeon can no longer be sold once a new dungeon opens, so do not sit on them.',
+        'If you have the Lucky Statue relic, equip it before your runs and take it off afterwards.'
+      ], false);
+    };
+    // Every equipment line points at Raw Ore and every skills line at Battle
+    // Essence. The first one carries the full panel; a repeat in the same card
+    // gets a short pointer so the same list is not printed twice.
+    var again = function (file, name) {
+      return '<p class="mt-4 flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50/70 px-4 py-3 text-sm dark:border-emerald-800/60 dark:bg-emerald-950/30">' + item(file, 'size-6') +
+        '<span><span class="font-semibold">Earn more ' + name + '.</span> <span class="' + MUTED + '">Same recommendation as above.</span></span></p>';
+    };
+    var attach = function (match, file, name, what, sources, best) {
+      shown.filter(match).forEach(function (it, k) { it.after = k === 0 ? tip(file, name, what, sources, best) : again(file, name); });
+    };
+    attach(function (it) { return it === gearItem || it.title === 'Uneven equipment'; }, 'raw-ore', 'Raw Ore', 'equipment enhancement',
+      ['Home AFK Yield from the Cart (upgrade its Raw Ore yield)', 'Fantasia Ascent', 'Material Realm: Ironvein Pit', 'Commission', 'Loong Haven Iron Mining', 'Vendor Booth'],
+      [['raw-ore', 'Material Realm, and buy the extra attempts'], ['iron-pickaxe', 'Spend your energy mining in Loong Haven']]);
+    shown.forEach(function (it) { if (it.pri === 4) it.after = dungeonTip(); });
+    attach(function (it) { return it === skillItem || it.title === 'Uneven Skill Technique' || it.title === 'Uneven Skill Charm'; }, 'battle-essence', 'Battle Essence', 'skill enhancement',
+      ['Home AFK Yield from the Cart (upgrade its Battle Essence yield)', 'Material Realm: Dread Hollow', 'Loong Haven Mining', 'Vendor Booth'],
+      [['battle-essence', 'Material Realm, and buy the extra attempts']]);
+
+    // One line per row. Every line has the same padding; the first drops its top
+    // padding and the last its bottom, so the card's own padding is the only
+    // space at the edges.
+    var count = shown.length;
+    var body = '<ul class="mt-4">';
+    shown.forEach(function (it, k) {
+      var cls = (k === 0 ? '' : 'border-t pt-5 ') + (k === count - 1 ? '' : 'pb-5');
+      body += '<li class="min-w-0 border-zinc-200 dark:border-white/10 ' + cls + '"><div class="flex items-start gap-3">' +
+        '<span class="grid size-8 shrink-0 place-items-center rounded-md border ' + CHIP[it.tone] + '">' + icon(it.ic, 'size-4') + '</span>' +
+        '<div class="min-w-0 flex-1 text-sm"><div class="flex min-h-8 items-center justify-between gap-3"><p class="font-medium">' + esc(it.title) + '</p>' + (it.badge ? chip(it.tone, esc(it.badge)) : '') + '</div>' +
+        (it.facts ? '<dl class="mt-2 flex flex-wrap gap-x-6 gap-y-2">' + it.facts.map(function (x) {
+          return '<div><dt class="text-[11px] ' + MUTED + '">' + esc(x[0]) + '</dt><dd class="font-semibold tabular-nums">' + esc(x[1]) + '</dd></div>';
+        }).join('') + '</dl>' : '') +
+        (it.note ? '<p class="mt-2 text-xs ' + MUTED + '">' + esc(it.note) + '</p>' : '') + '</div></div>' + (it.after || '') + '</li>';
     });
-    body += '</ul><div class="mt-auto pt-4"><table class="w-full border-t border-zinc-200/70 text-sm dark:border-white/10">' +
-      '<thead class="text-xs ' + MUTED + '"><tr><th scope="col" class="pb-1 pt-3 text-left font-medium">Average enhancement</th><th scope="col" class="pb-1 pt-3 text-right font-medium">You</th>' +
-      '<th scope="col" class="pb-1 pt-3 text-right font-medium">' + esc(g.name.charAt(0).toUpperCase() + g.name.slice(1)) + '</th><th scope="col" class="w-20 pb-1 pt-3 text-right font-medium">Gap</th></tr></thead><tbody>';
-    groups.forEach(function (x) {
-      var v = p.stat_n[x[0]], avg = g.avg[x[0]];
-      var diff = v != null && avg != null ? Math.round(v) - Math.round(avg) : null;
-      body += '<tr><th scope="row" class="py-1 text-left font-medium">' + x[1] + '</th>' +
-        '<td class="py-1 text-right font-semibold tabular-nums">' + (v != null ? x[2] + Math.round(v) : '-') + '</td>' +
-        '<td class="py-1 text-right tabular-nums ' + MUTED + '">' + (avg != null ? x[2] + Math.round(avg) : '-') + '</td>' +
-        '<td class="py-1 text-right">' + (diff == null ? '' : deltaHTML(diff === 0 ? '±0' : (diff > 0 ? '+' : '-') + Math.abs(diff))) + '</td></tr>';
+    body += '</ul>';
+    return insightCard(i, 'What to enhance next', 'Compared with ' + esc(g.label) + '.', icon('eye', 'mt-1 size-4 ' + MUTED), body);
+  }
+
+  // Job changes on the timeline read "5th Job (Lv. 136)" then "(Class Lv. 180 +
+  // 4th Job Lv. 40)". The level of the previous job is not captured, so it is
+  // only mentioned.
+  function tlJobs(t) {
+    return t.entries.filter(function (e) { return e.category === 'Job change'; }).map(function (e) {
+      var text = e.items.join(' '), lv = /\(Lv\.\s*(\d+)\)/.exec(text), cl = /Class Lv\.\s*(\d+)/.exec(text), also = /\+\s*([^()+]*Job Lv\.\s*\d+)/.exec(text);
+      return { day: e.day, name: String(e.items[0]).replace(/\s*\(.*$/, ''), level: lv ? parseInt(lv[1], 10) : null, classLevel: cl ? parseInt(cl[1], 10) : null, also: also ? also[1].trim() : '' };
+    }).sort(function (a, b) { return a.day - b.day; });
+  }
+
+  function jobCard(p, t, i) {
+    var m = state.meta, pr = p.profile;
+    if (!pr || pr.level == null || pr.classLevel == null) return '';
+    var day = m.dir === state.latest ? tlToday(t) : Math.round((dirDate(m.dir) - tlStart(t)) / 86400000) + 1;
+    var cur = null, next = null;
+    tlJobs(t).forEach(function (j) { if (j.day <= day) cur = j; else if (!next) next = j; });
+    var shortOf = function (j) { return Math.max(0, (j.classLevel || 0) - pr.classLevel) + Math.max(0, (j.level || 0) - pr.level); };
+    // The open job only matters to someone who cannot take it yet.
+    var jobs = [cur && shortOf(cur) > 0 ? cur : null, next].filter(Boolean);
+    if (!jobs.length) return '';
+    var req = function (label, need, have) {
+      if (need == null) return '';
+      var gap = need - have;
+      return '<li class="flex items-center justify-between gap-3 py-2"><span class="flex min-w-0 items-center gap-2">' + icon(gap <= 0 ? 'check' : 'lock', 'size-4 ' + (gap <= 0 ? 'text-emerald-600 dark:text-emerald-400' : MUTED)) +
+        '<span class="font-medium">' + label + ' ' + need + '</span></span><span class="flex shrink-0 items-center gap-2"><span class="text-xs tabular-nums ' + MUTED + '">You are at ' + have + '</span>' +
+        chip(gap <= 0 ? 'good' : 'warn', gap <= 0 ? 'Ready' : gap + ' to go') + '</span></li>';
+    };
+    var body = '';
+    jobs.forEach(function (j) {
+      body += '<div class="mt-4"><p class="flex flex-wrap items-baseline gap-x-2 text-sm font-semibold">' + esc(j.name) +
+        '<span class="text-xs font-normal ' + MUTED + '">' + (j.day > day ? 'opens ' + relDay(j.day - day).toLowerCase() + ', day ' + j.day : 'open now') + '</span></p>' +
+        '<ul class="mt-1.5 divide-y divide-zinc-200/60 text-sm dark:divide-white/5">' + req('Level', j.level, pr.level) + req('Class level', j.classLevel, pr.classLevel) + '</ul></div>';
     });
-    return insightCard(i, 'What to enhance next', 'Compared with ' + esc(g.label) + '.', icon('eye', 'mt-1 size-4 ' + MUTED), body + '</tbody></table></div>');
+    var target = jobs[jobs.length - 1], gap = target.classLevel != null ? target.classLevel - pr.classLevel : 0, was = prevProfile(p), foot = '';
+    if (gap > 0 && was && was.classLevel != null && m.sinceDays > 0 && pr.classLevel > was.classLevel) {
+      var days = Math.ceil(gap / ((pr.classLevel - was.classLevel) / m.sinceDays)), left = target.day - day;
+      foot = 'At your recent pace of +' + (pr.classLevel - was.classLevel) + ' class levels in ' + m.sinceDays + ' days, about ' + days + (days === 1 ? ' day' : ' days') + '. ' +
+        (left > 0 ? (days <= left ? 'On track for day ' + target.day + '.' : 'That is ' + (days - left) + ' days after it opens.') : '') + ' An estimate from two snapshots.';
+    }
+    if (target.also) foot += (foot ? ' ' : '') + 'Also needs ' + target.also + ', which is not captured here.';
+    var short = shortOf(target);
+    // Guild advice: save Prayer materials once the next job is within reach, spend them until then.
+    body += '<p class="mt-4 flex items-start gap-3 rounded-lg border p-3 text-sm ' + CHIP[short > 0 ? 'flat' : 'good'] + '">' + icon(short > 0 ? 'up' : 'gem', 'mt-0.5 size-4') +
+      '<span>' + (short > 0 ? 'Keep spending your Stellatie and Covenite in the Prayer until you meet these requirements.'
+        : 'Start saving your Stellatie and Covenite in the Prayer, so you can spend them once you unlock the next class.') + '</span></p>';
+    return insightCard(i, 'Job change readiness', 'What the next job change asks for.', chip(short > 0 ? 'warn' : 'good', short > 0 ? (gap > 0 && gap === short ? gap + (gap === 1 ? ' class level' : ' class levels') + ' to go' : 'Not ready yet') : 'Ready for ' + esc(target.name)), body + (foot ? cardFoot(esc(foot)) : ''));
   }
 
   // "930K + Lv. 100" on the timeline means power and a character level.
@@ -1526,32 +1662,62 @@
       best ? chip('good', 'Up to ' + esc(best)) : chip('warn', 'Below ' + esc(cur.tiers[0].diff)), body);
   }
 
-  function rivalsCard(p, i) {
+  // The five members around this one on power, within order. where names the
+  // group for the closing line: "the guild" or the class.
+  function rivalsList(p, order, where) {
     var m = state.meta;
-    if (p.power_n == null) return '';
-    var order = state.players.filter(function (x) { return x.power_n != null; }).sort(function (a, b) { return a.pos.power_n - b.pos.power_n; });
     var at = order.indexOf(p), from = Math.max(0, Math.min(at - 2, order.length - 5));
     var body = '<ul class="mt-3 divide-y divide-zinc-200/60 dark:divide-white/5">';
     order.slice(from, from + 5).forEach(function (x) {
+      var place = order.indexOf(x) + 1;
       var self = x === p, gap = Math.abs(x.power_n - p.power_n);
       var note = self ? 'You' : gap < 0.5 ? 'Level with you' : x.pos.power_n < p.pos.power_n ? fmtNum(gap) + ' to pass' : fmtNum(gap) + ' behind you';
       body += '<li class="flex items-center gap-3 py-2 text-sm' + (self ? ' -mx-2 rounded-lg bg-zinc-900/[0.04] px-2 dark:bg-white/[0.06]' : '') + '">' +
-        '<span class="w-6 shrink-0 text-center text-xs tabular-nums ' + MUTED + '">' + x.pos.power_n + '</span>' + avatar(x) +
+        '<span class="w-6 shrink-0 text-center text-xs tabular-nums ' + MUTED + '">' + place + '</span>' + avatar(x) +
         '<div class="min-w-0 flex-1">' + (self ? '<p class="truncate font-semibold">' + esc(x.name) + '</p>' : '<a class="block truncate font-medium hover:underline" href="' + esc(link(x.slug)) + '">' + esc(x.name) + '</a>') +
         '<p class="text-xs ' + MUTED + '">' + esc(note) + '</p></div>' +
         '<div class="shrink-0 text-right"><p class="font-semibold tabular-nums">' + esc(x.power) + '</p>' + (x.delta.power ? '<p>' + deltaHTML(x.delta.power) + '</p>' : '') + '</div></li>';
     });
     body += '</ul>';
     var above = at > 0 ? order[at - 1] : null, below = order[at + 1], line = '';
-    if (!above && below) line = 'Top of the guild on power, ' + fmtNum(p.power_n - below.power_n) + ' clear of ' + below.name + '.';
+    if (!above && below) line = 'Top of ' + where + ' on power, ' + fmtNum(p.power_n - below.power_n) + ' clear of ' + below.name + '.';
     else if (above && p.growth.power != null && above.growth.power != null) {
       var edge = p.growth.power - above.growth.power;
       if (edge >= 0.5) line = 'Closing in: you gained ' + fmtNum(edge) + ' more than ' + above.name + ' since ' + m.previousLabel + '.';
       else if (edge <= -0.5) line = above.name + ' is pulling away, gaining ' + fmtNum(-edge) + ' more than you since ' + m.previousLabel + '.';
       else line = 'You and ' + above.name + ' gained the same since ' + m.previousLabel + '.';
     }
-    if (line) body += cardFoot(esc(line));
-    return insightCard(i, 'Nearest rivals', 'Either side of you on power.', icon('swords', 'mt-1 size-4 ' + MUTED), body);
+    return body + (line ? cardFoot(esc(line)) : '');
+  }
+
+  // Rivals across the whole guild, with a switch to classmates only. The choice
+  // is kept while moving between profiles.
+  function rivalsCard(p, i) {
+    if (p.power_n == null) return '';
+    var byPower = function (a, b) { return a.pos.power_n - b.pos.power_n; };
+    var all = state.players.filter(function (x) { return x.power_n != null; }).sort(byPower);
+    var ck = classKey(p), mates = ck === 'unknown' ? [] : all.filter(function (x) { return classKey(x) === ck; });
+    if (mates.length < 2) return insightCard(i, 'Nearest rivals', 'Either side of you on power.', icon('swords', 'mt-1 size-4 ' + MUTED), rivalsList(p, all, 'the guild'));
+    var cls = p.profile['class'], scope = state.rivalScope === 'class' ? 'class' : 'all';
+    var seg = function (key, label) {
+      return '<button type="button" class="rounded-md px-2.5 py-1 text-xs font-medium transition-colors aria-pressed:bg-zinc-900 aria-pressed:text-white dark:aria-pressed:bg-zinc-50 dark:aria-pressed:text-zinc-900 ' + MUTED + '" data-scope="' + key + '" aria-pressed="' + (scope === key) + '">' + label + '</button>';
+    };
+    var toggle = '<div class="flex shrink-0 gap-0.5 rounded-lg border border-zinc-200/70 bg-white/60 p-0.5 dark:border-white/10 dark:bg-white/5" role="group" aria-label="Compare with">' + seg('all', 'All members') + seg('class', esc(cls) + 's') + '</div>';
+    var body = '<div class="flex flex-1 flex-col" data-scope-panel="all"' + (scope === 'all' ? '' : ' hidden') + '>' + rivalsList(p, all, 'the guild') + '</div>' +
+      '<div class="flex flex-1 flex-col" data-scope-panel="class"' + (scope === 'class' ? '' : ' hidden') + '>' + rivalsList(p, mates, 'the ' + cls + 's') + '</div>';
+    return insightCard(i, 'Nearest rivals', 'Either side of you on power.', toggle, body);
+  }
+
+  function bindRivals() {
+    var panel = app.querySelector('[data-scope-panel]'), card = panel && panel.closest('section');
+    if (!card) return;
+    card.addEventListener('click', function (ev) {
+      var btn = ev.target.closest('[data-scope]');
+      if (!btn) return;
+      state.rivalScope = btn.getAttribute('data-scope');
+      Array.prototype.forEach.call(card.querySelectorAll('[data-scope]'), function (b) { b.setAttribute('aria-pressed', String(b === btn)); });
+      Array.prototype.forEach.call(card.querySelectorAll('[data-scope-panel]'), function (el) { el.hidden = el.getAttribute('data-scope-panel') !== state.rivalScope; });
+    });
   }
 
   function median(vals) {
@@ -1637,6 +1803,7 @@
     var lines = [];
     if (m.totalWeek > 0) lines.push((Math.round(1000 * p.week_n / m.totalWeek) / 10) + '% of the guild\'s ' + fmtNum(m.totalWeek) + ' this week. An even split would be ' + (Math.round(1000 / m.memberCount) / 10) + '%.');
     if (m.previousLabel && !p.prev) lines.push('Joined since ' + m.previousLabel + ', so this may be a part week.');
+    else if (top > 0 && p.week_n < 0.8 * top) lines.push('We recommend donating 4 out of 5 times. If you are running low on Dawnium, lower amounts are okay.');
     if (p.totalGain != null && m.totalGainMedian != null) lines.push('You donated ' + fmtNum(p.totalGain) + ' since ' + m.previousLabel + '. Half the guild donated ' + fmtNum(m.totalGainMedian) + ' or more.');
     if (lines.length) body += cardFoot(lines.map(esc).join('<br>'));
     return insightCard(i, 'Your contribution this week', 'What you donated this week, against the rest of the guild.',
@@ -1665,66 +1832,92 @@
 
     var html = pastNotice(p.slug) + topBar(p.slug, prev, next, i++);
 
-    var sub = [];
-    if (pr['class']) sub.push(pr['class'] + (pr.classLevel != null ? ', class level ' + pr.classLevel : ''));
-    else sub.push('Class not captured');
-    html += '<section class="' + CARD + ' p-5 sm:p-6 ' + ANIM + '" style="--i:' + i++ + '" aria-label="Player card">' +
-      '<div class="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">' +
-      '<div class="flex items-start gap-4">' + avatar(p, 'lg') +
-      '<div class="min-w-0"><h1 class="text-2xl font-semibold tracking-tight">' + esc(p.name) + '</h1>' +
-      '<p class="mt-0.5 flex flex-wrap items-center text-sm ' + MUTED + '">' + classInline(p) + (pr.classLevel != null ? '<span>, class level ' + esc(pr.classLevel) + up(pr.classLevel, was && was.classLevel) + '</span>' : '') + '</p>' +
-      '<div class="mt-3 flex flex-wrap gap-1.5">' +
-      (pr.level != null ? '<span class="' + BADGE + '">Level ' + esc(pr.level) + up(pr.level, was && was.level) + '</span>' : '') +
-      roleBadge(p) +
-      ((pr.badges && pr.badges.rank) || p.rank ? '<span class="' + BADGE + '">' + icon('medal', 'size-3 text-amber-500') + esc((pr.badges && pr.badges.rank) || p.rank) + '</span>' : '') +
-      fantomonBadge(pr) +
-      classBadges(p).join('') + growthBadges(p).join('') +
-      '</div></div></div>' +
-      '<div class="flex shrink-0 items-center gap-5 sm:flex-row-reverse">' +
-      shotThumb(p) +
-      (fantomonImg(pr, 'size-16') ? '<div class="flex flex-col items-center gap-1"><span class="grid size-20 place-items-center rounded-xl bg-white/60 ring-1 ring-inset ring-white/70 dark:bg-white/5 dark:ring-white/10">' + fantomonImg(pr, 'size-16') + '</span><span class="text-xs ' + MUTED + '">' + esc(fantomonSpecies(pr)) + (fantomonRenamed(pr) ? ' <span class="opacity-70">"' + esc(fantomonRenamed(pr)) + '"</span>' : '') + '</span></div>' : '') +
-      '<div class="sm:text-right"><p class="text-sm font-medium ' + MUTED + '">Power</p>' +
-      '<p class="text-4xl font-semibold tracking-tight" id="hero-power">' + esc(p.power || '-') + '</p>' +
-      (p.delta.power ? '<p class="mt-1 text-sm ' + MUTED + '">' + deltaHTML(p.delta.power) + ' since ' + esc(m.previousLabel) + '</p>' : '') +
-      '</div></div></div>' +
-      '<dl class="mt-6 grid grid-cols-2 gap-x-6 gap-y-4 border-t border-zinc-200/70 pt-6 text-sm sm:grid-cols-4 dark:border-white/10">' +
+    // Header: who the member is on top, then one strip of their headline
+    // numbers, with the rarely needed details folded under an arrow.
+    var ck = classKey(p), rankName = (pr.badges && pr.badges.rank) || p.rank;
+    var awards = classBadges(p).join('') + growthBadges(p).join('');
+    var cell = function (label, value, extra) {
+      return '<div class="min-w-0 ' + (extra || '') + '"><dt class="text-xs font-medium ' + MUTED + '">' + label + '</dt><dd class="mt-1 flex min-w-0 flex-wrap items-baseline gap-x-1.5 text-lg font-semibold leading-tight tracking-tight">' + value + '</dd></div>';
+    };
+    html += '<section class="' + CARD + ' relative overflow-hidden ' + ANIM + '" style="--i:' + i++ + '" aria-label="Player card">' +
+      '<span class="pointer-events-none absolute inset-0 bg-gradient-to-br from-' + ck + '/15 via-transparent to-transparent" aria-hidden="true"></span>' +
+      (ck !== 'unknown' ? '<img class="pointer-events-none absolute -right-10 -top-12 size-64 rotate-12 select-none object-contain opacity-[0.06]" src="assets/img/classes/' + ck + '.png" alt="">' : '') +
+      '<div class="relative flex items-start gap-4 p-5 sm:gap-5 sm:p-6">' +
+      '<div class="flex shrink-0">' + avatar(p, 'xl', 'ring-' + ck) + '</div>' +
+      '<div class="min-w-0 flex-1"><div class="flex flex-wrap items-center gap-x-3 gap-y-1"><h1 class="min-w-0 truncate text-2xl font-semibold tracking-tight sm:text-3xl">' + esc(p.name) + '</h1>' + roleBadge(p) + '</div>' +
+      '<p class="mt-1 flex flex-wrap items-center gap-x-2 text-sm ' + MUTED + '">' + classInline(p, 'font-medium text-zinc-700 dark:text-zinc-200') +
+      (rankName ? '<span aria-hidden="true">·</span><span class="inline-flex items-center gap-1">' + icon('medal', 'size-3.5 text-amber-500') + esc(rankName) + '</span>' : '') + '</p>' +
+      (awards ? '<div class="mt-3 flex flex-wrap gap-1.5">' + awards + '</div>' : '') + '</div>' +
+      '<div class="hidden shrink-0 sm:block">' + shotThumb(p) + '</div></div>' +
+      '<dl class="relative grid grid-cols-2 gap-x-6 gap-y-4 border-t border-zinc-200/70 px-5 py-4 sm:grid-cols-4 sm:px-6 dark:border-white/10">' +
+      cell('Power', '<span class="text-3xl" id="hero-power">' + esc(p.power || '-') + '</span>' + (p.delta.power ? '<span class="text-sm font-normal ' + MUTED + '">' + deltaHTML(p.delta.power) + ' since ' + esc(m.previousLabel) + '</span>' : ''), 'col-span-2 sm:col-span-1') +
+      cell('Level', pr.level != null ? esc(pr.level) + '<span class="text-sm font-normal">' + up(pr.level, was && was.level) + '</span>' : '-') +
+      cell('Class level', pr.classLevel != null ? esc(pr.classLevel) + '<span class="text-sm font-normal">' + up(pr.classLevel, was && was.classLevel) + '</span>' : '-') +
+      cell('Fantomon', fantomonSpecies(pr) ? '<span class="inline-flex min-w-0 items-center gap-2">' + (fantomonImg(pr, 'size-7') || '') + '<span class="truncate">' + esc(fantomonSpecies(pr)) + '</span></span>' +
+        (fantomonRenamed(pr) ? '<span class="truncate text-sm font-normal ' + MUTED + '">"' + esc(fantomonRenamed(pr)) + '"</span>' : '') : pr.fantomon ? '<span class="truncate">' + esc(pr.fantomon) + '</span>' : '-', 'col-span-2 sm:col-span-1') +
+      '</dl>' +
+      // Player ID and likes are rarely needed, so they stay folded under an arrow.
+      '<details class="group relative border-t border-zinc-200/70 dark:border-white/10"><summary class="mx-auto my-1 flex w-fit cursor-pointer list-none select-none items-center gap-1 rounded-md px-2 py-1 text-xs font-medium transition-colors hover:bg-zinc-900/5 dark:hover:bg-white/10 ' + MUTED + ' [&::-webkit-details-marker]:hidden" aria-label="Player ID, likes and capture">' +
+      icon('down', 'size-4 transition-transform group-open:rotate-180') + '<span class="group-open:hidden">More</span><span class="hidden group-open:inline">Less</span></summary>' +
+      '<div class="flex flex-wrap items-end gap-x-12 gap-y-4 px-5 pb-4 pt-2 text-sm sm:px-6"><dl class="flex flex-wrap gap-x-12 gap-y-4">' +
       dl('Player ID', esc(pr.playerId || '-')) +
-      dl('Guild', esc((pr.badges && pr.badges.guildTitle) || m.guild)) +
-      dl('Server', esc((pr.badges && pr.badges.serverTitle) || m.server || '-')) +
       dl('Likes', esc(pr.likes || '-') + up(parseNum(pr.likes), was && parseNum(was.likes))) +
-      '</dl></section>';
+      '</dl><div class="sm:hidden">' + shotThumb(p) + '</div></div></details></section>';
 
+    // Four sections: where you stand, what to work on, your part in the guild, your build.
+    var group = function (id, title, note) {
+      return '<div class="mb-3 mt-10 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 ' + ANIM + '" style="--i:' + i++ + '"><h2 class="text-lg font-semibold tracking-tight" id="' + id + '">' + title + '</h2>' + (note ? '<p class="text-xs ' + MUTED + '">' + note + '</p>' : '') + '</div>';
+    };
+
+    // Tanks and healers are ranked on Conquest damage among their own class only.
+    var support = SUPPORT_ROLES[classKey(p)] && p.cpos && p.cpos.dmg_n != null && p.classSize >= 2;
+    // What the member gained next to what half of their class (or the guild, for a small class) gained.
+    var peers = classKey(p) !== 'unknown' && p.classSize >= 3 ? state.players.filter(function (x) { return classKey(x) === classKey(p); }) : state.players;
+    var peerName = peers === state.players ? 'the guild' : 'the ' + p.profile['class'] + 's';
+    var pace = function (get) {
+      if (!p.prev || get(p) == null) return '';
+      var mid = median(peers.filter(function (x) { return x.prev; }).map(get));
+      return mid == null ? '' : 'Half ' + peerName + ' gained ' + fmtNum(mid) + ' or more';
+    };
     var standing = [
-      ['swords', 'Power', p.pos.power_n, p.power, p.delta.power],
-      ['gem', 'Weekly contribution', p.pos.week_n, p.week, ''],
-      ['trophy', 'Total contribution', p.pos.total_n, p.total, p.delta.total],
-      ['sword', 'Conquest damage', p.pos.dmg_n, p.dmg, p.delta.dmg]
+      ['swords', 'Power', p.pos.power_n, p.power, p.delta.power, n, '', pace(function (x) { return x.growth.power; })],
+      ['gem', 'Weekly contribution', p.pos.week_n, p.week, '', n, '', ''],
+      ['trophy', 'Total contribution', p.pos.total_n, p.total, p.delta.total, n, '', pace(function (x) { return x.totalGain; })],
+      support ? ['sword', 'Conquest damage', p.cpos.dmg_n, p.dmg, p.delta.dmg, p.classSize, ' ' + p.profile['class'] + 's', pace(function (x) { return x.dmgGain; })]
+        : ['sword', 'Conquest damage', p.pos.dmg_n, p.dmg, p.delta.dmg, n, '', pace(function (x) { return x.dmgGain; })]
     ];
-    html += '<section class="mt-6" aria-labelledby="standing-title"><div class="mb-3 flex flex-wrap items-baseline justify-between gap-2 ' + ANIM + '" style="--i:' + i++ + '"><h2 class="text-sm font-semibold" id="standing-title">Standing in the guild</h2>' +
-      (m.previousLabel ? '<p class="text-xs ' + MUTED + '">Changes are since ' + esc(m.previousLabel) + '.</p>' : '<p class="text-xs ' + MUTED + '">' + (state.dirs.length > 1 ? 'This is the first snapshot, so there is nothing earlier to compare it with.' : 'Changes and growth badges appear once a second snapshot is added.') + '</p>') + '</div>' +
-      '<div class="grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">';
+    html += '<section aria-labelledby="standing-title">' + group('standing-title', 'Where you stand',
+      m.previousLabel ? 'Changes are since ' + esc(m.previousLabel) + '.' : state.dirs.length > 1 ? 'This is the first snapshot, so there is nothing earlier to compare it with.' : 'Changes and growth badges appear once a second snapshot is added.');
+    var tiles = '';
     standing.forEach(function (s) {
-      var pct = s[2] != null && n > 0 ? (n - s[2] + 1) / n : 0;
-      html += '<div class="' + CARD + ' p-4 ' + ANIM + '" style="--i:' + i++ + '">' +
+      var pct = s[2] != null && s[5] > 0 ? (s[5] - s[2] + 1) / s[5] : 0;
+      tiles += '<div class="' + CARD + ' flex flex-col p-4 ' + ANIM + '" style="--i:' + i++ + '">' +
         '<div class="flex items-center justify-between gap-2"><p class="text-sm font-medium ' + MUTED + '">' + s[1] + '</p>' + icon(s[0], 'size-4 ' + MUTED) + '</div>' +
-        '<p class="mt-2 flex items-baseline gap-1.5"><span class="text-3xl font-semibold tracking-tight">' + (s[2] != null ? esc(ordinal(s[2])) : '-') + '</span><span class="text-sm ' + MUTED + '">of ' + n + '</span></p>' +
+        '<p class="mt-2 flex items-baseline gap-1.5"><span class="text-3xl font-semibold tracking-tight">' + (s[2] != null ? esc(ordinal(s[2])) : '-') + '</span><span class="text-sm ' + MUTED + '">of ' + s[5] + esc(s[6]) + '</span></p>' +
         '<p class="mt-1 flex items-baseline gap-2 text-sm"><span class="font-medium">' + esc(s[3] != null ? s[3] : '-') + '</span>' + deltaHTML(s[4]) + '</p>' +
-        '<div class="mt-3">' + meter(pct, 'bg-zinc-900 dark:bg-zinc-100') + '</div></div>';
+        (s[7] ? '<p class="mt-1 text-xs ' + MUTED + '">' + esc(s[7]) + '</p>' : '') +
+        '<div class="mt-auto pt-3">' + meter(pct, 'bg-zinc-900 dark:bg-zinc-100') + '</div></div>';
     });
-    html += '</div></section>';
+    var rivals = rivalsCard(p, i++);
+    html += rivals ? '<div class="grid gap-4 lg:grid-cols-2"><div class="grid gap-3 sm:grid-cols-2 sm:gap-4">' + tiles + '</div>' + rivals + '</div>'
+      : '<div class="grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">' + tiles + '</div>';
+    html += '</section>';
 
-    var focus = focusCard(p, i++);
-    html += '<div class="mt-6 grid gap-4 lg:grid-cols-6">' +
-      (focus ? '<div class="lg:col-span-3">' + focus + '</div>' : '') +
-      '<div class="empty:hidden ' + (focus ? 'lg:col-span-3' : 'lg:col-span-6') + '" id="readiness">' + (timeline ? readinessCard(p, timeline, i) : '') + '</div>' +
-      [rivalsCard(p, ++i), damageCard(p, ++i), contributionCard(p, ++i)].filter(Boolean).map(function (c) { return '<div class="lg:col-span-2">' + c + '</div>'; }).join('') +
-      '</div>';
-    i++;
+    var focus = focusCard(p, i++), jobAt = i++, readyAt = i++;
+    html += '<section aria-labelledby="work-title">' + group('work-title', 'What to work on', '') +
+      '<div class="grid gap-4 lg:grid-cols-2">' +
+      (focus ? '<div class="lg:col-span-2">' + focus + '</div><div class="empty:hidden" id="job-readiness">' + (timeline ? jobCard(p, timeline, jobAt) : '') + '</div>' : '') +
+      '<div class="empty:hidden" id="readiness">' + (timeline ? readinessCard(p, timeline, readyAt) : '') + '</div></div></section>';
+
+    var duties = [contributionCard(p, i++), damageCard(p, i++)].filter(Boolean);
+    if (duties.length) html += '<section aria-labelledby="part-title">' + group('part-title', 'Your part in the guild', 'Donations and Conquest.') +
+      '<div class="grid gap-4 lg:grid-cols-2">' + duties.join('') + '</div></section>';
 
     if (p.profile) {
       var borrowed = pr.snapshot && pr.snapshot !== m.dir;
-      if (borrowed) html += '<p class="mt-6 flex items-center gap-2 text-xs ' + MUTED + ' ' + ANIM + '" style="--i:' + i++ + '">' + icon('clock', 'size-3.5') + 'No profile capture in this snapshot. Class, stats and enhancements below are from ' + esc(fmtDay(pr.snapshot)) + '; power and contributions are current.</p>';
-      html += '<div class="' + (borrowed ? 'mt-3' : 'mt-6') + ' grid gap-4 lg:grid-cols-2">';
+      html += '<section aria-labelledby="build-title">' + group('build-title', 'Your build', 'Combat stats and enhancement levels.');
+      if (borrowed) html += '<p class="mb-3 flex items-center gap-2 text-xs ' + MUTED + ' ' + ANIM + '" style="--i:' + i++ + '">' + icon('clock', 'size-3.5') + 'No profile capture in this snapshot. Class, stats and enhancements below are from ' + esc(fmtDay(pr.snapshot)) + '; power and contributions are current.</p>';
+      html += '<div class="grid gap-4 lg:grid-cols-2">';
       var stats = [['atk', 'Attack', 'sword', 'bg-red-500'], ['def', 'Defense', 'shield', 'bg-blue-500'], ['hp', 'HP', 'heart', 'bg-emerald-500'], ['spd', 'Speed', 'bolt', 'bg-amber-500']];
       html += '<section class="' + CARD + ' ' + ANIM + '" style="--i:' + i++ + '"><div class="border-b border-zinc-200/70 p-5 dark:border-white/10"><h2 class="text-base font-semibold">Combat stats</h2><p class="text-sm ' + MUTED + '">Bars are relative to the best value in the guild.' + (was ? ' Changes are since the ' + esc(fmtDay(was.snapshot)) + ' capture.' : '') + '</p></div>' +
         '<div class="divide-y divide-zinc-200/60 px-5 dark:divide-white/5">';
@@ -1751,13 +1944,14 @@
       });
       html += '</div></section>';
 
-      html += '<section class="' + CARD + ' ' + ANIM + '" style="--i:' + i++ + '"><div class="border-b border-zinc-200/70 p-5 dark:border-white/10"><h2 class="text-base font-semibold">Enhancements</h2><p class="text-sm ' + MUTED + '">Enhancement levels for equipment and skills (techniques and charms).</p></div>' +
+      html += '<section class="' + CARD + ' ' + ANIM + '" style="--i:' + i++ + '"><div class="border-b border-zinc-200/70 p-5 dark:border-white/10"><h2 class="text-base font-semibold">Enhancements</h2><p class="text-sm ' + MUTED + '">Enhancement levels for equipment, Skill Technique and Skill Charm.</p></div>' +
         '<div class="space-y-5 p-5">' +
         upgradeGroup(p, 'Equipment', pr.gear || [], 5, ['blade', 'tome', 'belt', 'armor', 'boots'], '+', 'grid-cols-5', 'gear', was && was.gear) +
-        upgradeGroup(p, 'Technique', pr.technique || [], 4, ['spark', 'spark', 'spark', 'spark'], 'Lv. ', 'grid-cols-4', 'tech', was && was.technique) +
-        upgradeGroup(p, 'Charm', pr.charm || [], 4, ['rune', 'rune', 'rune', 'rune'], 'Lv. ', 'grid-cols-4', 'charm', was && was.charm) +
+        upgradeGroup(p, 'Skill Technique', pr.technique || [], 4, ['spark', 'spark', 'spark', 'spark'], 'Lv. ', 'grid-cols-4', 'tech', was && was.technique) +
+        upgradeGroup(p, 'Skill Charm', pr.charm || [], 4, ['rune', 'rune', 'rune', 'rune'], 'Lv. ', 'grid-cols-4', 'charm', was && was.charm) +
         '</div></section></div>';
       if (pr.notes) html += '<p class="mt-4 rounded-xl border border-white/70 bg-white/50 p-4 text-sm backdrop-blur-md ' + MUTED + ' dark:border-white/10 dark:bg-zinc-900/40 ' + ANIM + '" style="--i:' + i++ + '">' + esc(pr.notes) + '</p>';
+      html += '</section>';
     } else {
       html += '<p class="mt-6 rounded-xl border border-white/70 bg-white/50 p-4 text-sm backdrop-blur-md ' + MUTED + ' dark:border-white/10 dark:bg-zinc-900/40">No profile capture for this player yet. Only the roster line is known.</p>';
     }
@@ -1770,10 +1964,13 @@
       '</div>');
     animateMeters();
     bindShots();
+    bindRivals();
     if (!timeline) loadTimeline().then(function (t) {
       var box = document.getElementById('readiness');
       if (!box || state.meta !== m || location.hash.indexOf(p.slug) === -1) return;
       box.innerHTML = readinessCard(p, t, 3);
+      var job = document.getElementById('job-readiness');
+      if (job) job.innerHTML = jobCard(p, t, 3);
       animateMeters();
     }).catch(function () {});
     countUp(document.getElementById('hero-power'), p.power_n, p.power || '-');
