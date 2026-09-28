@@ -258,7 +258,8 @@
     };
   }
 
-  function prepare(current, previous) {
+  // history holds every week.json up to this snapshot, oldest first.
+  function prepare(current, previous, history) {
     var players = current.players;
     var metrics = ['power_n', 'week_n', 'total_n', 'dmg_n'];
     var max = {};
@@ -296,6 +297,16 @@
         classAvg[k][m] = vals.length ? vals.reduce(function (a, b) { return a + b; }, 0) / vals.length : null;
       });
     });
+    // Best and halfway mark of each class, for the combat stats card.
+    var classBest = {}, classMid = {};
+    Object.keys(byClass).forEach(function (k) {
+      classBest[k] = {}; classMid[k] = {};
+      ['atk', 'def', 'hp', 'spd'].forEach(function (s) {
+        var vals = byClass[k].map(function (p) { return p.stat_n[s]; }).filter(function (v) { return v != null; });
+        classBest[k][s] = vals.length ? Math.max.apply(null, vals) : null;
+        classMid[k][s] = median(vals);
+      });
+    });
 
     // Growth since the previous snapshot: power gain and places climbed.
     var prevPos = {};
@@ -322,6 +333,53 @@
     var gainers = players.filter(function (p) { return p.growth.power != null; })
       .sort(function (a, b) { return b.growth.power - a.growth.power; });
     gainers.forEach(function (p, i) { p.growth.rank = i + 1; });
+
+    // Conquest damage for the power behind it: damage per 1M power, counting
+    // what was dealt since the previous snapshot where there is one. Tanks and
+    // healers are left out, as their damage is low by design.
+    players.forEach(function (p) {
+      var dealt = previous ? p.dmgGain : p.dmg_n;
+      p.dmgPerM = !SUPPORT_ROLES[classKey(p)] && dealt != null && p.power_n > 0 ? dealt / (p.power_n / 1e6) : null;
+    });
+    var rated = players.filter(function (p) { return p.dmgPerM != null; }).sort(function (a, b) { return b.dmgPerM - a.dmgPerM; });
+    rated.forEach(function (p, k) {
+      p.eff = { pos: k + 1, of: rated.length, cpos: null, cof: null };
+      var mates = rated.filter(function (x) { return classKey(x) === classKey(p); });
+      if (classKey(p) !== 'unknown') { p.eff.cpos = mates.indexOf(p) + 1; p.eff.cof = mates.length; }
+    });
+
+    // Each member's line in every snapshot up to this one.
+    var weeks = (history || []).map(function (h) {
+      var roster = {}, dmg = {}, top = 0;
+      (h.week.roster || []).forEach(function (r) { roster[r.name] = r; top = Math.max(top, parseNum(r.week) || 0); });
+      (h.week.conquest || []).forEach(function (c) { dmg[c.name] = parseNum(c.dmg); });
+      return { dir: h.dir, t: dirDate(h.dir).getTime(), roster: roster, dmg: dmg, top: top };
+    });
+    players.forEach(function (p) {
+      p.history = weeks.filter(function (w) { return w.roster[p.name]; }).map(function (w) {
+        var r = w.roster[p.name];
+        return { dir: w.dir, t: w.t, power: parseNum(r.power), total: parseNum(r.total), dmg: w.dmg[p.name] != null ? w.dmg[p.name] : null };
+      });
+    });
+    // Donation streak: game weeks in a row, ending with this one, where the
+    // member donated at least DONATE_LEVEL of that week's top donor. Two
+    // snapshots under a week apart where weekly donations kept climbing are the
+    // same game week, so only the later one counts.
+    var sameWeek = function (a, b) {
+      if (b.t - a.t >= 7 * 86400000) return false;
+      var both = Object.keys(a.roster).filter(function (n) { return b.roster[n]; });
+      var rose = both.filter(function (n) { return (parseNum(b.roster[n].week) || 0) >= (parseNum(a.roster[n].week) || 0); });
+      return both.length > 0 && rose.length >= 0.8 * both.length;
+    };
+    var gameWeeks = weeks.filter(function (w, k) { return !(k + 1 < weeks.length && sameWeek(w, weeks[k + 1])); });
+    players.forEach(function (p) {
+      p.streak = 0;
+      for (var k = gameWeeks.length - 1; k >= 0; k--) {
+        var w = gameWeeks[k], r = w.roster[p.name];
+        if (!r || !(w.top > 0 && parseNum(r.week) >= DONATE_LEVEL * w.top)) break;
+        p.streak++;
+      }
+    });
 
     var guildAvg = {};
     metrics.concat(statKeys).forEach(function (k) {
@@ -367,6 +425,11 @@
       totalGainMedian: median(players.map(function (p) { return p.totalGain; })),
       memberCount: players.length,
       totalDmg: sum('dmg_n'),
+      // Conquest damage dealt since the previous snapshot, or the running total without one.
+      dmgDealt: previous ? sum('dmgGain') : sum('dmg_n'),
+      weeksLoaded: gameWeeks.length,
+      classBest: classBest,
+      classMid: classMid,
       totalWeek: sum('week_n'),
       onlineNow: players.filter(function (p) { return p.login_m === 0; }).length,
       totalPower: sum('power_n'),
@@ -527,6 +590,10 @@
     else if (g.rank != null && g.rank <= 3 && g.power > 0) out.push(growthBadge('up', 'Top 3 power gain'));
     if (g.places != null && g.places >= 3) out.push(growthBadge('trophy', 'Climbed ' + g.places + ' places'));
     return out;
+  }
+
+  function streakBadge(p) {
+    return p.streak >= 2 ? growthBadge('gem', p.streak + '-week donation streak') : '';
   }
 
   function roleBadge(p) {
@@ -1138,6 +1205,15 @@
     });
   }
 
+  // Every week.json up to a snapshot, oldest first, for each member's own
+  // history. A file that fails to load is left out rather than failing the page.
+  function loadHistory(upTo) {
+    var dirs = state.dirs.filter(function (d) { return d <= upTo; });
+    return Promise.all(dirs.map(function (d) {
+      return loadWeek(d).then(function (w) { return { dir: d, week: w }; }, function () { return null; });
+    })).then(function (rows) { return rows.filter(Boolean); });
+  }
+
   var TREND_LINE = 'stroke-violet-600 dark:stroke-violet-500', TREND_DOT = 'bg-violet-600 dark:bg-violet-500';
 
   // One line per chart: the plot is an SVG stretched to the box, so the dots and
@@ -1185,6 +1261,20 @@
     if (!charts) return '';
     return '<div class="mt-5 border-t border-zinc-200/70 pt-4 dark:border-white/10"><p class="text-xs ' + MUTED + '">Trend across ' + rows.length + ' snapshots. Hover or tap a chart for each date.</p>' +
       '<div class="mt-3 grid gap-x-8 gap-y-6 md:grid-cols-3">' + charts + '</div></div>';
+  }
+
+  // One member's power, total contribution and Conquest damage across the
+  // snapshots they appear in.
+  function progressCard(p, i) {
+    var h = p.history || [];
+    if (h.length < 2) return '';
+    var pts = function (key) { return h.map(function (x) { return { dir: x.dir, t: x.t, v: x[key] }; }); };
+    var charts = trendChart('Power', '', pts('power')) +
+      trendChart('Total contribution', 'donated in all', pts('total')) +
+      trendChart('Conquest damage', 'running total', pts('dmg'));
+    if (!charts) return '';
+    return '<section class="' + CARD + ' p-5 ' + ANIM + '" style="--i:' + Math.min(i, 14) + '"><p class="text-xs ' + MUTED + '">Across the ' + h.length + ' snapshots you appear in. Hover or tap a chart for each date.</p>' +
+      '<div class="mt-3 grid gap-x-8 gap-y-6 md:grid-cols-3">' + charts + '</div></section>';
   }
 
   // The pointer only has to be nearest a date, never on the line itself.
@@ -1683,7 +1773,13 @@
     if (!above && below) line = 'Top of ' + where + ' on power, ' + fmtNum(p.power_n - below.power_n) + ' clear of ' + below.name + '.';
     else if (above && p.growth.power != null && above.growth.power != null) {
       var edge = p.growth.power - above.growth.power;
-      if (edge >= 0.5) line = 'Closing in: you gained ' + fmtNum(edge) + ' more than ' + above.name + ' since ' + m.previousLabel + '.';
+      if (edge >= 0.5) {
+        line = 'Closing in: you gained ' + fmtNum(edge) + ' more than ' + above.name + ' since ' + m.previousLabel + '.';
+        // If both keep gaining at the same rate as since the last snapshot.
+        var weeks = m.sinceDays > 0 ? Math.ceil((above.power_n - p.power_n) / (edge * 7 / m.sinceDays)) : null;
+        if (weeks != null && weeks <= 1) line += ' At that pace you pass them within a week.';
+        else if (weeks != null && weeks <= 52) line += ' At that pace you pass them in about ' + weeks + ' weeks.';
+      }
       else if (edge <= -0.5) line = above.name + ' is pulling away, gaining ' + fmtNum(-edge) + ' more than you since ' + m.previousLabel + '.';
       else line = 'You and ' + above.name + ' gained the same since ' + m.previousLabel + '.';
     }
@@ -1781,12 +1877,23 @@
     } else {
       body += '<p class="mt-4 text-sm ' + MUTED + '">Not enough members with damage near this power to compare against.</p>';
     }
+    if (p.eff) {
+      var effClass = classKey(p) !== 'unknown' && p.eff.cof >= 3;
+      body += '<div class="mt-4 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 rounded-lg bg-zinc-900/[0.03] px-3 py-2 text-sm dark:bg-white/[0.04]">' +
+        '<span class="' + MUTED + '">Damage per 1M power' + (useGain ? ' since ' + esc(m.previousLabel) : '') + '</span>' +
+        '<span><b class="font-semibold tabular-nums">' + esc(fmtNum(p.dmgPerM)) + '</b> <span class="text-xs ' + MUTED + '">' +
+        esc(effClass ? ordinal(p.eff.cpos) + ' of ' + p.eff.cof + ' ' + p.profile['class'] + 's' : ordinal(p.eff.pos) + ' of ' + p.eff.of + ' damage dealers') + '</span></span></div>';
+    }
     var lines = [];
+    if (m.dmgDealt > 0 && get(p) != null) lines.push('You dealt ' + (Math.round(1000 * get(p) / m.dmgDealt) / 10) + '% of the guild\'s ' + fmtNum(m.dmgDealt) + ' Conquest damage' + (useGain ? ' since ' + m.previousLabel : '') + '.');
     if (p.pos.power_n && p.pos.dmg_n) lines.push('In the guild: ' + ordinal(p.pos.power_n) + ' on power, ' + ordinal(p.pos.dmg_n) + ' on Conquest damage.');
     if (classKey(p) !== 'unknown' && p.classSize >= 3 && p.cpos.power_n && p.cpos.dmg_n) lines.push('Among ' + p.classSize + ' ' + p.profile['class'] + 's: ' + ordinal(p.cpos.power_n) + ' on power, ' + ordinal(p.cpos.dmg_n) + ' on Conquest damage.');
     if (lines.length) body += cardFoot(lines.map(esc).join('<br>'));
     return insightCard(i, title, what + ', against similar power.', aside, body);
   }
+
+  // Donating 4 out of 5 times lands at about 80% of the top donor's week.
+  var DONATE_LEVEL = 0.8;
 
   function contributionCard(p, i) {
     var m = state.meta;
@@ -1803,7 +1910,9 @@
     var lines = [];
     if (m.totalWeek > 0) lines.push((Math.round(1000 * p.week_n / m.totalWeek) / 10) + '% of the guild\'s ' + fmtNum(m.totalWeek) + ' this week. An even split would be ' + (Math.round(1000 / m.memberCount) / 10) + '%.');
     if (m.previousLabel && !p.prev) lines.push('Joined since ' + m.previousLabel + ', so this may be a part week.');
-    else if (top > 0 && p.week_n < 0.8 * top) lines.push('We recommend donating 4 out of 5 times. If you are running low on Dawnium, lower amounts are okay.');
+    else if (top > 0 && p.week_n < DONATE_LEVEL * top) lines.push('We recommend donating 4 out of 5 times. If you are running low on Dawnium, lower amounts are okay.');
+    if (p.streak >= 2) lines.push('Donation streak: ' + p.streak + ' weeks in a row at the recommended level: 80% or more of what the top donor donated that week.');
+    else if (p.streak === 1 && m.weeksLoaded > 1) lines.push('At the recommended level this week. Do it again next week to start a donation streak.');
     if (p.totalGain != null && m.totalGainMedian != null) lines.push('You donated ' + fmtNum(p.totalGain) + ' since ' + m.previousLabel + '. Half the guild donated ' + fmtNum(m.totalGainMedian) + ' or more.');
     if (lines.length) body += cardFoot(lines.map(esc).join('<br>'));
     return insightCard(i, 'Your contribution this week', 'What you donated this week, against the rest of the guild.',
@@ -1830,12 +1939,12 @@
     var next = at >= 0 && at < order.length - 1 ? order[at + 1] : null;
     var i = 0;
 
-    var html = pastNotice(p.slug) + topBar(p.slug, prev, next, i++);
+    var html = pastNotice(p.slug) + topBar(p.slug, prev, next, i++, p);
 
     // Header: who the member is on top, then one strip of their headline
     // numbers, with the rarely needed details folded under an arrow.
     var ck = classKey(p), rankName = (pr.badges && pr.badges.rank) || p.rank;
-    var awards = classBadges(p).join('') + growthBadges(p).join('');
+    var awards = classBadges(p).join('') + growthBadges(p).join('') + streakBadge(p);
     var cell = function (label, value, extra) {
       return '<div class="min-w-0 ' + (extra || '') + '"><dt class="text-xs font-medium ' + MUTED + '">' + label + '</dt><dd class="mt-1 flex min-w-0 flex-wrap items-baseline gap-x-1.5 text-lg font-semibold leading-tight tracking-tight">' + value + '</dd></div>';
     };
@@ -1903,6 +2012,9 @@
       : '<div class="grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">' + tiles + '</div>';
     html += '</section>';
 
+    var progress = progressCard(p, i++);
+    if (progress) html += '<section aria-labelledby="progress-title">' + group('progress-title', 'Your progress', 'Power, total contribution and Conquest damage over time.') + progress + '</section>';
+
     var focus = focusCard(p, i++), jobAt = i++, readyAt = i++;
     html += '<section aria-labelledby="work-title">' + group('work-title', 'What to work on', '') +
       '<div class="grid gap-4 lg:grid-cols-2">' +
@@ -1919,27 +2031,36 @@
       if (borrowed) html += '<p class="mb-3 flex items-center gap-2 text-xs ' + MUTED + ' ' + ANIM + '" style="--i:' + i++ + '">' + icon('clock', 'size-3.5') + 'No profile capture in this snapshot. Class, stats and enhancements below are from ' + esc(fmtDay(pr.snapshot)) + '; power and contributions are current.</p>';
       html += '<div class="grid gap-4 lg:grid-cols-2">';
       var stats = [['atk', 'Attack', 'sword', 'bg-red-500'], ['def', 'Defense', 'shield', 'bg-blue-500'], ['hp', 'HP', 'heart', 'bg-emerald-500'], ['spd', 'Speed', 'bolt', 'bg-amber-500']];
-      html += '<section class="' + CARD + ' ' + ANIM + '" style="--i:' + i++ + '"><div class="border-b border-zinc-200/70 p-5 dark:border-white/10"><h2 class="text-base font-semibold">Combat stats</h2><p class="text-sm ' + MUTED + '">Bars are relative to the best value in the guild.' + (was ? ' Changes are since the ' + esc(fmtDay(was.snapshot)) + ' capture.' : '') + '</p></div>' +
+      // Stats are measured against the member's own class when it has others in
+      // it: a Guardian's attack next to a Destroyer's says little.
+      var sck = classKey(p), byClass = sck !== 'unknown' && p.classSize >= 2, cls = pr['class'];
+      html += '<section class="' + CARD + ' ' + ANIM + '" style="--i:' + i++ + '"><div class="border-b border-zinc-200/70 p-5 dark:border-white/10"><h2 class="text-base font-semibold">Combat stats</h2><p class="text-sm ' + MUTED + '">' +
+        (byClass ? 'Bars run up to the best ' + esc(cls) + ' in the guild. The mark is the level half the ' + p.classSize + ' ' + esc(cls) + 's reach.' : 'Bars are relative to the best value in the guild.') +
+        (was ? ' Changes are since the ' + esc(fmtDay(was.snapshot)) + ' capture.' : '') + '</p></div>' +
         '<div class="divide-y divide-zinc-200/60 px-5 dark:divide-white/5">';
       stats.forEach(function (s) {
         var v = p.stat_n[s[0]], max = m.statMax[s[0]];
-        var w = max > 0 && v != null ? v / max : 0;
-        var ck = classKey(p), cavg = m.classAvg[ck] ? m.classAvg[ck][s[0]] : null;
+        var ck = sck, cavg = m.classAvg[ck] ? m.classAvg[ck][s[0]] : null;
+        var top = byClass ? m.classBest[ck][s[0]] : max, mark = byClass ? m.classMid[ck][s[0]] : cavg;
+        var w = top > 0 && v != null ? v / top : 0;
         var classBest = v != null && p.cpos && p.cpos[s[0]] === 1 && p.classSize >= 2 && v !== max;
-        var tick = cavg != null && max > 0 ? Math.min(100, Math.round(100 * cavg / max)) : null;
+        var tick = mark != null && top > 0 ? Math.min(100, Math.round(100 * mark / top)) : null;
         html += '<div class="flex items-start gap-3 py-4">' +
           '<span class="mt-0.5 grid size-8 shrink-0 place-items-center rounded-md bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">' + icon(s[2], 'size-4') + '</span>' +
           '<div class="min-w-0 flex-1">' +
-          '<div class="flex items-center justify-between gap-3"><span class="text-sm font-medium">' + s[1] + '</span>' +
+          '<div class="flex items-center justify-between gap-3"><span class="text-sm font-medium">' + s[1] +
+          (byClass && v != null && p.cpos[s[0]] ? '<span class="ml-2 text-xs font-normal ' + MUTED + '">' + esc(ordinal(p.cpos[s[0]]) + ' of ' + p.classSize + ' ' + cls + 's') + '</span>' : '') + '</span>' +
           '<span class="flex items-center gap-2">' + (was ? deltaHTML(fmtDelta(v, parseNum((was.stats || {})[s[0]]))) : '') + '<span class="text-base font-semibold tabular-nums">' + esc(st[s[0]] || '-') + '</span>' +
           (classBest ? classBadge(p, 'Best ' + esc(pr['class'])) : '') +
           (v != null && v === max ? '<span class="inline-flex items-center gap-1 rounded-md border border-emerald-200 bg-emerald-50 px-1.5 py-0.5 text-[11px] font-medium text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300">' + icon('trophy', 'size-3') + 'Guild best</span>' : '') +
           '</span></div>' +
           '<div class="relative mt-2.5">' + meter(w, s[3]) +
-          (tick != null ? '<span class="absolute -top-1 h-3.5 w-0.5 rounded-full bg-zinc-400 dark:bg-zinc-500" style="left:' + tick + '%" title="' + esc(pr['class']) + ' average"></span>' : '') + '</div>' +
-          '<div class="mt-1.5 flex justify-between gap-3 text-xs ' + MUTED + '">' +
-          (cavg != null && ck !== 'unknown' ? '<span>' + esc(pr['class']) + ' average <b class="font-medium text-zinc-700 dark:text-zinc-200">' + esc(fmtNum(cavg)) + '</b></span>' : '<span></span>') +
-          (max > 0 ? '<span>Guild best <b class="font-medium text-zinc-700 dark:text-zinc-200">' + esc(fmtNum(max)) + '</b></span>' : '') +
+          (tick != null ? '<span class="absolute -top-1 h-3.5 w-0.5 rounded-full bg-zinc-400 dark:bg-zinc-500" style="left:' + tick + '%" title="' + (byClass ? 'Half the ' + esc(cls) + 's reach this' : esc(cls) + ' average') + '"></span>' : '') + '</div>' +
+          '<div class="mt-1.5 flex flex-wrap justify-between gap-x-3 gap-y-0.5 text-xs ' + MUTED + '">' +
+          (byClass ? '<span>Half the ' + esc(cls) + 's <b class="font-medium text-zinc-700 dark:text-zinc-200">' + esc(fmtNum(mark)) + '</b> or more</span>' +
+            '<span>Best ' + esc(cls) + ' <b class="font-medium text-zinc-700 dark:text-zinc-200">' + esc(fmtNum(top)) + '</b>' + (top !== max && max > 0 ? ', guild best <b class="font-medium text-zinc-700 dark:text-zinc-200">' + esc(fmtNum(max)) + '</b>' : '') + '</span>'
+          : (cavg != null && ck !== 'unknown' ? '<span>' + esc(cls) + ' average <b class="font-medium text-zinc-700 dark:text-zinc-200">' + esc(fmtNum(cavg)) + '</b></span>' : '<span></span>') +
+            (max > 0 ? '<span>Guild best <b class="font-medium text-zinc-700 dark:text-zinc-200">' + esc(fmtNum(max)) + '</b></span>' : '')) +
           '</div></div></div>';
       });
       html += '</div></section>';
@@ -1965,6 +2086,7 @@
     animateMeters();
     bindShots();
     bindRivals();
+    bindTrends(app);
     if (!timeline) loadTimeline().then(function (t) {
       var box = document.getElementById('readiness');
       if (!box || state.meta !== m || location.hash.indexOf(p.slug) === -1) return;
@@ -2011,16 +2133,238 @@
   }
 
   // Back link and, on wide screens, the neighbours in the current sort order.
-  function topBar(slug, prev, next, i) {
+  // p, when given, adds a button to compare that member with someone else.
+  function topBar(slug, prev, next, i, p) {
     return '<div class="mb-4 flex items-center justify-between gap-2 ' + ANIM + '" style="--i:' + i + '">' +
       '<a class="' + GHOST + ' -ml-3" href="' + esc(link('members')) + '">' + icon('back', 'size-4') + 'All members</a>' +
-      '<div class="hidden gap-2 sm:flex">' + navBtn(prev, 'back', 'Previous') + navBtn(next, 'next', 'Next') + '</div></div>';
+      '<div class="flex gap-2">' + (p ? '<a class="' + BTN + '" href="' + esc(link('compare/' + p.slug)) + '">' + icon('swords', 'size-4') + 'Compare</a>' : '') +
+      '<span class="hidden gap-2 sm:flex">' + navBtn(prev, 'back', 'Previous') + navBtn(next, 'next', 'Next') + '</span></div></div>';
   }
 
   function navBtn(target, ic, label) {
     var inner = ic === 'back' ? icon(ic, 'size-4') + label : label + icon(ic, 'size-4');
     if (!target) return '<span class="' + BTN + ' pointer-events-none opacity-40">' + inner + '</span>';
     return '<a class="' + BTN + '" href="' + esc(link(target.slug)) + '" title="' + esc(target.name) + '">' + inner + '</a>';
+  }
+
+  // ---- rendering: compare ---------------------------------------------------
+  // Two members side by side, "#compare/<a>/<b>". Either slot may be empty
+  // until chosen. Higher is better on every row; rows about Conquest damage
+  // name no winner when a tank or healer is involved.
+
+  var CMP_BAR = { a: 'bg-violet-500', b: 'bg-sky-500' };
+
+  // opts.range {lo, hi} scales the bars between the guild's lowest and best
+  // instead of from zero, so close values like enhancement levels still differ.
+  // opts.slots {a, b, icons, cols} adds each slot's level under the row.
+  function compareRow(label, a, b, fmt, opts) {
+    opts = opts || {};
+    var av = a[0], bv = b[0], max = Math.max(av || 0, bv || 0), range = opts.range;
+    // Values that read the same on screen, like two averages of +177, are a tie.
+    var same = av != null && bv != null && (Math.abs(av - bv) < 1e-9 || (!a[1] && !b[1] && fmt(av) === fmt(bv)));
+    var win = opts.noWinner || av == null || bv == null || same ? 0 : av > bv ? -1 : 1;
+    var width = function (v) {
+      if (v == null) return 0;
+      if (range && range.hi > range.lo) {
+        var lo = range.lo - (range.hi - range.lo) * 0.1;
+        return Math.max(0, Math.min(1, (v - lo) / (range.hi - lo)));
+      }
+      return max > 0 ? v / max : 0;
+    };
+    var slotGrid = function (mine, theirs) {
+      var s = opts.slots, html = '<div class="mt-2 grid gap-1 ' + s.cols + '">';
+      for (var k = 0; k < s.icons.length; k++) {
+        var x = intOf(mine[k]), y = intOf(theirs[k]), lead = x != null && y != null && x > y;
+        html += '<div class="rounded-md border border-zinc-200/70 bg-white/40 py-1 text-center dark:border-white/10 dark:bg-white/5">' + icon(s.icons[k], 'mx-auto size-3 ' + MUTED) +
+          '<p class="mt-0.5 text-[11px] tabular-nums ' + (lead ? 'font-semibold text-emerald-600 dark:text-emerald-400' : 'font-medium') + '">' + (mine[k] != null ? esc(mine[k]) : '-') + '</p></div>';
+      }
+      return html + '</div>';
+    };
+    var side = function (v, text, me, flip) {
+      var lead = win === me, s = opts.slots;
+      return '<div class="min-w-0"><p class="flex items-center gap-1 text-base tabular-nums ' + (flip ? 'justify-end ' : '') + (lead ? 'font-semibold' : 'font-medium ' + MUTED) + '">' +
+        (lead && flip ? icon('up', 'size-3.5 text-emerald-600 dark:text-emerald-400') : '') + esc(v == null ? '-' : text || fmt(v)) +
+        (lead && !flip ? icon('up', 'size-3.5 text-emerald-600 dark:text-emerald-400') : '') + '</p>' +
+        '<div class="mt-1.5' + (flip ? ' -scale-x-100' : '') + '">' + meter(width(v), flip ? CMP_BAR.a : CMP_BAR.b) + '</div>' +
+        (s ? slotGrid(flip ? s.a : s.b, flip ? s.b : s.a) : '') + '</div>';
+    };
+    return { win: win, html: '<div class="py-3"><p class="text-center text-xs font-medium ' + MUTED + '">' + label + '</p>' +
+      '<div class="mt-1 grid grid-cols-2 gap-4 sm:gap-8">' + side(av, a[1], -1, true) + side(bv, b[1], 1, false) + '</div></div>' };
+  }
+
+  // One side's player chooser: a button showing the chosen member that opens a
+  // searchable list, in the same style as the snapshot picker.
+  function comparePicker(slot, chosen, other) {
+    var label = slot === 'a' ? 'First player' : 'Second player';
+    var face = chosen
+      ? avatar(chosen) + '<span class="min-w-0 flex-1 text-left"><span class="block truncate font-semibold">' + esc(chosen.name) + '</span>' +
+        '<span class="flex min-w-0 items-center gap-1.5 truncate text-xs ' + MUTED + '">' + classInline(chosen) + '<span aria-hidden="true">·</span>' + esc(chosen.power || '-') + '</span></span>'
+      : '<span class="grid size-10 shrink-0 place-items-center rounded-full border border-dashed border-zinc-300 ' + MUTED + ' dark:border-white/20">' + icon('people', 'size-4') + '</span>' +
+        '<span class="min-w-0 flex-1 text-left font-medium ' + MUTED + '">Choose a player</span>';
+    return '<div class="relative" data-cmp="' + slot + '" data-other="' + esc(other ? other.slug : '') + '">' +
+      '<button type="button" class="glass flex w-full items-center gap-3 rounded-xl border border-white/70 bg-white/60 p-2 pr-3 text-sm shadow-md shadow-zinc-900/[0.05] backdrop-blur-md transition-colors hover:bg-white/90 dark:border-white/10 dark:bg-zinc-900/60 dark:hover:bg-zinc-800/80" ' +
+      'aria-haspopup="listbox" aria-expanded="false" aria-label="' + label + (chosen ? ': ' + esc(chosen.name) : '') + '" data-cmp-toggle>' + face + icon('updown', 'size-4 opacity-60') + '</button>' +
+      '<div class="absolute top-full z-30 mt-2 w-full min-w-[16rem] ' + (slot === 'a' ? 'left-0' : 'right-0') + ' rounded-2xl border border-zinc-200 bg-white p-2 shadow-2xl shadow-zinc-900/20 motion-safe:animate-fade-in dark:border-zinc-700 dark:bg-zinc-900 dark:shadow-black/60" hidden data-cmp-pop>' +
+      '<label class="relative block">' + icon('search', 'pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 ' + MUTED) +
+      '<input type="search" class="' + INPUT + ' w-full pl-9 pr-3" placeholder="Find a player" aria-label="Find a player" autocomplete="off" spellcheck="false" data-cmp-find></label>' +
+      '<ul class="mt-2 max-h-72 overflow-y-auto overscroll-contain" role="listbox" aria-label="' + label + '" data-cmp-list></ul></div>' +
+      (chosen ? '<p class="mt-2 flex items-center gap-1.5 px-1 text-xs ' + MUTED + '"><span class="inline-block size-2 rounded-full ' + CMP_BAR[slot] + '" aria-hidden="true"></span>' + (slot === 'a' ? 'Left' : 'Right') + ' bars' +
+        '<span aria-hidden="true">·</span><a class="font-medium text-zinc-700 hover:underline dark:text-zinc-200" href="' + esc(link(chosen.slug)) + '">View profile</a></p>' : '') + '</div>';
+  }
+
+  // Members by power, minus the one already in the other slot; current is ticked.
+  function compareOptions(other, q, current) {
+    var list = state.players.filter(function (x) { return x.slug !== other && (!q || x.name.toLowerCase().indexOf(q) !== -1); })
+      .sort(function (x, y) { return (y.power_n || 0) - (x.power_n || 0); });
+    if (!list.length) return '<li class="px-3 py-6 text-center text-sm ' + MUTED + '">No player matches.</li>';
+    return list.map(function (x) {
+      return '<li><button type="button" role="option" aria-selected="' + (x.slug === current) + '" class="flex w-full items-center gap-3 rounded-lg px-2 py-1.5 text-left text-sm transition-colors hover:bg-zinc-900/5 focus:bg-zinc-900/5 focus:outline-none aria-selected:bg-zinc-900/[0.06] dark:hover:bg-white/10 dark:focus:bg-white/10 dark:aria-selected:bg-white/10" data-pick="' + esc(x.slug) + '">' +
+        avatar(x) + '<span class="min-w-0 flex-1"><span class="block truncate font-medium">' + esc(x.name) + '</span><span class="block truncate text-xs ' + MUTED + '">' + classInline(x) + '</span></span>' +
+        '<span class="shrink-0 text-xs font-medium tabular-nums ' + MUTED + '">' + esc(x.power || '-') + '</span>' + (x.slug === current ? icon('check', 'size-4 text-emerald-600 dark:text-emerald-400') : '') + '</button></li>';
+    }).join('');
+  }
+
+  function bindCompare(a, b) {
+    Array.prototype.forEach.call(app.querySelectorAll('[data-cmp]'), function (root) {
+      var slot = root.getAttribute('data-cmp'), other = root.getAttribute('data-other');
+      var btn = root.querySelector('[data-cmp-toggle]'), pop = root.querySelector('[data-cmp-pop]');
+      var find = root.querySelector('[data-cmp-find]'), list = root.querySelector('[data-cmp-list]');
+      var current = slot === 'a' ? (a && a.slug) : (b && b.slug);
+      var draw = function () { list.innerHTML = compareOptions(other, find.value.trim().toLowerCase(), current); };
+      btn.addEventListener('click', function () {
+        var open = pop.hidden;
+        closeCompare();
+        if (!open) return;
+        find.value = '';
+        draw();
+        pop.hidden = false;
+        btn.setAttribute('aria-expanded', 'true');
+        find.focus();
+      });
+      find.addEventListener('input', draw);
+      pop.addEventListener('keydown', function (ev) {
+        var opts = Array.prototype.slice.call(list.querySelectorAll('[data-pick]')), at = opts.indexOf(document.activeElement);
+        if (ev.key === 'ArrowDown' || ev.key === 'ArrowUp') {
+          ev.preventDefault();
+          var n = ev.key === 'ArrowDown' ? Math.min(at + 1, opts.length - 1) : at - 1;
+          (n < 0 ? find : opts[n]).focus();
+        } else if (ev.key === 'Enter' && document.activeElement === find && opts[0]) {
+          ev.preventDefault();
+          opts[0].click();
+        } else if (ev.key === 'Escape') {
+          ev.preventDefault();
+          closeCompare();
+          btn.focus();
+        }
+      });
+      list.addEventListener('click', function (ev) {
+        var opt = ev.target.closest('[data-pick]');
+        if (!opt) return;
+        var pick = { a: a ? a.slug : '', b: b ? b.slug : '' };
+        pick[slot] = opt.getAttribute('data-pick');
+        location.hash = link('compare/' + pick.a + (pick.b ? '/' + pick.b : ''));
+      });
+    });
+    if (!document.documentElement.dataset.compareBound) {
+      document.documentElement.dataset.compareBound = '1';
+      document.addEventListener('click', function (ev) {
+        var path = ev.composedPath();
+        Array.prototype.forEach.call(app.querySelectorAll('[data-cmp]'), function (root) { if (path.indexOf(root) === -1) closeCompare(root); });
+      });
+    }
+  }
+
+  // Closes one chooser's list, or both when none is named.
+  function closeCompare(only) {
+    Array.prototype.forEach.call(app.querySelectorAll('[data-cmp]'), function (root) {
+      if (only && root !== only) return;
+      root.querySelector('[data-cmp-pop]').hidden = true;
+      root.querySelector('[data-cmp-toggle]').setAttribute('aria-expanded', 'false');
+    });
+  }
+
+  function renderCompare(aSlug, bSlug) {
+    var m = state.meta;
+    var find = function (s) { return s ? state.players.filter(function (x) { return x.slug === s; })[0] || null : null; };
+    var a = find(aSlug), b = find(bSlug);
+    if (a && a === b) b = null;
+    var html = pastNotice('compare/' + (a ? a.slug : '') + (b ? '/' + b.slug : '')) +
+      '<div class="mb-4 flex items-center justify-between gap-2 ' + ANIM + '" style="--i:0"><a class="' + GHOST + ' -ml-3" href="' + esc(link('members')) + '">' + icon('back', 'size-4') + 'All members</a></div>' +
+      '<h1 class="text-2xl font-semibold tracking-tight ' + ANIM + '" style="--i:1">Compare players</h1>' +
+      '<p class="mt-1 text-sm ' + MUTED + ' ' + ANIM + '" style="--i:1">Two members side by side, from the ' + esc(m.capturedDate) + ' snapshot. The arrow marks who is ahead on each row.</p>' +
+      '<section class="relative z-20 mt-5 grid grid-cols-2 gap-4 sm:gap-8 ' + ANIM + '" style="--i:2" aria-label="Players">' +
+      '<div class="min-w-0">' + comparePicker('a', a, b) + '</div><div class="min-w-0">' + comparePicker('b', b, a) + '</div></section>';
+
+    if (a && b) {
+      var i = 3, score = [0, 0], notes = [];
+      var support = [a, b].filter(function (x) { return SUPPORT_ROLES[classKey(x)]; });
+      var pa = a.profile || {}, pb = b.profile || {};
+      var num = function (v) { return v == null ? null : v; };
+      var lvl = function (prefix) { return function (v) { return prefix + Math.round(v); }; };
+      // The guild's lowest and best, for bars on values that sit close together.
+      var rangeOf = function (get) {
+        var vals = state.players.map(get).filter(function (v) { return v != null; });
+        return vals.length ? { lo: Math.min.apply(null, vals), hi: Math.max.apply(null, vals) } : null;
+      };
+      var prof = function (key) { return function (x) { return x.profile && x.profile[key] != null ? x.profile[key] : null; }; };
+      var stat = function (key) { return function (x) { return x.stat_n[key]; }; };
+      var slots = function (key, icons) { return { a: pa[key] || [], b: pb[key] || [], icons: icons, cols: 'grid-cols-' + icons.length }; };
+      var damage = { noWinner: support.length > 0 };
+      var sections = [
+        ['Guild standing', '', [
+          ['Power', [a.power_n, a.power], [b.power_n, b.power]],
+          ['Weekly contribution', [a.week_n, a.week], [b.week_n, b.week]],
+          ['Total contribution', [a.total_n, a.total], [b.total_n, b.total]],
+          ['Donation streak (weeks)', [a.streak, null], [b.streak, null], String]
+        ]],
+        ['Conquest', '', [
+          ['Conquest damage, running total', [a.dmg_n, a.dmg], [b.dmg_n, b.dmg], null, damage],
+          m.previousLabel ? ['Conquest damage since ' + esc(m.previousLabel), [a.dmgGain, null], [b.dmgGain, null], null, damage] : null,
+          ['Conquest damage per 1M power', [a.dmgPerM, null], [b.dmgPerM, null], null, damage]
+        ]],
+        ['Profile', 'Bars run from the guild\'s lowest to its highest.', [
+          ['Level', [num(pa.level), null], [num(pb.level), null], String, { range: rangeOf(prof('level')) }],
+          ['Class level', [num(pa.classLevel), null], [num(pb.classLevel), null], String, { range: rangeOf(prof('classLevel')) }]
+        ]],
+        ['Combat stats', '', [['atk', 'Attack'], ['def', 'Defense'], ['hp', 'HP'], ['spd', 'Speed']].map(function (s) {
+          return [s[1], [a.stat_n[s[0]], (pa.stats || {})[s[0]]], [b.stat_n[s[0]], (pb.stats || {})[s[0]]]];
+        })],
+        ['Enhancement levels', 'Average of each set, then every slot. Bars run from the guild\'s lowest average to its highest.', [
+          ['Equipment', [a.stat_n.gear, null], [b.stat_n.gear, null], lvl('Avg +'), { range: rangeOf(stat('gear')), slots: slots('gear', ['blade', 'tome', 'belt', 'armor', 'boots']) }],
+          ['Skill Technique', [a.stat_n.tech, null], [b.stat_n.tech, null], lvl('Avg Lv. '), { range: rangeOf(stat('tech')), slots: slots('technique', ['spark', 'spark', 'spark', 'spark']) }],
+          ['Skill Charm', [a.stat_n.charm, null], [b.stat_n.charm, null], lvl('Avg Lv. '), { range: rangeOf(stat('charm')), slots: slots('charm', ['rune', 'rune', 'rune', 'rune']) }]
+        ]]
+      ];
+      var body = '';
+      sections.forEach(function (sec) {
+        var rows = sec[2].filter(Boolean).map(function (r) {
+          var row = compareRow(r[0], r[1], r[2], r[3] || fmtNum, r[4]);
+          if (row.win === -1) score[0]++; else if (row.win === 1) score[1]++;
+          return row.html;
+        });
+        body += '<section class="' + CARD + ' p-5 ' + ANIM + '" style="--i:' + Math.min(i++, 14) + '"><h2 class="text-base font-semibold">' + sec[0] + '</h2>' +
+          (sec[1] ? '<p class="text-sm ' + MUTED + '">' + sec[1] + '</p>' : '') +
+          '<div class="mt-1 divide-y divide-zinc-200/60 dark:divide-white/5">' + rows.join('') + '</div></section>';
+      });
+      if (support.length) notes.push(support.map(function (x) { return esc(x.name) + ' is a ' + esc(x.profile['class']) + ', one of our ' + (classKey(x) === 'guardian' ? 'tanks' : 'healers'); }).join(' and ') +
+        '. Their Conquest damage is low by design and their presence in Conquest is indispensable, so the Conquest rows name no one ahead.');
+      [a, b].forEach(function (x) {
+        if (x.profile && x.profile.snapshot && x.profile.snapshot !== m.dir) notes.push('No profile capture of ' + esc(x.name) + ' in this snapshot, so their level, stats and enhancement levels are from ' + esc(fmtDay(x.profile.snapshot)) + '.');
+        if (!x.profile) notes.push('No profile capture of ' + esc(x.name) + ' yet, so only their roster line is known.');
+      });
+      html += '<p class="mt-5 text-center text-sm ' + ANIM + '" style="--i:3"><b class="font-semibold">' + esc(a.name) + '</b> is ahead on ' + score[0] + (score[0] === 1 ? ' row' : ' rows') +
+        ', <b class="font-semibold">' + esc(b.name) + '</b> on ' + score[1] + '.</p>' +
+        '<div class="mt-4 grid gap-4 lg:grid-cols-2">' + body + '</div>' +
+        notes.map(function (t) { return '<p class="mt-4 rounded-xl border border-white/70 bg-white/50 p-4 text-sm backdrop-blur-md ' + MUTED + ' dark:border-white/10 dark:bg-zinc-900/40">' + t + '</p>'; }).join('');
+    } else {
+      html += '<p class="mt-6 text-center text-sm ' + MUTED + '">Choose ' + (a || b ? 'one more player' : 'two players') + ' to compare.</p>';
+    }
+
+    app.innerHTML = html;
+    setDock('');
+    animateMeters();
+    bindCompare(a, b);
+    document.title = (a && b ? a.name + ' vs ' + b.name : 'Compare players') + ' | ' + m.guild;
   }
 
   function renderNotFound(slug) {
@@ -2252,9 +2596,9 @@
   var loadSeq = 0;
   function openSnapshot(dir) {
     var at = state.dirs.indexOf(dir), seq = ++loadSeq;
-    return Promise.all([loadSnapshot(dir), at > 0 ? loadSnapshot(state.dirs[at - 1]) : null]).then(function (res) {
+    return Promise.all([loadSnapshot(dir), at > 0 ? loadSnapshot(state.dirs[at - 1]) : null, loadHistory(dir)]).then(function (res) {
       if (seq !== loadSeq) return false;
-      prepare(res[0], res[1]);
+      prepare(res[0], res[1], res[2]);
       return true;
     });
   }
@@ -2287,6 +2631,11 @@
     if (slug === 'members') { setDock(''); renderMembers(); window.scrollTo(0, 0); return; }
     if (slug === 'timeline') {
       loadTimeline().then(renderTimeline).catch(function (err) { setDock(''); app.innerHTML = '<p class="rounded-xl border border-white/70 bg-white/50 p-4 text-sm backdrop-blur-md ' + MUTED + '">Could not load the timeline. ' + esc(err && err.message) + '</p>'; });
+      window.scrollTo(0, 0); return;
+    }
+    if (slug === 'compare' || slug.indexOf('compare/') === 0) {
+      var parts = slug.split('/');
+      renderCompare(parts[1] || '', parts[2] || '');
       window.scrollTo(0, 0); return;
     }
     var p = state.players.filter(function (x) { return x.slug === slug; })[0];
