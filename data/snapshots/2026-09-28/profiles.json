@@ -1,0 +1,2486 @@
+{
+  "capturedAt": "2026-09-28T07:48:01.000Z",
+  "label": "Week 3",
+  "source": "captures/2026-09-28/profiles/ (profile_NN.png; profile_13 is a duplicate of Billiana, excluded)",
+  "profiles": [
+    {
+      "file": "profile_01.png",
+      "name": "Ballistics",
+      "playerId": "700290801306",
+      "power": "30.7M",
+      "class": "Conqueror",
+      "classLevel": 378,
+      "level": 170,
+      "badges": {
+        "rank": "Champion III",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Nyxarchon",
+      "fantomonSpecies": "Nyxarchon",
+      "likes": "6.25K",
+      "stats": {
+        "atk": "2.23M",
+        "def": "1.67M",
+        "hp": "8.85M",
+        "spd": "1.48M"
+      },
+      "gear": [
+        "+175",
+        "+170",
+        "+170",
+        "+175",
+        "+171"
+      ],
+      "technique": [
+        160,
+        160,
+        160,
+        166
+      ],
+      "charm": [
+        170,
+        160,
+        170,
+        160
+      ]
+    },
+    {
+      "file": "profile_02.png",
+      "name": "Atsi",
+      "playerId": "700290801923",
+      "power": "26M",
+      "class": "Dominator",
+      "classLevel": 341,
+      "level": 169,
+      "badges": {
+        "rank": "Champion III",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "MilkTea",
+      "fantomonSpecies": "Aegiswing",
+      "likes": "4.78K",
+      "stats": {
+        "atk": "1.36M",
+        "def": "1.33M",
+        "hp": "8.97M",
+        "spd": "1.09M"
+      },
+      "gear": [
+        "+180",
+        "+175",
+        "+175",
+        "+179",
+        "+175"
+      ],
+      "technique": [
+        166,
+        166,
+        166,
+        170
+      ],
+      "charm": [
+        166,
+        166,
+        166,
+        166
+      ]
+    },
+    {
+      "file": "profile_03.png",
+      "name": "XLemonL",
+      "playerId": "700290800386",
+      "power": "24M",
+      "class": "Destroyer",
+      "classLevel": 278,
+      "level": 169,
+      "badges": {
+        "rank": "Champion III",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Cat",
+      "fantomonSpecies": "Aegiswing",
+      "likes": "5.85K",
+      "stats": {
+        "atk": "1.88M",
+        "def": "1.21M",
+        "hp": "6.87M",
+        "spd": "1.14M"
+      },
+      "gear": [
+        "+165",
+        "+165",
+        "+160",
+        "+163",
+        "+165"
+      ],
+      "technique": [
+        156,
+        156,
+        156,
+        156
+      ],
+      "charm": [
+        156,
+        156,
+        155,
+        155
+      ]
+    },
+    {
+      "file": "profile_04.png",
+      "name": "silenthitter",
+      "playerId": "700290800407",
+      "power": "22.6M",
+      "class": "Guardian",
+      "classLevel": 331,
+      "level": 169,
+      "badges": {
+        "rank": "Champion III",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Aegiswing",
+      "fantomonSpecies": "Aegiswing",
+      "likes": "2.19K",
+      "stats": {
+        "atk": "1.31M",
+        "def": "1.3M",
+        "hp": "6.04M",
+        "spd": "931K"
+      },
+      "gear": [
+        "+180",
+        "+178",
+        "+182",
+        "+180",
+        "+180"
+      ],
+      "technique": [
+        160,
+        160,
+        160,
+        160
+      ],
+      "charm": [
+        160,
+        160,
+        160,
+        160
+      ]
+    },
+    {
+      "file": "profile_05.png",
+      "name": "Baki",
+      "playerId": "700290804067",
+      "power": "22.3M",
+      "class": "Conqueror",
+      "classLevel": 278,
+      "level": 168,
+      "badges": {
+        "rank": "Champion III",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Zexal",
+      "fantomonSpecies": "Nyxarchon",
+      "likes": "2.19K",
+      "stats": {
+        "atk": "1.45M",
+        "def": "1.2M",
+        "hp": "6.42M",
+        "spd": "1.09M"
+      },
+      "gear": [
+        "+175",
+        "+170",
+        "+171",
+        "+171",
+        "+171"
+      ],
+      "technique": [
+        161,
+        161,
+        161,
+        161
+      ],
+      "charm": [
+        161,
+        161,
+        161,
+        161
+      ]
+    },
+    {
+      "file": "profile_06.png",
+      "name": "Naki",
+      "playerId": "700290801148",
+      "power": "21.4M",
+      "class": "Destroyer",
+      "classLevel": 259,
+      "level": 169,
+      "badges": {
+        "rank": "Champion III",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Nyxarchon",
+      "fantomonSpecies": "Nyxarchon",
+      "likes": "3.86K",
+      "stats": {
+        "atk": "1.33M",
+        "def": "1.19M",
+        "hp": "5.67M",
+        "spd": "1.06M"
+      },
+      "gear": [
+        "+180",
+        "+178",
+        "+175",
+        "+175",
+        "+175"
+      ],
+      "technique": [
+        165,
+        164,
+        164,
+        164
+      ],
+      "charm": [
+        164,
+        164,
+        164,
+        164
+      ]
+    },
+    {
+      "file": "profile_07.png",
+      "name": "Karny",
+      "playerId": "700290804645",
+      "power": "21M",
+      "class": "Conqueror",
+      "classLevel": 329,
+      "level": 167,
+      "badges": {
+        "rank": "Champion III",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Jeffrey",
+      "fantomonSpecies": "Nyxarchon",
+      "likes": "2.98K",
+      "stats": {
+        "atk": "1.05M",
+        "def": "1.04M",
+        "hp": "6.59M",
+        "spd": "952K"
+      },
+      "gear": [
+        "+165",
+        "+165",
+        "+165",
+        "+165",
+        "+165"
+      ],
+      "technique": [
+        158,
+        158,
+        158,
+        158
+      ],
+      "charm": [
+        158,
+        157,
+        157,
+        157
+      ]
+    },
+    {
+      "file": "profile_08.png",
+      "name": "Falenas",
+      "playerId": "700290801954",
+      "power": "20.1M",
+      "class": "Conqueror",
+      "classLevel": 254,
+      "level": 169,
+      "badges": {
+        "rank": "Champion III",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Громохон",
+      "fantomonSpecies": "Nyxarchon",
+      "likes": "2.08K",
+      "stats": {
+        "atk": "1.18M",
+        "def": "1.09M",
+        "hp": "5.73M",
+        "spd": "1.12M"
+      },
+      "gear": [
+        "+180",
+        "+175",
+        "+176",
+        "+172",
+        "+175"
+      ],
+      "technique": [
+        166,
+        166,
+        166,
+        166
+      ],
+      "charm": [
+        166,
+        166,
+        166,
+        165
+      ]
+    },
+    {
+      "file": "profile_09.png",
+      "name": "UnorthodoxStyle",
+      "playerId": "700290800409",
+      "power": "20M",
+      "class": "Conqueror",
+      "classLevel": 245,
+      "level": 168,
+      "badges": {
+        "rank": "Champion III",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Nyxarchon",
+      "fantomonSpecies": "Nyxarchon",
+      "likes": "3.35K",
+      "stats": {
+        "atk": "1.24M",
+        "def": "1.1M",
+        "hp": "5.24M",
+        "spd": "1.03M"
+      },
+      "gear": [
+        "+175",
+        "+170",
+        "+170",
+        "+170",
+        "+173"
+      ],
+      "technique": [
+        163,
+        163,
+        163,
+        163
+      ],
+      "charm": [
+        163,
+        163,
+        162,
+        162
+      ]
+    },
+    {
+      "file": "profile_10.png",
+      "name": "AsterBlaze",
+      "playerId": "700290800086",
+      "power": "18.7M",
+      "class": "Destroyer",
+      "classLevel": 263,
+      "level": 168,
+      "badges": {
+        "rank": "Champion III",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Limitless",
+      "fantomonSpecies": "Nyxarchon",
+      "likes": "11.7K",
+      "stats": {
+        "atk": "1.32M",
+        "def": "902K",
+        "hp": "5.08M",
+        "spd": "893K"
+      },
+      "gear": [
+        "+175",
+        "+173",
+        "+170",
+        "+170",
+        "+175"
+      ],
+      "technique": [
+        156,
+        156,
+        156,
+        155
+      ],
+      "charm": [
+        155,
+        155,
+        155,
+        155
+      ]
+    },
+    {
+      "file": "profile_11.png",
+      "name": "Billiana",
+      "playerId": "700290802787",
+      "power": "17.5M",
+      "class": "Destroyer",
+      "classLevel": 231,
+      "level": 167,
+      "badges": {
+        "rank": "Champion III",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Bagheera",
+      "fantomonSpecies": "Nyxarchon",
+      "likes": "1.53K",
+      "stats": {
+        "atk": "1.31M",
+        "def": "954K",
+        "hp": "5.34M",
+        "spd": "824K"
+      },
+      "gear": [
+        "+180",
+        "+175",
+        "+175",
+        "+175",
+        "+180"
+      ],
+      "technique": [
+        163,
+        162,
+        162,
+        162
+      ],
+      "charm": [
+        162,
+        162,
+        162,
+        162
+      ]
+    },
+    {
+      "file": "profile_12.png",
+      "name": "ZEUS",
+      "playerId": "700290803244",
+      "power": "17.4M",
+      "class": "Dominator",
+      "classLevel": 214,
+      "level": 164,
+      "badges": {
+        "rank": "Champion III",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "LAELAPS",
+      "fantomonSpecies": "Aegiswing",
+      "likes": "2.63K",
+      "stats": {
+        "atk": "969K",
+        "def": "929K",
+        "hp": "6.95M",
+        "spd": "816K"
+      },
+      "gear": [
+        "+175",
+        "+170",
+        "+175",
+        "+175",
+        "+170"
+      ],
+      "technique": [
+        159,
+        159,
+        159,
+        159
+      ],
+      "charm": [
+        159,
+        159,
+        159,
+        158
+      ]
+    },
+    {
+      "file": "profile_14.png",
+      "name": "CronosLogia",
+      "playerId": "700290805172",
+      "power": "17.3M",
+      "class": "Conqueror",
+      "classLevel": 208,
+      "level": 164,
+      "badges": {
+        "rank": "Champion III",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Nyxarchon",
+      "fantomonSpecies": "Nyxarchon",
+      "likes": "2.32K",
+      "stats": {
+        "atk": "1.39M",
+        "def": "921K",
+        "hp": "4.72M",
+        "spd": "899K"
+      },
+      "gear": [
+        "+175",
+        "+170",
+        "+170",
+        "+170",
+        "+170"
+      ],
+      "technique": [
+        164,
+        164,
+        164,
+        164
+      ],
+      "charm": [
+        164,
+        163,
+        163,
+        163
+      ]
+    },
+    {
+      "file": "profile_15.png",
+      "name": "Beicin",
+      "playerId": "700290803806",
+      "power": "17M",
+      "class": "Conqueror",
+      "classLevel": 192,
+      "level": 164,
+      "badges": {
+        "rank": "Champion III",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Zeioletus",
+      "fantomonSpecies": "Zeioletus",
+      "likes": "3.08K",
+      "stats": {
+        "atk": "1M",
+        "def": "971K",
+        "hp": "4.96M",
+        "spd": "1.14M"
+      },
+      "gear": [
+        "+170",
+        "+165",
+        "+165",
+        "+165",
+        "+165"
+      ],
+      "technique": [
+        167,
+        166,
+        166,
+        166
+      ],
+      "charm": [
+        166,
+        166,
+        166,
+        166
+      ]
+    },
+    {
+      "file": "profile_16.png",
+      "name": "Tay",
+      "playerId": "700290803088",
+      "power": "16.9M",
+      "class": "Conqueror",
+      "classLevel": 270,
+      "level": 165,
+      "badges": {
+        "rank": "Champion III",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Nyxarchon",
+      "fantomonSpecies": "Nyxarchon",
+      "likes": "1.72K",
+      "stats": {
+        "atk": "1.02M",
+        "def": "998K",
+        "hp": "4.62M",
+        "spd": "807K"
+      },
+      "gear": [
+        "+170",
+        "+173",
+        "+170",
+        "+170",
+        "+170"
+      ],
+      "technique": [
+        158,
+        158,
+        158,
+        157
+      ],
+      "charm": [
+        157,
+        157,
+        157,
+        157
+      ]
+    },
+    {
+      "file": "profile_17.png",
+      "name": "Amingal",
+      "playerId": "700290801181",
+      "power": "16.9M",
+      "class": "Guardian",
+      "classLevel": 224,
+      "level": 166,
+      "badges": {
+        "rank": "Champion III",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Aegiswing",
+      "fantomonSpecies": "Aegiswing",
+      "likes": "1.79K",
+      "stats": {
+        "atk": "997K",
+        "def": "1.13M",
+        "hp": "5.14M",
+        "spd": "726K"
+      },
+      "gear": [
+        "+177",
+        "+175",
+        "+175",
+        "+175",
+        "+175"
+      ],
+      "technique": [
+        161,
+        161,
+        161,
+        161
+      ],
+      "charm": [
+        161,
+        161,
+        161,
+        160
+      ]
+    },
+    {
+      "file": "profile_18.png",
+      "name": "kabojjin",
+      "playerId": "700290805108",
+      "power": "16.7M",
+      "class": "Destroyer",
+      "classLevel": 185,
+      "level": 164,
+      "badges": {
+        "rank": "Champion III",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Nyxarchon",
+      "fantomonSpecies": "Nyxarchon",
+      "likes": "1.46K",
+      "stats": {
+        "atk": "1.15M",
+        "def": "1.11M",
+        "hp": "5.01M",
+        "spd": "750K"
+      },
+      "gear": [
+        "+170",
+        "+165",
+        "+165",
+        "+168",
+        "+165"
+      ],
+      "technique": [
+        159,
+        158,
+        158,
+        158
+      ],
+      "charm": [
+        158,
+        158,
+        158,
+        158
+      ]
+    },
+    {
+      "file": "profile_19.png",
+      "name": "Evilcookie",
+      "playerId": "700290800020",
+      "power": "16.6M",
+      "class": "Conqueror",
+      "classLevel": 197,
+      "level": 162,
+      "badges": {
+        "rank": "Champion III",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Inari",
+      "fantomonSpecies": "Nyxarchon",
+      "likes": "4.01K",
+      "stats": {
+        "atk": "1.11M",
+        "def": "989K",
+        "hp": "5.27M",
+        "spd": "1.02M"
+      },
+      "gear": [
+        "+170",
+        "+165",
+        "+170",
+        "+170",
+        "+170"
+      ],
+      "technique": [
+        152,
+        152,
+        152,
+        152
+      ],
+      "charm": [
+        152,
+        152,
+        152,
+        152
+      ]
+    },
+    {
+      "file": "profile_20.png",
+      "name": "CingCing",
+      "playerId": "700290805183",
+      "power": "16.6M",
+      "class": "Destroyer",
+      "classLevel": 190,
+      "level": 164,
+      "badges": {
+        "rank": "Champion III",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Nyxarchon",
+      "fantomonSpecies": "Nyxarchon",
+      "likes": "2.6K",
+      "stats": {
+        "atk": "1.16M",
+        "def": "993K",
+        "hp": "5.15M",
+        "spd": "813K"
+      },
+      "gear": [
+        "+178",
+        "+170",
+        "+170",
+        "+170",
+        "+170"
+      ],
+      "technique": [
+        165,
+        165,
+        165,
+        165
+      ],
+      "charm": [
+        165,
+        165,
+        164,
+        164
+      ]
+    },
+    {
+      "file": "profile_21.png",
+      "name": "Sulenta",
+      "playerId": "700290802890",
+      "power": "16.4M",
+      "class": "Guardian",
+      "classLevel": 241,
+      "level": 167,
+      "badges": {
+        "rank": "Champion III",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Aegiswing",
+      "fantomonSpecies": "Aegiswing",
+      "likes": "2.22K",
+      "stats": {
+        "atk": "866K",
+        "def": "1.14M",
+        "hp": "4.54M",
+        "spd": "703K"
+      },
+      "gear": [
+        "+155",
+        "+156",
+        "+155",
+        "+155",
+        "+155"
+      ],
+      "technique": [
+        152,
+        152,
+        151,
+        151
+      ],
+      "charm": [
+        151,
+        151,
+        151,
+        151
+      ]
+    },
+    {
+      "file": "profile_22.png",
+      "name": "etna",
+      "playerId": "700290800540",
+      "power": "16.1M",
+      "class": "Dominator",
+      "classLevel": 198,
+      "level": 162,
+      "badges": {
+        "rank": "Champion III",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Aegiswing",
+      "fantomonSpecies": "Aegiswing",
+      "likes": "2.4K",
+      "stats": {
+        "atk": "1.18M",
+        "def": "833K",
+        "hp": "4.93M",
+        "spd": "871K"
+      },
+      "gear": [
+        "+170",
+        "+165",
+        "+165",
+        "+170",
+        "+167"
+      ],
+      "technique": [
+        158,
+        158,
+        158,
+        158
+      ],
+      "charm": [
+        157,
+        157,
+        157,
+        157
+      ]
+    },
+    {
+      "file": "profile_23.png",
+      "name": "Ouvreboites",
+      "playerId": "700290802747",
+      "power": "16.1M",
+      "class": "Conqueror",
+      "classLevel": 210,
+      "level": 167,
+      "badges": {
+        "rank": "Champion III",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Nyxarchon",
+      "fantomonSpecies": "Nyxarchon",
+      "likes": "1.53K",
+      "stats": {
+        "atk": "927K",
+        "def": "847K",
+        "hp": "5.78M",
+        "spd": "823K"
+      },
+      "gear": [
+        "+160",
+        "+155",
+        "+160",
+        "+160",
+        "+160"
+      ],
+      "technique": [
+        149,
+        149,
+        149,
+        149
+      ],
+      "charm": [
+        149,
+        149,
+        149,
+        149
+      ]
+    },
+    {
+      "file": "profile_24.png",
+      "name": "Spotschi",
+      "playerId": "700290801598",
+      "power": "16.1M",
+      "class": "Destroyer",
+      "classLevel": 223,
+      "level": 164,
+      "badges": {
+        "rank": "Champion III",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "NotPanda",
+      "fantomonSpecies": "Nyxarchon",
+      "likes": "2.06K",
+      "stats": {
+        "atk": "1.29M",
+        "def": "804K",
+        "hp": "5.14M",
+        "spd": "799K"
+      },
+      "gear": [
+        "+180",
+        "+175",
+        "+175",
+        "+175",
+        "+175"
+      ],
+      "technique": [
+        153,
+        153,
+        153,
+        153
+      ],
+      "charm": [
+        153,
+        153,
+        152,
+        152
+      ]
+    },
+    {
+      "file": "profile_25.png",
+      "name": "Sparklie",
+      "playerId": "700290802157",
+      "power": "16M",
+      "class": "Destroyer",
+      "classLevel": 227,
+      "level": 165,
+      "badges": {
+        "rank": "Champion III",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Chloe",
+      "fantomonSpecies": "Zeioletus",
+      "likes": "3.39K",
+      "stats": {
+        "atk": "1.21M",
+        "def": "885K",
+        "hp": "4.29M",
+        "spd": "850K"
+      },
+      "gear": [
+        "+165",
+        "+165",
+        "+165",
+        "+165",
+        "+165"
+      ],
+      "technique": [
+        155,
+        155,
+        155,
+        155
+      ],
+      "charm": [
+        155,
+        155,
+        155,
+        155
+      ]
+    },
+    {
+      "file": "profile_26.png",
+      "name": "Riven",
+      "playerId": "700290800729",
+      "power": "15.9M",
+      "class": "Dominator",
+      "classLevel": 187,
+      "level": 166,
+      "badges": {
+        "rank": "Champion III",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Nyxarchon",
+      "fantomonSpecies": "Nyxarchon",
+      "likes": "1.79K",
+      "stats": {
+        "atk": "950K",
+        "def": "1.13M",
+        "hp": "5.02M",
+        "spd": "767K"
+      },
+      "gear": [
+        "+177",
+        "+175",
+        "+176",
+        "+176",
+        "+175"
+      ],
+      "technique": [
+        152,
+        152,
+        151,
+        151
+      ],
+      "charm": [
+        151,
+        151,
+        151,
+        151
+      ]
+    },
+    {
+      "file": "profile_27.png",
+      "name": "JetPilot",
+      "playerId": "700290801095",
+      "power": "15.7M",
+      "class": "Conqueror",
+      "classLevel": 181,
+      "level": 164,
+      "badges": {
+        "rank": "Champion III",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Хрюк",
+      "fantomonSpecies": "Nyxarchon",
+      "likes": "3.71K",
+      "stats": {
+        "atk": "943K",
+        "def": "910K",
+        "hp": "5.1M",
+        "spd": "993K"
+      },
+      "gear": [
+        "+170",
+        "+166",
+        "+170",
+        "+170",
+        "+170"
+      ],
+      "technique": [
+        161,
+        161,
+        161,
+        160
+      ],
+      "charm": [
+        160,
+        160,
+        160,
+        160
+      ]
+    },
+    {
+      "file": "profile_28.png",
+      "name": "Pretender",
+      "playerId": "700290801801",
+      "power": "15.7M",
+      "class": "Guardian",
+      "classLevel": 196,
+      "level": 163,
+      "badges": {
+        "rank": "Champion III",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Armopi",
+      "fantomonSpecies": "Armopi",
+      "likes": "1.06K",
+      "stats": {
+        "atk": "953K",
+        "def": "997K",
+        "hp": "4.76M",
+        "spd": "712K"
+      },
+      "gear": [
+        "+163",
+        "+162",
+        "+162",
+        "+162",
+        "+162"
+      ],
+      "technique": [
+        157,
+        157,
+        156,
+        156
+      ],
+      "charm": [
+        156,
+        156,
+        156,
+        156
+      ]
+    },
+    {
+      "file": "profile_29.png",
+      "name": "Vetali",
+      "playerId": "700290804655",
+      "power": "15.3M",
+      "class": "Destroyer",
+      "classLevel": 213,
+      "level": 165,
+      "badges": {
+        "rank": "Champion III",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "CachorroBravo",
+      "fantomonSpecies": "Nyxarchon",
+      "likes": "3.2K",
+      "stats": {
+        "atk": "936K",
+        "def": "787K",
+        "hp": "4.79M",
+        "spd": "681K"
+      },
+      "gear": [
+        "+175",
+        "+175",
+        "+175",
+        "+175",
+        "+175"
+      ],
+      "technique": [
+        158,
+        158,
+        158,
+        158
+      ],
+      "charm": [
+        158,
+        158,
+        158,
+        158
+      ]
+    },
+    {
+      "file": "profile_30.png",
+      "name": "Lyrix",
+      "playerId": "700290800551",
+      "power": "15.2M",
+      "class": "Conqueror",
+      "classLevel": 181,
+      "level": 165,
+      "badges": {
+        "rank": "Champion III",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Aegiswing",
+      "fantomonSpecies": "Aegiswing",
+      "likes": "2.38K",
+      "stats": {
+        "atk": "912K",
+        "def": "1.05M",
+        "hp": "4.29M",
+        "spd": "830K"
+      },
+      "gear": [
+        "+187",
+        "+186",
+        "+186",
+        "+186",
+        "+186"
+      ],
+      "technique": [
+        165,
+        165,
+        165,
+        165
+      ],
+      "charm": [
+        164,
+        164,
+        164,
+        164
+      ]
+    },
+    {
+      "file": "profile_31.png",
+      "name": "KittyLinwe",
+      "playerId": "700290804848",
+      "power": "15.1M",
+      "class": "Dominator",
+      "classLevel": 222,
+      "level": 166,
+      "badges": {
+        "rank": "Champion III",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Piper",
+      "fantomonSpecies": "Nyxarchon",
+      "likes": "1.52K",
+      "stats": {
+        "atk": "846K",
+        "def": "770K",
+        "hp": "5.03M",
+        "spd": "756K"
+      },
+      "gear": [
+        "+168",
+        "+165",
+        "+166",
+        "+165",
+        "+165"
+      ],
+      "technique": [
+        156,
+        156,
+        156,
+        156
+      ],
+      "charm": [
+        156,
+        155,
+        155,
+        155
+      ]
+    },
+    {
+      "file": "profile_32.png",
+      "name": "frumpy_gorilla",
+      "playerId": "700290804429",
+      "power": "15.1M",
+      "class": "Destroyer",
+      "classLevel": 209,
+      "level": 166,
+      "badges": {
+        "rank": "Champion III",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Nyxarchon",
+      "fantomonSpecies": "Nyxarchon",
+      "likes": "1.86K",
+      "stats": {
+        "atk": "1.25M",
+        "def": "754K",
+        "hp": "4.3M",
+        "spd": "654K"
+      },
+      "gear": [
+        "+165",
+        "+163",
+        "+162",
+        "+160",
+        "+160"
+      ],
+      "technique": [
+        150,
+        150,
+        150,
+        150
+      ],
+      "charm": [
+        150,
+        150,
+        150,
+        150
+      ]
+    },
+    {
+      "file": "profile_33.png",
+      "name": "kyo.",
+      "playerId": "700290800306",
+      "power": "15M",
+      "class": "Conqueror",
+      "classLevel": 173,
+      "level": 161,
+      "badges": {
+        "rank": "Champion III",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Ozzy",
+      "fantomonSpecies": "Nyxarchon",
+      "likes": "1.53K",
+      "stats": {
+        "atk": "940K",
+        "def": "860K",
+        "hp": "5.48M",
+        "spd": "794K"
+      },
+      "gear": [
+        "+170",
+        "+170",
+        "+170",
+        "+167",
+        "+170"
+      ],
+      "technique": [
+        151,
+        151,
+        151,
+        151
+      ],
+      "charm": [
+        151,
+        151,
+        150,
+        150
+      ]
+    },
+    {
+      "file": "profile_34.png",
+      "name": "BanDalgom",
+      "playerId": "700290800726",
+      "power": "14.8M",
+      "class": "Dominator",
+      "classLevel": 238,
+      "level": 165,
+      "badges": {
+        "rank": "Champion III",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Nyxarchon",
+      "fantomonSpecies": "Nyxarchon",
+      "likes": "1.61K",
+      "stats": {
+        "atk": "828K",
+        "def": "900K",
+        "hp": "4.56M",
+        "spd": "746K"
+      },
+      "gear": [
+        "+162",
+        "+162",
+        "+162",
+        "+161",
+        "+161"
+      ],
+      "technique": [
+        153,
+        152,
+        152,
+        152
+      ],
+      "charm": [
+        152,
+        152,
+        152,
+        152
+      ]
+    },
+    {
+      "file": "profile_35.png",
+      "name": "IBlank",
+      "playerId": "700290801198",
+      "power": "14.8M",
+      "class": "Destroyer",
+      "classLevel": 205,
+      "level": 163,
+      "badges": {
+        "rank": "Champion III",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Nyxarchon",
+      "fantomonSpecies": "Nyxarchon",
+      "likes": "1.99K",
+      "stats": {
+        "atk": "1M",
+        "def": "827K",
+        "hp": "4.07M",
+        "spd": "837K"
+      },
+      "gear": [
+        "+170",
+        "+170",
+        "+165",
+        "+168",
+        "+170"
+      ],
+      "technique": [
+        155,
+        155,
+        155,
+        155
+      ],
+      "charm": [
+        155,
+        154,
+        154,
+        154
+      ]
+    },
+    {
+      "file": "profile_36.png",
+      "name": "soulmaster",
+      "playerId": "700290801224",
+      "power": "14.6M",
+      "class": "Destroyer",
+      "classLevel": 199,
+      "level": 163,
+      "badges": {
+        "rank": "Champion III",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Nyxon",
+      "fantomonSpecies": "Nyxarchon",
+      "likes": "2.05K",
+      "stats": {
+        "atk": "1.01M",
+        "def": "1.01M",
+        "hp": "4.35M",
+        "spd": "671K"
+      },
+      "gear": [
+        "+165",
+        "+165",
+        "+165",
+        "+161",
+        "+160"
+      ],
+      "technique": [
+        150,
+        150,
+        150,
+        150
+      ],
+      "charm": [
+        149,
+        149,
+        149,
+        149
+      ]
+    },
+    {
+      "file": "profile_37.png",
+      "name": "KoxTLiTe",
+      "playerId": "700290804258",
+      "power": "14.3M",
+      "class": "Destroyer",
+      "classLevel": 175,
+      "level": 161,
+      "badges": {
+        "rank": "Champion III",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "BeKa",
+      "fantomonSpecies": "Nyxarchon",
+      "likes": "2.66K",
+      "stats": {
+        "atk": "1.08M",
+        "def": "812K",
+        "hp": "5.22M",
+        "spd": "647K"
+      },
+      "gear": [
+        "+166",
+        "+165",
+        "+165",
+        "+165",
+        "+165"
+      ],
+      "technique": [
+        156,
+        156,
+        156,
+        156
+      ],
+      "charm": [
+        156,
+        156,
+        156,
+        155
+      ]
+    },
+    {
+      "file": "profile_38.png",
+      "name": "Philins",
+      "playerId": "700290801383",
+      "power": "14.2M",
+      "class": "Conqueror",
+      "classLevel": 178,
+      "level": 162,
+      "badges": {
+        "rank": "Champion III",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Чубакка",
+      "fantomonSpecies": "Nyxarchon",
+      "likes": "1.61K",
+      "stats": {
+        "atk": "1M",
+        "def": "835K",
+        "hp": "4.13M",
+        "spd": "785K"
+      },
+      "gear": [
+        "+170",
+        "+165",
+        "+165",
+        "+165",
+        "+170"
+      ],
+      "technique": [
+        154,
+        154,
+        154,
+        154
+      ],
+      "charm": [
+        154,
+        154,
+        154,
+        154
+      ]
+    },
+    {
+      "file": "profile_39.png",
+      "name": "Styles",
+      "playerId": "700290801919",
+      "power": "14.1M",
+      "class": "Dominator",
+      "classLevel": 212,
+      "level": 164,
+      "badges": {
+        "rank": "Champion III",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Nala",
+      "fantomonSpecies": "Sylvaerie",
+      "likes": "2.08K",
+      "stats": {
+        "atk": "1M",
+        "def": "950K",
+        "hp": "4.4M",
+        "spd": "634K"
+      },
+      "gear": [
+        "+181",
+        "+180",
+        "+180",
+        "+180",
+        "+180"
+      ],
+      "technique": [
+        150,
+        150,
+        150,
+        149
+      ],
+      "charm": [
+        149,
+        149,
+        149,
+        149
+      ]
+    },
+    {
+      "file": "profile_40.png",
+      "name": "Xerei",
+      "playerId": "700290801355",
+      "power": "14.1M",
+      "class": "Conqueror",
+      "classLevel": 192,
+      "level": 157,
+      "badges": {
+        "rank": "Champion III",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Nyxarchon",
+      "fantomonSpecies": "Nyxarchon",
+      "likes": "1.66K",
+      "stats": {
+        "atk": "922K",
+        "def": "797K",
+        "hp": "4.13M",
+        "spd": "777K"
+      },
+      "gear": [
+        "+164",
+        "+163",
+        "+163",
+        "+163",
+        "+163"
+      ],
+      "technique": [
+        155,
+        155,
+        155,
+        155
+      ],
+      "charm": [
+        155,
+        155,
+        155,
+        155
+      ]
+    },
+    {
+      "file": "profile_41.png",
+      "name": "Awrath",
+      "playerId": "700290802292",
+      "power": "14.1M",
+      "class": "Conqueror",
+      "classLevel": 189,
+      "level": 163,
+      "badges": {
+        "rank": "Champion III",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Nyxarchon",
+      "fantomonSpecies": "Nyxarchon",
+      "likes": "2.56K",
+      "stats": {
+        "atk": "869K",
+        "def": "779K",
+        "hp": "3.87M",
+        "spd": "838K"
+      },
+      "gear": [
+        "+170",
+        "+165",
+        "+165",
+        "+165",
+        "+169"
+      ],
+      "technique": [
+        154,
+        154,
+        154,
+        154
+      ],
+      "charm": [
+        153,
+        153,
+        153,
+        153
+      ]
+    },
+    {
+      "file": "profile_42.png",
+      "name": "Schwartz",
+      "playerId": "700290803413",
+      "power": "14.1M",
+      "class": "Conqueror",
+      "classLevel": 202,
+      "level": 163,
+      "badges": {
+        "rank": "Champion III",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Nyxarchon",
+      "fantomonSpecies": "Nyxarchon",
+      "likes": "974",
+      "stats": {
+        "atk": "823K",
+        "def": "735K",
+        "hp": "3.6M",
+        "spd": "742K"
+      },
+      "gear": [
+        "+165",
+        "+165",
+        "+165",
+        "+165",
+        "+165"
+      ],
+      "technique": [
+        150,
+        150,
+        150,
+        149
+      ],
+      "charm": [
+        149,
+        149,
+        149,
+        149
+      ]
+    },
+    {
+      "file": "profile_43.png",
+      "name": "Skulk",
+      "playerId": "700290804330",
+      "power": "13.8M",
+      "class": "Destroyer",
+      "classLevel": 226,
+      "level": 167,
+      "badges": {
+        "rank": "Champion III",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Solace",
+      "fantomonSpecies": "Nyxarchon",
+      "likes": "1.02K",
+      "stats": {
+        "atk": "1.01M",
+        "def": "609K",
+        "hp": "3.71M",
+        "spd": "560K"
+      },
+      "gear": [
+        "+170",
+        "+168",
+        "+170",
+        "+170",
+        "+165"
+      ],
+      "technique": [
+        148,
+        148,
+        148,
+        148
+      ],
+      "charm": [
+        148,
+        148,
+        147,
+        147
+      ]
+    },
+    {
+      "file": "profile_44.png",
+      "name": "yuuta",
+      "playerId": "700290805219",
+      "power": "13.6M",
+      "class": "Destroyer",
+      "classLevel": 198,
+      "level": 163,
+      "badges": {
+        "rank": "Champion III",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Nyxarchon",
+      "fantomonSpecies": "Nyxarchon",
+      "likes": "1.48K",
+      "stats": {
+        "atk": "971K",
+        "def": "816K",
+        "hp": "3.82M",
+        "spd": "635K"
+      },
+      "gear": [
+        "+170",
+        "+167",
+        "+165",
+        "+165",
+        "+160"
+      ],
+      "technique": [
+        158,
+        157,
+        157,
+        157
+      ],
+      "charm": [
+        157,
+        157,
+        157,
+        157
+      ]
+    },
+    {
+      "file": "profile_45.png",
+      "name": "Hanaroll",
+      "playerId": "700290805182",
+      "power": "13.5M",
+      "class": "Guardian",
+      "classLevel": 171,
+      "level": 161,
+      "badges": {
+        "rank": "Champion III",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Aegiswing",
+      "fantomonSpecies": "Aegiswing",
+      "likes": "1.38K",
+      "stats": {
+        "atk": "805K",
+        "def": "952K",
+        "hp": "5.39M",
+        "spd": "610K"
+      },
+      "gear": [
+        "+170",
+        "+160",
+        "+165",
+        "+165",
+        "+160"
+      ],
+      "technique": [
+        157,
+        157,
+        157,
+        157
+      ],
+      "charm": [
+        157,
+        157,
+        156,
+        157
+      ]
+    },
+    {
+      "file": "profile_46.png",
+      "name": "GMango",
+      "playerId": "700290803734",
+      "power": "13M",
+      "class": "Guardian",
+      "classLevel": 192,
+      "level": 163,
+      "badges": {
+        "rank": "Champion III",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Aegiswing",
+      "fantomonSpecies": "Aegiswing",
+      "likes": "973",
+      "stats": {
+        "atk": "749K",
+        "def": "809K",
+        "hp": "4.47M",
+        "spd": "556K"
+      },
+      "gear": [
+        "+160",
+        "+150",
+        "+154",
+        "+152",
+        "+152"
+      ],
+      "technique": [
+        147,
+        147,
+        147,
+        147
+      ],
+      "charm": [
+        147,
+        147,
+        147,
+        146
+      ]
+    },
+    {
+      "file": "profile_47.png",
+      "name": "1e",
+      "playerId": "700290801323",
+      "power": "12.8M",
+      "class": "Destroyer",
+      "classLevel": 161,
+      "level": 161,
+      "badges": {
+        "rank": "Champion III",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Nyxarchon",
+      "fantomonSpecies": "Nyxarchon",
+      "likes": "1.59K",
+      "stats": {
+        "atk": "1.04M",
+        "def": "756K",
+        "hp": "3.58M",
+        "spd": "664K"
+      },
+      "gear": [
+        "+160",
+        "+156",
+        "+155",
+        "+155",
+        "+155"
+      ],
+      "technique": [
+        152,
+        152,
+        152,
+        152
+      ],
+      "charm": [
+        152,
+        152,
+        151,
+        151
+      ]
+    },
+    {
+      "file": "profile_48.png",
+      "name": "TheLorax",
+      "playerId": "700290800026",
+      "power": "12.6M",
+      "class": "Guardian",
+      "classLevel": 238,
+      "level": 160,
+      "badges": {
+        "rank": "Champion III",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Armopi",
+      "fantomonSpecies": "Armopi",
+      "likes": "1.34K",
+      "stats": {
+        "atk": "658K",
+        "def": "824K",
+        "hp": "3.85M",
+        "spd": "516K"
+      },
+      "gear": [
+        "+156",
+        "+155",
+        "+155",
+        "+155",
+        "+155"
+      ],
+      "technique": [
+        146,
+        146,
+        145,
+        145
+      ],
+      "charm": [
+        145,
+        145,
+        145,
+        145
+      ]
+    },
+    {
+      "file": "profile_49.png",
+      "name": "DerFussel",
+      "playerId": "700290800926",
+      "power": "12.3M",
+      "class": "Destroyer",
+      "classLevel": 185,
+      "level": 161,
+      "badges": {
+        "rank": "Champion III",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Aegiswing",
+      "fantomonSpecies": "Aegiswing",
+      "likes": "1.28K",
+      "stats": {
+        "atk": "814K",
+        "def": "895K",
+        "hp": "3.61M",
+        "spd": "571K"
+      },
+      "gear": [
+        "+156",
+        "+156",
+        "+156",
+        "+156",
+        "+156"
+      ],
+      "technique": [
+        150,
+        150,
+        150,
+        150
+      ],
+      "charm": [
+        150,
+        150,
+        149,
+        149
+      ]
+    },
+    {
+      "file": "profile_50.png",
+      "name": "Dulc",
+      "playerId": "700290804404",
+      "power": "12.1M",
+      "class": "Destroyer",
+      "classLevel": 164,
+      "level": 159,
+      "badges": {
+        "rank": "Champion III",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Nyxarchon",
+      "fantomonSpecies": "Nyxarchon",
+      "likes": "1.4K",
+      "stats": {
+        "atk": "1.05M",
+        "def": "700K",
+        "hp": "3.22M",
+        "spd": "578K"
+      },
+      "gear": [
+        "+165",
+        "+164",
+        "+160",
+        "+160",
+        "+165"
+      ],
+      "technique": [
+        152,
+        152,
+        152,
+        152
+      ],
+      "charm": [
+        152,
+        151,
+        151,
+        151
+      ]
+    },
+    {
+      "file": "profile_51.png",
+      "name": "Yuri_Adakada",
+      "playerId": "700290802708",
+      "power": "11.9M",
+      "class": "Dominator",
+      "classLevel": 183,
+      "level": 161,
+      "badges": {
+        "rank": "Champion III",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Nyxarchon",
+      "fantomonSpecies": "Nyxarchon",
+      "likes": "2.92K",
+      "stats": {
+        "atk": "732K",
+        "def": "672K",
+        "hp": "4.01M",
+        "spd": "581K"
+      },
+      "gear": [
+        "+155",
+        "+155",
+        "+150",
+        "+155",
+        "+152"
+      ],
+      "technique": [
+        143,
+        143,
+        143,
+        143
+      ],
+      "charm": [
+        143,
+        143,
+        142,
+        142
+      ]
+    },
+    {
+      "file": "profile_52.png",
+      "name": "Yukan",
+      "playerId": "700290804737",
+      "power": "11.8M",
+      "class": "Conqueror",
+      "classLevel": 195,
+      "level": 157,
+      "badges": {
+        "rank": "Champion III",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Nyxarchon",
+      "fantomonSpecies": "Nyxarchon",
+      "likes": "1.27K",
+      "stats": {
+        "atk": "740K",
+        "def": "893K",
+        "hp": "3.23M",
+        "spd": "610K"
+      },
+      "gear": [
+        "+155",
+        "+155",
+        "+151",
+        "+155",
+        "+151"
+      ],
+      "technique": [
+        142,
+        142,
+        142,
+        142
+      ],
+      "charm": [
+        141,
+        141,
+        141,
+        141
+      ]
+    },
+    {
+      "file": "profile_53.png",
+      "name": "vDk",
+      "playerId": "700290803994",
+      "power": "11.6M",
+      "class": "Destroyer",
+      "classLevel": 179,
+      "level": 156,
+      "badges": {
+        "rank": "Champion III",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Sylvaerie",
+      "fantomonSpecies": "Sylvaerie",
+      "likes": "2.19K",
+      "stats": {
+        "atk": "799K",
+        "def": "693K",
+        "hp": "3.24M",
+        "spd": "613K"
+      },
+      "gear": [
+        "+165",
+        "+160",
+        "+160",
+        "+163",
+        "+165"
+      ],
+      "technique": [
+        151,
+        151,
+        151,
+        151
+      ],
+      "charm": [
+        151,
+        151,
+        151,
+        151
+      ]
+    },
+    {
+      "file": "profile_54.png",
+      "name": "Shai-roa",
+      "playerId": "700290804817",
+      "power": "11.5M",
+      "class": "Destroyer",
+      "classLevel": 197,
+      "level": 162,
+      "badges": {
+        "rank": "Champion III",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Terragon",
+      "fantomonSpecies": "Terragon",
+      "likes": "720",
+      "stats": {
+        "atk": "738K",
+        "def": "641K",
+        "hp": "3.24M",
+        "spd": "474K"
+      },
+      "gear": [
+        "+163",
+        "+162",
+        "+162",
+        "+162",
+        "+162"
+      ],
+      "technique": [
+        156,
+        156,
+        156,
+        156
+      ],
+      "charm": [
+        156,
+        156,
+        156,
+        156
+      ]
+    },
+    {
+      "file": "profile_55.png",
+      "name": "AJarofPicklez",
+      "playerId": "700290800895",
+      "power": "11.2M",
+      "class": "Dominator",
+      "classLevel": 171,
+      "level": 158,
+      "badges": {
+        "rank": "Champion III",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Nyxarchon",
+      "fantomonSpecies": "Nyxarchon",
+      "likes": "1.19K",
+      "stats": {
+        "atk": "612K",
+        "def": "625K",
+        "hp": "4.22M",
+        "spd": "573K"
+      },
+      "gear": [
+        "+155",
+        "+155",
+        "+155",
+        "+153",
+        "+155"
+      ],
+      "technique": [
+        153,
+        153,
+        153,
+        153
+      ],
+      "charm": [
+        153,
+        153,
+        153,
+        152
+      ]
+    },
+    {
+      "file": "profile_56.png",
+      "name": "Meowxyz",
+      "playerId": "700290801403",
+      "power": "11M",
+      "class": "Guardian",
+      "classLevel": 169,
+      "level": 157,
+      "badges": {
+        "rank": "Champion III",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Aegiswing",
+      "fantomonSpecies": "Aegiswing",
+      "likes": "1.29K",
+      "stats": {
+        "atk": "680K",
+        "def": "796K",
+        "hp": "3.23M",
+        "spd": "573K"
+      },
+      "gear": [
+        "+165",
+        "+165",
+        "+170",
+        "+166",
+        "+165"
+      ],
+      "technique": [
+        149,
+        149,
+        149,
+        149
+      ],
+      "charm": [
+        149,
+        149,
+        149,
+        149
+      ]
+    },
+    {
+      "file": "profile_57.png",
+      "name": "Xember",
+      "playerId": "700290801130",
+      "power": "10.7M",
+      "class": "Conqueror",
+      "classLevel": 166,
+      "level": 159,
+      "badges": {
+        "rank": "Champion III",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Nyxarchon",
+      "fantomonSpecies": "Nyxarchon",
+      "likes": "1.84K",
+      "stats": {
+        "atk": "618K",
+        "def": "621K",
+        "hp": "3.37M",
+        "spd": "558K"
+      },
+      "gear": [
+        "+165",
+        "+165",
+        "+165",
+        "+165",
+        "+165"
+      ],
+      "technique": [
+        157,
+        157,
+        157,
+        157
+      ],
+      "charm": [
+        157,
+        157,
+        157,
+        157
+      ]
+    },
+    {
+      "file": "profile_58.png",
+      "name": "Vizir",
+      "playerId": "700290800775",
+      "power": "10.5M",
+      "class": "Guardian",
+      "classLevel": 165,
+      "level": 159,
+      "badges": {
+        "rank": "Champion III",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "MyFaceIsMyShield",
+      "fantomonSpecies": "Aegiswing",
+      "likes": "1.44K",
+      "stats": {
+        "atk": "670K",
+        "def": "702K",
+        "hp": "3.35M",
+        "spd": "526K"
+      },
+      "gear": [
+        "+155",
+        "+155",
+        "+153",
+        "+155",
+        "+155"
+      ],
+      "technique": [
+        155,
+        155,
+        155,
+        155
+      ],
+      "charm": [
+        155,
+        155,
+        154,
+        154
+      ],
+      "note": "fantomon custom name reads MyFaceIsMyShield (I vs l ambiguous in game font)"
+    },
+    {
+      "file": "profile_59.png",
+      "name": "VuDuh",
+      "playerId": "700290803566",
+      "power": "10.3M",
+      "class": "Conqueror",
+      "classLevel": 180,
+      "level": 157,
+      "badges": {
+        "rank": "Champion III",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Nyxarchon",
+      "fantomonSpecies": "Nyxarchon",
+      "likes": "1K",
+      "stats": {
+        "atk": "671K",
+        "def": "562K",
+        "hp": "3.02M",
+        "spd": "563K"
+      },
+      "gear": [
+        "+163",
+        "+160",
+        "+160",
+        "+160",
+        "+160"
+      ],
+      "technique": [
+        153,
+        153,
+        153,
+        153
+      ],
+      "charm": [
+        153,
+        153,
+        153,
+        152
+      ]
+    },
+    {
+      "file": "profile_60.png",
+      "name": "Mila",
+      "playerId": "700290804651",
+      "power": "10.2M",
+      "class": "Destroyer",
+      "classLevel": 179,
+      "level": 160,
+      "badges": {
+        "rank": "Champion III",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Herbote",
+      "fantomonSpecies": "Herbote",
+      "likes": "1.43K",
+      "stats": {
+        "atk": "673K",
+        "def": "605K",
+        "hp": "2.71M",
+        "spd": "431K"
+      },
+      "gear": [
+        "+155",
+        "+153",
+        "+155",
+        "+155",
+        "+155"
+      ],
+      "technique": [
+        154,
+        154,
+        154,
+        153
+      ],
+      "charm": [
+        153,
+        153,
+        153,
+        153
+      ]
+    }
+  ]
+}
