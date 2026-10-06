@@ -1,7 +1,7 @@
 /* Zenith guild tracker. Reads data/snapshots/<date>/{week,profiles}.json and
    renders the rankings dashboard and per-player profiles. No build step.
    Routes: "#" is the dashboard, "#rankings" the gains, "#members" the table, "#timeline" the server
-   schedule and "#<slug>" one player. They show the latest snapshot; a date in
+   schedule, "#roster" the tournament teams and "#<slug>" one player. They show the latest snapshot; a date in
    front, as in "#<date>/<slug>", shows an earlier one. */
 (function () {
   'use strict';
@@ -499,7 +499,7 @@
 
   // Head-and-shoulders crop of the member's character from the capture, then
   // the class emblem. The photo hides itself when a snapshot has no avatars.
-  var AVATAR_SIZES = { sm: ['size-10', 'size-7', 'size-4'], lg: ['size-16', 'size-11', 'size-7'], xl: ['size-20', 'size-14', 'size-9'] };
+  var AVATAR_SIZES = { xs: ['size-8', 'size-5', 'size-3.5'], sm: ['size-10', 'size-7', 'size-4'], lg: ['size-16', 'size-11', 'size-7'], xl: ['size-20', 'size-14', 'size-9'] };
 
   function avatar(p, size, ring) {
     var key = classKey(p);
@@ -630,17 +630,18 @@
   // Fixed tabs for the main views plus the snapshot picker. A player profile
   // counts as part of Members.
 
-  var TABS = [['', 'Dashboard', 'grid'], ['rankings', 'Rankings', 'trophy'], ['members', 'Members', 'people'], ['timeline', 'Timeline', 'clock']];
+  var TABS = [['', 'Dashboard', 'grid'], ['rankings', 'Rankings', 'trophy'], ['members', 'Members', 'people'], ['timeline', 'Timeline', 'clock'], ['roster', 'Tournament Roster', 'swords', 'Roster']];
 
   function renderNav(slug) {
-    var active = slug === '' || slug === 'timeline' || slug === 'rankings' ? slug : 'members';
+    var active = slug === '' || slug === 'timeline' || slug === 'rankings' || slug === 'roster' ? slug : 'members';
     var html = '<div class="mx-auto flex max-w-6xl flex-wrap items-center gap-x-4 px-4 sm:px-6 lg:flex-nowrap">' +
-      '<nav class="order-last flex basis-full gap-1 pb-2 lg:order-none lg:basis-auto lg:pb-0" aria-label="Sections">';
+      '<nav class="order-last flex basis-full gap-0.5 overflow-x-auto pb-2 sm:gap-1 lg:order-none lg:basis-auto lg:overflow-visible lg:pb-0" aria-label="Sections">';
     TABS.forEach(function (t) {
       var on = t[0] === active;
-      html += '<a class="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg px-2 text-sm font-medium transition-colors sm:px-3 lg:flex-none ' +
+      html += '<a class="inline-flex h-9 flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg px-1.5 text-[13px] font-medium transition-colors sm:px-3 sm:text-sm lg:flex-none ' +
         (on ? 'bg-zinc-900 text-white dark:bg-zinc-50 dark:text-zinc-900' : 'text-zinc-600 hover:bg-zinc-900/5 dark:text-zinc-300 dark:hover:bg-white/10') +
-        '" href="' + esc(link(t[0])) + '"' + (on ? ' aria-current="page"' : '') + '>' + icon(t[2], 'hidden size-4 sm:block') + t[1] + '</a>';
+        '" href="' + esc(link(t[0])) + '"' + (on ? ' aria-current="page"' : '') + '>' + icon(t[2], 'hidden size-4 sm:block') +
+        (t[3] ? '<span class="md:hidden">' + t[3] + '</span><span class="hidden md:inline">' + t[1] + '</span>' : t[1]) + '</a>';
     });
     html += '</nav><div class="flex h-12 w-full items-center gap-2 lg:ml-auto lg:h-14 lg:w-auto">' + (slug === 'timeline' ? '' : snapPicker(slug)) +
       '<a class="ml-auto inline-flex h-9 shrink-0 items-center gap-1.5 rounded-lg bg-[#5865F2] px-3 text-sm font-semibold text-white shadow-md transition-colors hover:bg-[#4752C4]" href="https://discord.gg/fapjXcFYhw" target="_blank" rel="noopener" aria-label="Join the Discord">' +
@@ -2411,6 +2412,488 @@
     document.title = 'Player not found | ' + state.meta.guild;
   }
 
+  // ---- rendering: tournament roster ------------------------------------------
+  // Teams of four. "Balanced" is worked out from the snapshot on screen. A
+  // viewer's own lineups hold member names only and live in their browser's
+  // localStorage, so power always comes from the snapshot being viewed.
+
+  var TEAM_SIZE = 4;
+  var TEAM_CLASSES = ['destroyer', 'conqueror', 'guardian', 'dominator'];
+  var ROSTER_KEY = 'zenith-rosters';
+  // What the Balanced lineup evens out: power and the combat stats, every
+  // measure counting the same.
+  var TEAM_STATS = [['atk', 'ATK'], ['def', 'DEF'], ['hp', 'HP'], ['spd', 'SPD']];
+  var BALANCE = ['power', 'atk', 'def', 'hp', 'spd'];
+  var rosters = null, rosterPick = null, balancedCache = null;
+
+  function loadRosters() {
+    if (rosters) return rosters;
+    rosters = { active: null, list: [] };
+    try {
+      var saved = JSON.parse(localStorage.getItem(ROSTER_KEY));
+      if (saved && Array.isArray(saved.list)) {
+        saved.list.forEach(function (l) {
+          if (!l || !l.id || !Array.isArray(l.teams)) return;
+          rosters.list.push({ id: String(l.id), name: String(l.name || 'My lineup'), teams: l.teams.filter(Array.isArray).map(function (t) { return t.map(String).slice(0, TEAM_SIZE); }) });
+        });
+        if (saved.active === 'nexus' || rosters.list.some(function (l) { return l.id === saved.active; })) rosters.active = saved.active;
+      }
+    } catch (e) {}
+    return rosters;
+  }
+
+  function saveRosters() {
+    try { localStorage.setItem(ROSTER_KEY, JSON.stringify(rosters)); } catch (e) {}
+  }
+
+  function teamPower(team) { return team.reduce(function (a, p) { return a + ((p && p.power_n) || 0); }, 0); }
+  function teamStat(team, k) { return team.reduce(function (a, p) { return a + ((p && p.stat_n[k]) || 0); }, 0); }
+
+  function teamClasses(team) {
+    var has = {};
+    team.forEach(function (p) { if (p && classKey(p) !== 'unknown') has[classKey(p)] = true; });
+    return has;
+  }
+
+  // As many full teams as the members allow, as even as possible in the given
+  // measures (power and the combat stats), with one of every class
+  // in as many of them as the scarcest class allows. Each measure is put on
+  // the same scale, a member's share of the guild average, so that none of
+  // them outweighs the rest. Classes are dealt out scarcest first, each member
+  // to the team that already holds the most classes, weakest team first among
+  // equals. Then pairs are swapped between teams for as long as a swap improves
+  // the spread of classes or, without harming it, narrows the gaps.
+  function balancedTeams(list, keys) {
+    var pw = function (p) { return p.power_n || 0; };
+    var avg = function (get) { var v = list.map(get).filter(function (x) { return x != null; }); return v.length ? v.reduce(function (a, b) { return a + b; }, 0) / v.length : 0; };
+    var avgPower = avg(pw) || 1, share = {};
+    // A stat that was not captured is taken to be in line with the member's power.
+    list.forEach(function (p) {
+      share[p.name] = keys.map(function (k) {
+        var mean = k === 'power' ? avgPower : avg(function (x) { return x.stat_n[k]; });
+        var v = k === 'power' ? pw(p) : p.stat_n[k];
+        return v == null || !mean ? pw(p) / avgPower : v / mean;
+      });
+    });
+    var sums = function (team) { return keys.map(function (k, m) { return team.reduce(function (a, p) { return a + share[p.name][m]; }, 0); }); };
+    var strength = function (team) { return sums(team).reduce(function (a, b) { return a + b; }, 0); };
+    var pool = list.slice().sort(function (a, b) { return pw(b) - pw(a); });
+    var n = Math.floor(pool.length / TEAM_SIZE), bench = [], counts = {};
+    if (!n) return { teams: [], bench: pool };
+    pool.forEach(function (p) { counts[classKey(p)] = (counts[classKey(p)] || 0) + 1; });
+    // Whoever is left over sits out: the weakest of the classes with members to spare.
+    var spare = pool.length - n * TEAM_SIZE;
+    for (var k = pool.length - 1; k >= 0 && spare > 0; k--) {
+      var ck = classKey(pool[k]);
+      if (ck !== 'unknown' && counts[ck] <= n) continue;
+      counts[ck]--; spare--;
+      bench.unshift(pool.splice(k, 1)[0]);
+    }
+    while (spare-- > 0) bench.unshift(pool.pop());
+
+    var teams = [], extras = [];
+    for (var t = 0; t < n; t++) teams.push([]);
+    // A complete set counts for more than the same classes spread over two teams.
+    var kinds = function (team) { var c = Object.keys(teamClasses(team)).length; return c === TEAM_CLASSES.length ? c + TEAM_CLASSES.length : c; };
+    var weakest = function (ok) {
+      var best = null;
+      teams.forEach(function (team) {
+        if (team.length >= TEAM_SIZE || !ok(team)) return;
+        if (!best || kinds(team) > kinds(best) || (kinds(team) === kinds(best) && strength(team) < strength(best))) best = team;
+      });
+      return best;
+    };
+    TEAM_CLASSES.slice().sort(function (a, b) { return (counts[a] || 0) - (counts[b] || 0); }).forEach(function (cls) {
+      pool.filter(function (p) { return classKey(p) === cls; }).forEach(function (p) {
+        var team = weakest(function (x) { return !teamClasses(x)[cls]; });
+        if (team) team.push(p); else extras.push(p);
+      });
+    });
+    extras.concat(pool.filter(function (p) { return classKey(p) === 'unknown'; }))
+      .sort(function (a, b) { return pw(b) - pw(a); })
+      .forEach(function (p) {
+        var open = teams.filter(function (x) { return x.length < TEAM_SIZE; });
+        open.sort(function (x, y) { return strength(x) - strength(y); })[0].push(p);
+      });
+
+    for (var pass = 0, moved = true; moved && pass < 200; pass++) {
+      moved = false;
+      for (var a = 0; a < n; a++) for (var b = a + 1; b < n; b++) {
+        for (var i = 0; i < teams[a].length; i++) for (var j = 0; j < teams[b].length; j++) {
+          var A = teams[a], B = teams[b], sa = sums(A), sb = sums(B), va = share[A[i].name], vb = share[B[j].name];
+          // Change in the summed squares of both teams' totals, over every measure.
+          var change = keys.reduce(function (acc, k, m) { var d = vb[m] - va[m]; return acc + 2 * d * (sa[m] - sb[m] + d); }, 0);
+          var before = kinds(A) + kinds(B), x = A[i];
+          A[i] = B[j]; B[j] = x;
+          var gained = kinds(A) + kinds(B) - before;
+          if (gained > 0 || (gained === 0 && change < -1e-9)) moved = true;
+          else { B[j] = A[i]; A[i] = x; }
+        }
+      }
+    }
+    teams.forEach(function (team) { team.sort(function (p, q) { return pw(q) - pw(p); }); });
+    teams.sort(function (p, q) { return teamPower(q) - teamPower(p); });
+    return { teams: teams, bench: bench };
+  }
+
+  function rosterMembers() {
+    return state.players.filter(function (p) { return p.power_n != null; }).sort(function (a, b) { return b.power_n - a.power_n; });
+  }
+
+  function balancedNames() {
+    if (!balancedCache || balancedCache.dir !== state.meta.dir) {
+      var res = balancedTeams(rosterMembers(), BALANCE);
+      balancedCache = { dir: state.meta.dir, teams: res.teams.map(function (t) { return t.map(function (p) { return p.name; }); }) };
+    }
+    return balancedCache.teams.map(function (t) { return t.slice(); });
+  }
+
+  // The strongest lineups the guild can field: the four highest in power are
+  // the first team, the next four the second, and so on down the list.
+  function powerNames() {
+    var names = rosterMembers().map(function (p) { return p.name; }), teams = [];
+    for (var k = 0; k + TEAM_SIZE <= names.length; k += TEAM_SIZE) teams.push(names.slice(k, k + TEAM_SIZE));
+    return teams;
+  }
+
+  // The lineup on screen: team names, plus whoever is in none of them. The two
+  // worked-out lineups are "server" (balanced) and "nexus" (strongest first).
+  function rosterView() {
+    var store = loadRosters();
+    var own = store.list.filter(function (l) { return l.id === store.active; })[0] || null;
+    var mode = own ? null : store.active === 'nexus' ? 'nexus' : 'server';
+    var teams = own ? own.teams : mode === 'nexus' ? powerNames() : balancedNames(), placed = {};
+    teams.forEach(function (t) { t.forEach(function (n) { placed[n] = true; }); });
+    return { own: own, mode: mode, teams: teams, pool: rosterMembers().map(function (p) { return p.name; }).filter(function (n) { return !placed[n]; }) };
+  }
+
+  function newLineup(teams) {
+    var store = loadRosters(), n = 1, name = 'My lineup';
+    var taken = function (x) { return store.list.some(function (l) { return l.name === x; }); };
+    while (taken(name)) name = 'My lineup ' + (++n);
+    var line = { id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), name: name, teams: teams };
+    store.list.push(line);
+    store.active = line.id;
+    return line;
+  }
+
+  // Moves a member into a team, a new team or back out ("pool"). Dropped on a
+  // member of a full team, the two trade places. Changing a worked-out lineup
+  // starts one of the viewer's own from it and leaves the original as it was.
+  function moveMember(name, zone, target) {
+    var view = rosterView(), from = -1;
+    view.teams.forEach(function (t, k) { if (t.indexOf(name) !== -1) from = k; });
+    var to = zone === 'pool' ? -1 : zone === 'new' ? view.teams.length : parseInt(zone, 10);
+    var full = to !== -1 && view.teams[to] && view.teams[to].length >= TEAM_SIZE;
+    var swap = full && target && view.teams[to].indexOf(target) !== -1;
+    rosterPick = null;
+    if (to === from || (full && !swap)) { renderRoster(); return; }
+    var line = view.own || newLineup(view.teams.map(function (t) { return t.slice(); }));
+    if (zone === 'new') line.teams.push([]);
+    var dest = to === -1 ? null : line.teams[to], src = from === -1 ? null : line.teams[from];
+    if (swap) {
+      dest[dest.indexOf(target)] = name;
+      if (src) src[src.indexOf(name)] = target;
+    } else {
+      if (src) src.splice(src.indexOf(name), 1);
+      if (dest) dest.push(name);
+    }
+    saveRosters();
+    renderRoster();
+  }
+
+  function rosterChip(name, p, inTeam) {
+    var picked = rosterPick === name;
+    return '<div class="roster-chip flex cursor-grab items-center gap-2 rounded-xl border px-2 py-1.5 transition-colors ' +
+      (picked ? 'border-violet-500 bg-violet-500/10 ring-1 ring-violet-500' : 'border-zinc-200/70 bg-white/60 hover:bg-white dark:border-white/10 dark:bg-zinc-800/50 dark:hover:bg-zinc-800') +
+      '" data-chip="' + esc(name) + '" role="button" tabindex="0" aria-pressed="' + picked + '" aria-label="' + esc(name + (p ? ', ' + (p.power || 'no power') : '') + (picked ? ', picked up' : '')) + '">' +
+      (p ? avatar(p, 'xs') : '<span class="grid size-8 shrink-0 place-items-center rounded-full bg-zinc-500/10 ' + MUTED + '">' + icon('cls-unknown', 'size-3.5') + '</span>') +
+      '<span class="min-w-0 flex-1"><span class="block truncate text-sm font-medium">' + esc(name) + '</span>' +
+      '<span class="block truncate text-xs ' + MUTED + '">' + (p ? classInline(p) : 'Not in this snapshot') + '</span></span>' +
+      (p ? '<span class="text-sm font-semibold">' + esc(p.power || '-') + '</span>' : '') +
+      (inTeam ? '<button type="button" class="grid size-6 shrink-0 place-items-center rounded-md ' + MUTED + ' transition-colors hover:bg-zinc-900/10 hover:text-zinc-900 dark:hover:bg-white/10 dark:hover:text-zinc-50" data-bench="' + esc(name) + '" aria-label="Take ' + esc(name) + ' out of the team" title="Take out of the team">' + icon('close', 'size-3.5') + '</button>' : '') +
+      '</div>';
+  }
+
+  function renderRoster(first) {
+    var m = state.meta, store = loadRosters(), view = rosterView(), byName = {};
+    state.players.forEach(function (p) { byName[p.name] = p; });
+    if (rosterPick && !byName[rosterPick] && !view.teams.some(function (t) { return t.indexOf(rosterPick) !== -1; })) rosterPick = null;
+    var keep = app.querySelector('[data-pool-list]'), scrolled = keep ? keep.scrollTop : 0;
+    var anim = function (i) { return first ? ' ' + ANIM + '" style="--i:' + i : ''; };
+    var teams = view.teams.map(function (t) { return t.map(function (n) { return byName[n] || null; }); });
+    var totals = teams.map(teamPower), manned = totals.filter(function (v, k) { return teams[k].length; });
+    var fullTotals = totals.filter(function (v, k) { return teams[k].length === TEAM_SIZE; });
+    var top = Math.max.apply(null, totals.concat([0]));
+    var allFour = teams.filter(function (t) { return Object.keys(teamClasses(t)).length === TEAM_CLASSES.length; }).length;
+    var pickTeam = -1;
+    view.teams.forEach(function (t, k) { if (t.indexOf(rosterPick) !== -1) pickTeam = k; });
+    // How far the strongest full team is ahead of the weakest in each measure, as a share of the average.
+    var fullTeams = teams.filter(function (t) { return t.length === TEAM_SIZE; });
+    var evenness = '<div class="border-t border-zinc-200/70 px-4 py-3 sm:px-5 dark:border-white/10"><p class="text-xs ' + MUTED + '">Gap between the strongest and weakest full team, as a share of the average</p>' +
+      '<dl class="mt-2 grid grid-cols-5 gap-2 text-center">' + [['power', 'Power']].concat(TEAM_STATS).map(function (s) {
+        var vals = fullTeams.map(function (t) { return s[0] === 'power' ? teamPower(t) : teamStat(t, s[0]); });
+        var mean = vals.reduce(function (a, b) { return a + b; }, 0) / (vals.length || 1);
+        var gap = vals.length > 1 && mean > 0 ? Math.round(1000 * (Math.max.apply(null, vals) - Math.min.apply(null, vals)) / mean) / 10 + '%' : '-';
+        return '<div class="rounded-lg border border-zinc-200/70 bg-white/40 px-1 py-1.5 dark:border-white/10 dark:bg-white/5"><dt class="text-[11px] font-medium ' + MUTED + '">' + s[1] + '</dt><dd class="text-sm font-semibold">' + gap + '</dd></div>';
+      }).join('') + '</dl></div>';
+
+    var tab = 'inline-flex h-8 shrink-0 items-center gap-1.5 rounded-full border px-3 text-xs font-medium transition-colors ';
+    var off = 'border-zinc-200/70 bg-white/60 text-zinc-600 hover:bg-white dark:border-white/10 dark:bg-zinc-800/60 dark:text-zinc-300 dark:hover:bg-zinc-800';
+    var on = 'border-zinc-900 bg-zinc-900 text-white dark:border-zinc-50 dark:bg-zinc-50 dark:text-zinc-900';
+    var html = pastNotice('roster') + '<div data-roster>' +
+      '<section class="' + CARD + anim(1) + '" aria-labelledby="roster-title">' +
+      '<div class="border-b border-zinc-200/70 p-4 sm:p-5 dark:border-white/10"><h1 class="text-base font-semibold" id="roster-title">Tournament roster</h1>' +
+      '<p class="text-sm ' + MUTED + '">Teams of ' + TEAM_SIZE + '. Drag a member into a team, or tap a member and then the team. On a phone, press and hold to drag.</p></div>' +
+      '<div class="flex gap-1.5 overflow-x-auto border-b border-zinc-200/70 px-4 py-2.5 sm:px-5 dark:border-white/10" role="group" aria-label="Lineup">' +
+      '<button type="button" data-lineup="" aria-pressed="' + (view.mode === 'server') + '" class="' + tab + (view.mode === 'server' ? on : off) + '">' + icon('spark', 'size-3.5') + 'Balanced - Server</button>' +
+      '<button type="button" data-lineup="nexus" aria-pressed="' + (view.mode === 'nexus') + '" class="' + tab + (view.mode === 'nexus' ? on : off) + '">' + icon('bolt', 'size-3.5') + 'Power - Nexus</button>';
+    store.list.forEach(function (l) {
+      html += '<button type="button" data-lineup="' + esc(l.id) + '" aria-pressed="' + (l === view.own) + '" class="' + tab + (l === view.own ? on : off) + '">' + esc(l.name) + '</button>';
+    });
+    html += '<button type="button" data-roster-act="new" class="' + tab + 'border-dashed ' + off + '">+ New lineup</button></div>';
+    if (view.own) {
+      html += '<div class="flex flex-wrap items-center gap-2 border-b border-zinc-200/70 px-4 py-3 sm:px-5 dark:border-white/10">' +
+        '<input type="text" id="roster-name" class="' + INPUT + ' min-w-0 flex-1 px-3 sm:w-56 sm:flex-none" maxlength="40" aria-label="Lineup name" autocomplete="off" spellcheck="false" value="' + esc(view.own.name) + '">' +
+        '<button type="button" class="' + BTN + '" data-roster-act="add">Add team</button>' +
+        '<button type="button" class="' + BTN + '" data-roster-act="fill">Use Balanced - Server</button>' +
+        '<button type="button" class="' + BTN + '" data-roster-act="fill-nexus">Use Power - Nexus</button>' +
+        '<button type="button" class="' + BTN + '" data-roster-act="clear">Empty the teams</button>' +
+        '<button type="button" class="' + GHOST + ' text-red-600 dark:text-red-400" data-roster-act="delete">Delete lineup</button>' +
+        '<span class="basis-full text-xs ' + MUTED + '">Saved in this browser only. Power follows the snapshot you are viewing.</span></div>';
+    } else {
+      html += '<p class="border-b border-zinc-200/70 px-4 py-3 text-sm sm:px-5 dark:border-white/10 ' + MUTED + '">' + (view.mode === 'nexus'
+        ? 'The strongest lineups the guild can put forward: the four highest in power make Team 1, the next four Team 2, and so on. Classes are not considered.'
+        : 'As many full teams as the guild can field, as even as possible in power, attack, defence, health and speed, each counting the same, and each team with one of every class while there are enough to go round.') +
+        ' Move anyone and it becomes a lineup of your own, saved in this browser.</p>';
+    }
+    html += '<div class="grid grid-cols-2 gap-2 p-4 sm:p-5 lg:grid-cols-4">' +
+      statCell(String(manned.length), manned.length === 1 ? 'Team' : 'Teams', fullTotals.length + ' full, ' + view.pool.length + ' not in a team') +
+      statCell(manned.length ? fmtNum(manned.reduce(function (a, b) { return a + b; }, 0) / manned.length) : '-', 'Average team power', 'across teams with members') +
+      statCell(fullTotals.length > 1 ? fmtNum(Math.max.apply(null, fullTotals) - Math.min.apply(null, fullTotals)) : '-', 'Power gap', 'strongest to weakest full team') +
+      statCell(allFour + ' of ' + teams.length, 'All four classes', 'teams with one of each') +
+      '</div>' + evenness + '</section>';
+
+    if (rosterPick) {
+      html += '<p class="glass sticky top-28 z-10 mt-4 flex items-center gap-3 rounded-xl border border-violet-400/60 bg-violet-50/95 px-4 py-2.5 text-sm text-violet-900 shadow-md backdrop-blur-md lg:top-16 dark:border-violet-500/40 dark:bg-violet-950/90 dark:text-violet-100" role="status">' +
+        '<span class="min-w-0 flex-1">Moving <strong>' + esc(rosterPick) + '</strong>. Tap a team, or a member to trade places.</span>' +
+        '<button type="button" class="font-semibold underline underline-offset-2" data-roster-act="unpick">Cancel</button></p>';
+    }
+
+    var poolHTML = '<section class="' + CARD + ' p-3 lg:sticky lg:top-20 ' + (view.own ? 'order-first lg:order-last' : '') + anim(3) + '" data-zone="pool" aria-labelledby="pool-title">' +
+      '<div class="flex items-baseline justify-between gap-2 px-1"><h2 class="text-sm font-semibold" id="pool-title">Not in a team</h2><span class="text-xs ' + MUTED + '">' + view.pool.length + '</span></div>' +
+      (rosterPick && pickTeam !== -1 ? '<button type="button" class="mt-2 w-full rounded-lg border border-dashed border-violet-400 px-3 py-1.5 text-xs font-semibold text-violet-700 dark:text-violet-300" data-place="pool">Take ' + esc(rosterPick) + ' out</button>' : '') +
+      (view.pool.length
+        ? '<div class="mt-2 grid max-h-72 gap-1.5 overflow-y-auto overscroll-contain pr-0.5 sm:grid-cols-2 lg:max-h-[calc(100dvh-9rem)] lg:grid-cols-1" data-pool-list>' + view.pool.map(function (n) { return rosterChip(n, byName[n], false); }).join('') + '</div>'
+        : '<p class="mt-2 rounded-xl border border-dashed border-zinc-300/70 px-3 py-4 text-center text-xs dark:border-white/10 ' + MUTED + '">Everyone is in a team. Drop a member here to take them out.</p>') +
+      '</section>';
+
+    var grid = '<div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">';
+    teams.forEach(function (team, k) {
+      var has = teamClasses(team);
+      grid += '<section class="' + CARD + ' p-3' + anim(Math.min(k, 8) + 3) + '" data-zone="' + k + '" aria-label="Team ' + (k + 1) + '">' +
+        '<div class="flex items-center gap-2 px-1"><h2 class="text-sm font-semibold">Team ' + (k + 1) + '</h2>' +
+        '<span class="ml-auto inline-flex items-center gap-1" aria-label="Classes in the team">' + TEAM_CLASSES.map(function (c) {
+          var label = c.charAt(0).toUpperCase() + c.slice(1);
+          return '<img class="size-4 object-contain' + (has[c] ? '' : ' opacity-20 grayscale') + '" src="assets/img/classes/' + c + '.png" alt="' + label + (has[c] ? '' : ' missing') + '" title="' + label + (has[c] ? '' : ' missing') + '">';
+        }).join('') + '</span>' +
+        (view.own ? '<button type="button" class="grid size-6 place-items-center rounded-md ' + MUTED + ' transition-colors hover:bg-zinc-900/10 hover:text-zinc-900 dark:hover:bg-white/10 dark:hover:text-zinc-50" data-team-del="' + k + '" aria-label="Remove team ' + (k + 1) + '" title="Remove this team">' + icon('close', 'size-3.5') + '</button>' : '') +
+        '</div><p class="mt-1 flex items-baseline gap-2 px-1"><span class="text-2xl font-semibold tracking-tight">' + esc(team.length ? fmtNum(totals[k]) : '-') + '</span>' +
+        '<span class="text-xs ' + MUTED + '">total power, ' + team.length + ' of ' + TEAM_SIZE + '</span></p>' +
+        '<div class="mx-1 mt-2 h-1.5 overflow-hidden rounded-full bg-zinc-200/70 dark:bg-white/10"><i class="block h-full rounded-full bg-violet-500" style="width:' + (top > 0 ? Math.round(100 * totals[k] / top) : 0) + '%"></i></div>' +
+        '<dl class="mx-1 mt-2 grid grid-cols-4 gap-1 text-center">' + TEAM_STATS.map(function (s) {
+          return '<div><dt class="text-[10px] font-medium ' + MUTED + '">' + s[1] + '</dt><dd class="text-xs font-semibold">' + esc(team.length ? fmtNum(teamStat(team, s[0])) : '-') + '</dd></div>';
+        }).join('') + '</dl>' +
+        '<div class="mt-3 space-y-1.5">' + view.teams[k].map(function (n) { return rosterChip(n, byName[n], true); }).join('');
+      for (var e = team.length; e < TEAM_SIZE; e++) grid += '<div class="grid h-[46px] place-items-center rounded-xl border border-dashed border-zinc-300/70 text-xs dark:border-white/10 ' + MUTED + '">Empty slot</div>';
+      grid += '</div>' + (rosterPick && pickTeam !== k && team.length < TEAM_SIZE ? '<button type="button" class="mt-2 w-full rounded-lg border border-dashed border-violet-400 px-3 py-1.5 text-xs font-semibold text-violet-700 dark:text-violet-300" data-place="' + k + '">Move ' + esc(rosterPick) + ' here</button>' : '') + '</section>';
+    });
+    if (view.own) {
+      grid += '<section class="grid min-h-32 place-items-center rounded-2xl border-2 border-dashed border-zinc-300/70 p-4 text-center text-sm dark:border-white/10 ' + MUTED + '" data-zone="new" aria-label="New team">' +
+        '<button type="button" class="font-medium underline-offset-2 hover:underline" data-roster-act="add">' + (rosterPick ? 'Start a new team with ' + esc(rosterPick) : 'Add a team, or drop a member here') + '</button></section>';
+    }
+    grid += '</div>';
+
+    html += '<div class="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-start">' + grid + poolHTML + '</div></div>';
+    app.innerHTML = html;
+    var list = app.querySelector('[data-pool-list]');
+    if (list) list.scrollTop = scrolled;
+    bindRoster();
+    document.title = 'Tournament roster | ' + m.guild + (m.dir === state.latest ? '' : ', ' + m.capturedDate);
+  }
+
+  // One set of listeners for the life of the page, as the roster redraws itself
+  // after every move. Dragging is done by hand so that it works by touch: a
+  // mouse drags at once, a finger after a short hold so that swiping still
+  // scrolls the page.
+  var rosterDrag = null, rosterHold = null, rosterPress = null, rosterMute = false;
+
+  function bindRoster() {
+    if (app.dataset.rosterBound) return;
+    app.dataset.rosterBound = '1';
+    var onRoster = function () { return !!app.querySelector('[data-roster]'); };
+    var chipAt = function (ev) { return ev.target.closest && !ev.target.closest('button') ? ev.target.closest('[data-chip]') : null; };
+
+    function dragTo(x, y) {
+      var d = rosterDrag;
+      d.x = x; d.y = y;
+      d.ghost.style.transform = 'translate(' + (x - d.dx) + 'px,' + (y - d.dy) + 'px) rotate(1.5deg)';
+      var el = document.elementFromPoint(x, y);
+      var zone = el && el.closest ? el.closest('[data-zone]') : null, chip = el && el.closest ? el.closest('[data-chip]') : null;
+      if (zone !== d.zone) {
+        if (d.zone) d.zone.classList.remove('roster-over');
+        if (zone) zone.classList.add('roster-over');
+        d.zone = zone;
+      }
+      d.target = chip ? chip.getAttribute('data-chip') : null;
+    }
+
+    function dragStart(chip, x, y, touch) {
+      var r = chip.getBoundingClientRect(), ghost = chip.cloneNode(true);
+      ghost.removeAttribute('data-chip');
+      ghost.classList.add('roster-ghost');
+      ghost.style.width = r.width + 'px';
+      document.body.appendChild(ghost);
+      chip.classList.add('opacity-40');
+      rosterDrag = { name: chip.getAttribute('data-chip'), chip: chip, ghost: ghost, dx: x - r.left, dy: y - r.top, zone: null, target: null, touch: touch };
+      dragTo(x, y);
+      // Near the top or bottom edge the page scrolls, so a far team can be reached.
+      (function edge() {
+        var d = rosterDrag;
+        if (!d) return;
+        var step = d.y < 110 ? -14 : d.y > window.innerHeight - 70 ? 14 : 0;
+        if (step) { window.scrollBy({ top: step, behavior: 'instant' }); dragTo(d.x, d.y); }
+        d.raf = requestAnimationFrame(edge);
+      })();
+    }
+
+    function dragEnd(drop) {
+      var d = rosterDrag;
+      if (!d) return;
+      rosterDrag = null;
+      cancelAnimationFrame(d.raf);
+      d.ghost.remove();
+      d.chip.classList.remove('opacity-40');
+      if (d.zone) d.zone.classList.remove('roster-over');
+      // The click that follows a mouse release is part of the drag, not a pick.
+      rosterMute = true;
+      setTimeout(function () { rosterMute = false; }, 60);
+      if (drop && d.zone) moveMember(d.name, d.zone.getAttribute('data-zone'), d.target);
+    }
+
+    app.addEventListener('pointerdown', function (ev) {
+      if (ev.pointerType === 'touch' || ev.button !== 0 || !onRoster()) return;
+      var chip = chipAt(ev);
+      if (chip) rosterPress = { chip: chip, x: ev.clientX, y: ev.clientY };
+    });
+    window.addEventListener('pointermove', function (ev) {
+      if (ev.pointerType === 'touch') return;
+      if (rosterDrag) { dragTo(ev.clientX, ev.clientY); return; }
+      var p = rosterPress;
+      if (p && Math.abs(ev.clientX - p.x) + Math.abs(ev.clientY - p.y) > 6) { rosterPress = null; dragStart(p.chip, ev.clientX, ev.clientY, false); }
+    });
+    window.addEventListener('pointerup', function (ev) {
+      if (ev.pointerType === 'touch') return;
+      rosterPress = null;
+      dragEnd(true);
+    });
+    window.addEventListener('pointercancel', function (ev) { if (ev.pointerType !== 'touch') { rosterPress = null; dragEnd(false); } });
+
+    var dropHold = function () { if (rosterHold) { clearTimeout(rosterHold.timer); rosterHold = null; } };
+    app.addEventListener('touchstart', function (ev) {
+      dropHold();
+      if (ev.touches.length !== 1 || !onRoster()) return;
+      var chip = chipAt(ev), t = ev.touches[0];
+      if (!chip) return;
+      rosterHold = { x: t.clientX, y: t.clientY, timer: setTimeout(function () {
+        var h = rosterHold;
+        rosterHold = null;
+        if (!chip.isConnected) return;
+        if (navigator.vibrate) navigator.vibrate(12);
+        dragStart(chip, h.x, h.y, true);
+      }, 260) };
+    }, { passive: true });
+    document.addEventListener('touchmove', function (ev) {
+      var t = ev.touches[0];
+      if (rosterDrag && rosterDrag.touch) { ev.preventDefault(); dragTo(t.clientX, t.clientY); return; }
+      if (rosterHold && Math.abs(t.clientX - rosterHold.x) + Math.abs(t.clientY - rosterHold.y) > 10) dropHold();
+    }, { passive: false });
+    document.addEventListener('touchend', function (ev) {
+      dropHold();
+      if (rosterDrag && rosterDrag.touch) { ev.preventDefault(); dragEnd(true); }
+    }, { passive: false });
+    document.addEventListener('touchcancel', function () { dropHold(); if (rosterDrag && rosterDrag.touch) dragEnd(false); });
+    app.addEventListener('contextmenu', function (ev) { if (rosterDrag || rosterHold) ev.preventDefault(); });
+
+    function act(name) {
+      var store = loadRosters(), view = rosterView(), own = view.own;
+      if (name === 'unpick') rosterPick = null;
+      else if (name === 'new') { rosterPick = null; newLineup([[]]); }
+      else if (name === 'add') {
+        if (rosterPick) { moveMember(rosterPick, 'new'); return; }
+        if (own) own.teams.push([]);
+      } else if (!own) return;
+      else if (name === 'fill' || name === 'fill-nexus') {
+        if (own.teams.some(function (t) { return t.length; }) && !window.confirm('Replace the teams in "' + own.name + '" with the ' + (name === 'fill' ? 'Balanced - Server' : 'Power - Nexus') + ' ones?')) return;
+        own.teams = name === 'fill' ? balancedNames() : powerNames();
+      } else if (name === 'clear') own.teams = own.teams.map(function () { return []; });
+      else if (name === 'delete') {
+        if (!window.confirm('Delete "' + own.name + '"? This cannot be undone.')) return;
+        store.list.splice(store.list.indexOf(own), 1);
+        store.active = null;
+        rosterPick = null;
+      }
+      saveRosters();
+      renderRoster();
+    }
+
+    function tap(ev) {
+      if (!onRoster() || rosterMute) return;
+      var el = ev.target, hit;
+      if ((hit = el.closest('[data-roster-act]'))) { act(hit.getAttribute('data-roster-act')); return; }
+      if ((hit = el.closest('[data-lineup]'))) { loadRosters().active = hit.getAttribute('data-lineup') || null; rosterPick = null; saveRosters(); renderRoster(); return; }
+      if ((hit = el.closest('[data-bench]'))) { moveMember(hit.getAttribute('data-bench'), 'pool'); return; }
+      if ((hit = el.closest('[data-place]'))) { moveMember(rosterPick, hit.getAttribute('data-place')); return; }
+      if ((hit = el.closest('[data-team-del]'))) {
+        var own = rosterView().own;
+        if (own) { own.teams.splice(parseInt(hit.getAttribute('data-team-del'), 10), 1); rosterPick = null; saveRosters(); renderRoster(); }
+        return;
+      }
+      var zone = el.closest('[data-zone]'), chip = el.closest('[data-chip]');
+      if (chip) {
+        var name = chip.getAttribute('data-chip');
+        var at = function (n) { var k = -1; rosterView().teams.forEach(function (t, i) { if (t.indexOf(n) !== -1) k = i; }); return k; };
+        var mine = rosterPick ? at(rosterPick) : -1, theirs = at(name);
+        // A picked member trades places with the one tapped in another team.
+        // From a full team, tapping someone who is in no team swaps them in.
+        if (rosterPick && rosterPick !== name && mine !== theirs) {
+          if (theirs !== -1) { moveMember(rosterPick, String(theirs), name); return; }
+          if (rosterView().teams[mine].length >= TEAM_SIZE) { moveMember(name, String(mine), rosterPick); return; }
+        }
+        rosterPick = rosterPick === name ? null : name;
+        renderRoster();
+        var again = Array.prototype.filter.call(app.querySelectorAll('[data-chip]'), function (c) { return c.getAttribute('data-chip') === name; })[0];
+        if (again && ev.type === 'keydown') again.focus();
+        return;
+      }
+      if (zone && rosterPick) moveMember(rosterPick, zone.getAttribute('data-zone'));
+    }
+
+    app.addEventListener('click', tap);
+    app.addEventListener('keydown', function (ev) {
+      if (!onRoster()) return;
+      if (ev.key === 'Escape' && rosterPick) { rosterPick = null; renderRoster(); return; }
+      if ((ev.key === 'Enter' || ev.key === ' ') && ev.target.matches && ev.target.matches('[data-chip]')) { ev.preventDefault(); tap(ev); }
+    });
+    app.addEventListener('change', function (ev) {
+      var own = rosterView().own;
+      if (ev.target.id !== 'roster-name' || !own) return;
+      own.name = ev.target.value.trim() || own.name;
+      saveRosters();
+      renderRoster();
+    });
+  }
+
   // ---- timeline ----------------------------------------------------------------
   // Server content schedule counted from the opening date (day 1). Data lives
   // in data/timeline.json; the weekly Treasure Hunt events are generated here.
@@ -2666,6 +3149,7 @@
     if (!slug) { setDock(''); renderDashboard(); window.scrollTo(0, 0); return; }
     if (slug === 'rankings') { setDock(''); renderRankings(); window.scrollTo(0, 0); return; }
     if (slug === 'members') { setDock(''); renderMembers(); window.scrollTo(0, 0); return; }
+    if (slug === 'roster') { setDock(''); renderRoster(true); window.scrollTo(0, 0); return; }
     if (slug === 'timeline') {
       loadTimeline().then(renderTimeline).catch(function (err) { setDock(''); app.innerHTML = '<p class="rounded-xl border border-white/70 bg-white/50 p-4 text-sm backdrop-blur-md ' + MUTED + '">Could not load the timeline. ' + esc(err && err.message) + '</p>'; });
       window.scrollTo(0, 0); return;

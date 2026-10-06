@@ -14,6 +14,15 @@ input[type="search"]::-webkit-search-cancel-button { -webkit-appearance: none; }
 /* Staggered entrance: each block sets its own --i. */
 .stagger { animation-delay: calc(var(--i, 0) * 40ms); }
 
+/* Tournament roster: members are dragged by hand (site.js), so the browser's
+   own text selection, image drag and long-press menu are kept out of the way. */
+.roster-chip { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+.roster-chip img { pointer-events: none; }
+.roster-chip:focus-visible { outline: 2px solid rgb(139 92 246); outline-offset: 2px; }
+.roster-ghost { position: fixed; left: 0; top: 0; z-index: 50; pointer-events: none; cursor: grabbing; background: #fff !important; box-shadow: 0 18px 40px -12px rgb(0 0 0 / 0.45); }
+.dark .roster-ghost { background: #27272a !important; }
+.roster-over { outline: 2px dashed rgb(139 92 246); outline-offset: 3px; }
+
 /* Class MVP cards: a slow light running round the border in the class colour,
    a glow behind the avatar and a bobbing crown.
    --c is the class colour as an RGB triplet. */
