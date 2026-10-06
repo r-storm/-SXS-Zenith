@@ -372,6 +372,22 @@
       return both.length > 0 && rose.length >= 0.8 * both.length;
     };
     var gameWeeks = weeks.filter(function (w, k) { return !(k + 1 < weeks.length && sameWeek(w, weeks[k + 1])); });
+    // Totals are shown to three digits, so past 10K the difference between two
+    // of them is only good to the nearest 100. The weekly figure is finer: use
+    // it for what was donated since the previous snapshot, as long as it agrees
+    // with the totals within their rounding. Where it does not, donations
+    // landed in a game week this snapshot does not show, and the totals stand.
+    var step = function (v) { return v >= 1000 ? Math.pow(10, Math.floor(Math.log(v) / Math.LN10 + 1e-9) - 2) : 1; };
+    var wasWeek = previous && weeks.length > 1 ? weeks[weeks.length - 2] : null;
+    if (wasWeek && wasWeek.dir === previous.dir) {
+      var carried = sameWeek(wasWeek, weeks[weeks.length - 1]);
+      players.forEach(function (p) {
+        if (p.totalGain == null || p.week_n == null || (carried && p.prev.week_n == null)) return;
+        var fine = carried ? p.week_n - p.prev.week_n : p.week_n;
+        var slack = step(p.total_n) / 2 + step(p.prev.total_n) / 2 + step(p.week_n);
+        if (Math.abs(fine - p.totalGain) <= slack) p.totalGain = fine;
+      });
+    }
     players.forEach(function (p) {
       p.streak = 0;
       for (var k = gameWeeks.length - 1; k >= 0; k--) {
@@ -1131,7 +1147,7 @@
 
   function moversSection(i) {
     var m = state.meta, both = state.players.filter(function (p) { return p.prev; });
-    var top = function (get) { return both.filter(function (p) { return get(p) > 0; }).sort(function (a, b) { return get(b) - get(a); }).slice(0, 8); };
+    var top = function (get, tie) { return both.filter(function (p) { return get(p) > 0; }).sort(function (a, b) { return get(b) - get(a) || (tie ? tie(b) - tie(a) : 0); }).slice(0, 8); };
     var dealt = both.reduce(function (a, p) { return a + (p.dmgGain || 0); }, 0);
     var added = levelsAdded;
     var levels = function (n) { return n === 1 ? 'level' : 'levels'; };
@@ -1151,7 +1167,7 @@
       moversCard(i + 4, 'Most skills enhanced', 'Enhancement levels added to skills.', top(function (p) { return added(p, ['technique', 'charm']); }).map(function (p) {
         return { p: p, value: '+' + added(p, ['technique', 'charm']), unit: levels(added(p, ['technique', 'charm'])), sub: ['Skill Technique +' + added(p, ['technique']), 'Skill Charm +' + added(p, ['charm'])] };
       })) +
-      moversCard(i + 5, 'Most donated', 'Total Contribution earned through donations.', top(function (p) { return p.totalGain; }).map(function (p) {
+      moversCard(i + 5, 'Most donated', 'Total Contribution earned through donations.', top(function (p) { return p.totalGain; }, function (p) { return p.week_n || 0; }).map(function (p) {
         return { p: p, value: '+' + fmtNum(p.totalGain), sub: p.prev.total + ' to ' + p.total };
       })) + '</div>';
   }
