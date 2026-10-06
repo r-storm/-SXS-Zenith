@@ -8,15 +8,23 @@
 <meta property="og:title" content="Zenith guild rankings">
 <meta property="og:description" content="Sword x Staff guild on Windward Grace. Rankings, contributions and member profiles.">
 <meta property="og:type" content="website">
-<meta name="theme-color" content="#fafafa" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#09090b" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#09090b" id="theme-color">
+<!-- Dark unless the viewer chose light with the top bar toggle. Runs before first paint so the page never flashes the other theme. -->
+<script>
+  (function () {
+    var light = false;
+    try { light = localStorage.getItem('theme') === 'light'; } catch (e) {}
+    document.documentElement.classList.toggle('dark', !light);
+    if (light) document.getElementById('theme-color').content = '#fafafa';
+  })();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
   tailwind.config = {
-    darkMode: 'media',
+    darkMode: 'class',
     theme: {
       extend: {
         fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'] },
@@ -40,7 +48,7 @@
   };
 </script>
 <!-- Bump ?v= on both asset links whenever site.css or site.js changes, so browsers never pair a new script with an old stylesheet. -->
-<link rel="stylesheet" href="assets/site.css?v=20261006a">
+<link rel="stylesheet" href="assets/site.css?v=20261006b">
 <link rel="icon" type="image/webp" href="assets/img/logo/zenith-64.webp">
 <link rel="apple-touch-icon" href="assets/img/logo/zenith-160.webp">
 </head>
@@ -73,6 +81,7 @@
   <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
   <symbol id="i-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9.5" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></symbol>
   <symbol id="i-calendar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></symbol>
   <symbol id="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></symbol>
   <symbol id="i-gem" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M7 4h10l4 5-9 12L3 9z"/><path d="M3 9h18M7 4l5 17 5-17"/></symbol>
   <symbol id="i-crown" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 8l5 4 4-6 4 6 5-4-1.5 11h-15z"/></symbol>
@@ -104,7 +113,7 @@
 </svg>
 
 
-<!-- Fixed top bar: tabs and the snapshot picker. site.js redraws it on every route. -->
+<!-- Fixed top bar: tabs, the snapshot picker and the theme toggle. site.js redraws it on every route. -->
 <header class="glass fixed inset-x-0 top-0 z-30 border-b border-zinc-200/70 bg-white/80 backdrop-blur-xl dark:border-white/10 dark:bg-zinc-950/80" id="topbar">
   <div class="mx-auto h-12 max-w-6xl px-4 sm:px-6 lg:h-14"></div>
 </header>
@@ -129,6 +138,6 @@
   </figure>
 </div>
 
-<script src="assets/site.js?v=20261006a" defer></script>
+<script src="assets/site.js?v=20261006b" defer></script>
 </body>
 </html>

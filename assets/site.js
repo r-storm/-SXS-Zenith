@@ -644,10 +644,31 @@
     });
     html += '</nav><div class="flex h-12 w-full items-center gap-2 lg:ml-auto lg:h-14 lg:w-auto">' + (slug === 'timeline' ? '' : snapPicker(slug)) +
       '<a class="ml-auto inline-flex h-9 shrink-0 items-center gap-1.5 rounded-lg bg-[#5865F2] px-3 text-sm font-semibold text-white shadow-md transition-colors hover:bg-[#4752C4]" href="https://discord.gg/fapjXcFYhw" target="_blank" rel="noopener" aria-label="Join the Discord">' +
-      icon('discord', 'size-4') + '<span class="sm:hidden">Join</span><span class="hidden sm:inline">Join the Discord</span></a></div></div>';
+      icon('discord', 'size-4') + '<span class="sm:hidden">Join</span><span class="hidden sm:inline">Join the Discord</span></a>' +
+      '<button type="button" class="glass grid size-9 shrink-0 place-items-center rounded-lg border border-white/70 bg-white/60 shadow-md shadow-zinc-900/[0.05] backdrop-blur-md transition-colors hover:bg-white/90 dark:border-white/10 dark:bg-zinc-900/60 dark:hover:bg-zinc-800/80" data-theme-toggle>' +
+      icon('sun', 'hidden size-4 dark:block') + icon('moon', 'size-4 dark:hidden') + '</button></div></div>';
     topbar.innerHTML = html;
+    labelTheme();
     bindPicker();
   }
+
+  // Dark is the default; the toggle's choice is kept for the next visit.
+  function labelTheme() {
+    var btn = topbar.querySelector('[data-theme-toggle]');
+    if (!btn) return;
+    var label = 'Switch to ' + (document.documentElement.classList.contains('dark') ? 'light' : 'dark') + ' mode';
+    btn.setAttribute('aria-label', label);
+    btn.title = label;
+  }
+
+  topbar.addEventListener('click', function (ev) {
+    if (!ev.target.closest('[data-theme-toggle]')) return;
+    var dark = !document.documentElement.classList.contains('dark');
+    document.documentElement.classList.toggle('dark', dark);
+    document.getElementById('theme-color').content = dark ? '#09090b' : '#fafafa';
+    try { localStorage.setItem('theme', dark ? 'dark' : 'light'); } catch (e) {}
+    labelTheme();
+  });
 
   // ---- snapshot picker --------------------------------------------------------
   // Steps to the older or newer snapshot, with a month calendar in a popover

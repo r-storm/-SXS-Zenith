@@ -1,7 +1,9 @@
 /* Zenith guild tracker. Tailwind (Play CDN) provides the utilities; this file
    only holds the few things that are easier to express once. */
 
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; color-scheme: light; }
+/* The theme is a class on <html>, set in index.html and by the top bar toggle. */
+html.dark { color-scheme: dark; }
 [hidden] { display: none !important; }
 body { font-variant-numeric: tabular-nums; }
 input[type="search"]::-webkit-search-cancel-button { -webkit-appearance: none; }
@@ -24,7 +26,7 @@ input[type="search"]::-webkit-search-cancel-button { -webkit-appearance: none; }
 .mvp-border { position: absolute; inset: -60%; z-index: -1; background: conic-gradient(rgb(var(--c) / 0.25), rgb(var(--c)) 18%, #fde68a 25%, rgb(var(--c)) 32%, rgb(var(--c) / 0.25) 50%, rgb(var(--c)) 68%, #fde68a 75%, rgb(var(--c)) 82%, rgb(var(--c) / 0.25)); animation: mvp-spin 7s linear infinite; }
 /* Solid surface: a see-through one lets the spinning border layer show as a bar across the card. */
 .mvp-inner { position: relative; overflow: hidden; height: 100%; border-radius: calc(1rem - 1.5px); background: radial-gradient(120% 70% at 50% 0%, rgb(var(--c) / 0.16), transparent 70%), rgb(255 255 255); }
-@media (prefers-color-scheme: dark) { .mvp-inner { background: radial-gradient(120% 70% at 50% 0%, rgb(var(--c) / 0.22), transparent 70%), rgb(12 12 14); } }
+.dark .mvp-inner { background: radial-gradient(120% 70% at 50% 0%, rgb(var(--c) / 0.22), transparent 70%), rgb(12 12 14); }
 .mvp-halo { position: absolute; inset: -14px; z-index: -1; border-radius: 9999px; background: radial-gradient(closest-side, rgb(var(--c) / 0.75), rgb(var(--c) / 0.25) 60%, transparent); filter: blur(10px); animation: mvp-pulse 3.2s ease-in-out infinite; }
 .mvp-crown { animation: mvp-bob 2.8s ease-in-out infinite; filter: drop-shadow(0 0 8px rgb(251 191 36 / 0.8)); }
 @keyframes mvp-spin { to { transform: rotate(360deg); } }
@@ -43,9 +45,9 @@ input[type="search"]::-webkit-search-cancel-button { -webkit-appearance: none; }
    or the browser cannot blur behind elements. */
 @media (prefers-reduced-transparency: reduce) {
   .glass { background-color: #fff !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
-  @media (prefers-color-scheme: dark) { .glass { background-color: #18181b !important; } }
+  .dark .glass { background-color: #18181b !important; }
 }
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .glass { background-color: rgba(255, 255, 255, 0.92) !important; }
-  @media (prefers-color-scheme: dark) { .glass { background-color: rgba(24, 24, 27, 0.94) !important; } }
+  .dark .glass { background-color: rgba(24, 24, 27, 0.94) !important; }
 }
