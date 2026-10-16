@@ -2536,8 +2536,14 @@
     return { teams: teams, bench: bench };
   }
 
+  // The game shows a last login of a week or longer as "7d", so that is where
+  // a member stops being picked for the tournament.
+  var ROSTER_AWAY = 7 * 1440;
+
+  function rosterAway(p) { return p.login_m != null && p.login_m >= ROSTER_AWAY; }
+
   function rosterMembers() {
-    return state.players.filter(function (p) { return p.power_n != null; }).sort(function (a, b) { return b.power_n - a.power_n; });
+    return state.players.filter(function (p) { return p.power_n != null && !rosterAway(p); }).sort(function (a, b) { return b.power_n - a.power_n; });
   }
 
   function balancedNames() {
@@ -2626,6 +2632,7 @@
     var fullTotals = totals.filter(function (v, k) { return teams[k].length === TEAM_SIZE; });
     var top = Math.max.apply(null, totals.concat([0]));
     var allFour = teams.filter(function (t) { return Object.keys(teamClasses(t)).length === TEAM_CLASSES.length; }).length;
+    var away = state.players.filter(rosterAway).map(function (p) { return p.name; }).sort();
     var pickTeam = -1;
     view.teams.forEach(function (t, k) { if (t.indexOf(rosterPick) !== -1) pickTeam = k; });
     // How far the strongest full team is ahead of the weakest in each measure, as a share of the average.
@@ -2644,7 +2651,8 @@
     var html = pastNotice('roster') + '<div data-roster>' +
       '<section class="' + CARD + anim(1) + '" aria-labelledby="roster-title">' +
       '<div class="border-b border-zinc-200/70 p-4 sm:p-5 dark:border-white/10"><h1 class="text-base font-semibold" id="roster-title">Tournament roster</h1>' +
-      '<p class="text-sm ' + MUTED + '">Teams of ' + TEAM_SIZE + '. Drag a member into a team, or tap a member and then the team. On a phone, press and hold to drag.</p></div>' +
+      '<p class="text-sm ' + MUTED + '">Teams of ' + TEAM_SIZE + '. Drag a member into a team, or tap a member and then the team. On a phone, press and hold to drag.</p>' +
+      (away.length ? '<p class="mt-1 text-xs ' + MUTED + '">Left out for being offline 7 days or more: ' + away.map(esc).join(', ') + '.</p>' : '') + '</div>' +
       '<div class="flex gap-1.5 overflow-x-auto border-b border-zinc-200/70 px-4 py-2.5 sm:px-5 dark:border-white/10" role="group" aria-label="Lineup">' +
       '<button type="button" data-lineup="" aria-pressed="' + (view.mode === 'server') + '" class="' + tab + (view.mode === 'server' ? on : off) + '">' + icon('spark', 'size-3.5') + 'Balanced - Server</button>' +
       '<button type="button" data-lineup="nexus" aria-pressed="' + (view.mode === 'nexus') + '" class="' + tab + (view.mode === 'nexus' ? on : off) + '">' + icon('bolt', 'size-3.5') + 'Power - Nexus</button>';
