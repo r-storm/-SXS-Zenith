@@ -1653,62 +1653,7 @@
     }
 
     items.sort(function (a, b) { return a.pri - b.pri; });
-    // Guild advice sits under the line it belongs to: Raw Ore for equipment,
-    // Battle Essence for skills. Icons are local copies from the game's item set.
     var shown = items.slice(0, 4);
-    var item = function (file, size) { return '<img class="' + (size || 'size-5') + ' shrink-0 object-contain" src="assets/img/items/' + file + '.png" alt="" loading="lazy" decoding="async">'; };
-    var tipHead = function (text) { return '<p class="text-[11px] font-semibold uppercase tracking-wider text-emerald-800/80 dark:text-emerald-300/80">' + text + '</p>'; };
-    // A green panel: what to do up top, the main steps as highlighted rows on the
-    // left, the supporting detail on the right (chips for sources, lines for notes).
-    var panel = function (lead, title, sub, rowsHead, rows, sideHead, side, chips) {
-      return '<div class="mt-4 overflow-hidden rounded-xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-emerald-50/40 text-sm dark:border-emerald-800/60 dark:from-emerald-950/50 dark:to-emerald-950/10">' +
-        '<div class="flex items-center gap-3 border-b border-emerald-200/70 p-4 dark:border-emerald-800/40">' +
-        '<span class="grid size-11 shrink-0 place-items-center rounded-lg bg-white/70 text-emerald-700 ring-1 ring-inset ring-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-300 dark:ring-emerald-700/40">' + lead + '</span>' +
-        '<div class="min-w-0 flex-1"><p class="text-[11px] font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">Recommendation</p>' +
-        '<p class="font-semibold leading-tight">' + title + '</p><p class="text-xs ' + MUTED + '">' + sub + '</p></div></div>' +
-        '<div class="grid gap-4 p-4 ' + (rows ? 'lg:grid-cols-2 lg:gap-6' : '') + '">' +
-        (rows ? '<div>' + tipHead(rowsHead) + '<ul class="mt-2 space-y-2">' + rows.map(function (x) {
-          return '<li class="flex items-start gap-2.5 rounded-lg bg-emerald-500/10 px-3 py-2 font-medium ring-1 ring-inset ring-emerald-500/20">' + x[0] + '<span>' + x[1] + '</span></li>';
-        }).join('') + '</ul></div>' : '') +
-        '<div>' + tipHead(sideHead) + (chips ? '<ul class="mt-2 flex flex-wrap gap-2">' + side.map(function (x) {
-          return '<li class="rounded-md border border-emerald-200/80 bg-white/60 px-2 py-1 text-xs dark:border-emerald-800/50 dark:bg-emerald-950/40">' + x + '</li>';
-        }).join('') + '</ul>' : '<ul class="mt-2 space-y-2">' + side.map(function (x) {
-          return '<li class="flex items-start gap-2"><span class="mt-2 size-1.5 shrink-0 rounded-full bg-emerald-500"></span><span>' + x + '</span></li>';
-        }).join('') + '</ul>') + '</div></div></div>';
-    };
-    var tip = function (file, name, what, sources, best) {
-      return panel(item(file, 'size-8'), 'Earn more ' + name, 'It raises ' + what + '.', 'Best ways', best && best.map(function (x) { return [item(x[0]), x[1]]; }), 'All sources', sources, true);
-    };
-    // Combat stats come from equipment, and new equipment comes from the daily dungeon.
-    var num = function (n) { return '<span class="mt-px grid size-5 shrink-0 place-items-center rounded-full bg-emerald-600 text-[11px] font-bold text-white dark:bg-emerald-500 dark:text-emerald-950">' + n + '</span>'; };
-    var dungeonTip = function () {
-      return panel(icon('shield', 'size-6'), 'Max out your daily dungeon runs', 'Combat stats come from equipment, and the daily dungeon is where new equipment comes from.', 'What to do', [
-        [num(1), 'Run the dungeon all 4 times every day: 2 runs are free, and the 2 extra cost 100 and 150 Dawnium.'],
-        [num(2), 'Work towards the full set of the newest Mythic or Divine equipment from the current dungeon.'],
-        [num(3), 'When a new dungeon opens, switch to its Normal difficulty straight away. It beats staying on the previous dungeon\'s Nightmare.']
-      ], 'Good to know', [
-        'An S class rating is required. Your rating depends on how far you get, so plan your path to reach the boss. If you do not get S class, do not claim the chest.',
-        'Shards from an older dungeon can no longer be sold once a new dungeon opens, so do not sit on them.',
-        'If you have the Lucky Statue relic, equip it before your runs and take it off afterwards.'
-      ], false);
-    };
-    // Every equipment line points at Raw Ore and every skills line at Battle
-    // Essence. The first one carries the full panel; a repeat in the same card
-    // gets a short pointer so the same list is not printed twice.
-    var again = function (file, name) {
-      return '<p class="mt-4 flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50/70 px-4 py-3 text-sm dark:border-emerald-800/60 dark:bg-emerald-950/30">' + item(file, 'size-6') +
-        '<span><span class="font-semibold">Earn more ' + name + '.</span> <span class="' + MUTED + '">Same recommendation as above.</span></span></p>';
-    };
-    var attach = function (match, file, name, what, sources, best) {
-      shown.filter(match).forEach(function (it, k) { it.after = k === 0 ? tip(file, name, what, sources, best) : again(file, name); });
-    };
-    attach(function (it) { return it === gearItem || it.title === 'Uneven equipment'; }, 'raw-ore', 'Raw Ore', 'equipment enhancement',
-      ['Home AFK Yield from the Cart (upgrade its Raw Ore yield)', 'Fantasia Ascent', 'Material Realm: Ironvein Pit', 'Commission', 'Loong Haven Iron Mining', 'Vendor Booth'],
-      [['raw-ore', 'Material Realm, and buy the extra attempts'], ['iron-pickaxe', 'Spend your energy mining in Loong Haven']]);
-    shown.forEach(function (it) { if (it.pri === 4) it.after = dungeonTip(); });
-    attach(function (it) { return it === skillItem || it.title === 'Uneven Skill Technique' || it.title === 'Uneven Skill Charm'; }, 'battle-essence', 'Battle Essence', 'skill enhancement',
-      ['Home AFK Yield from the Cart (upgrade its Battle Essence yield)', 'Material Realm: Dread Hollow', 'Loong Haven Mining', 'Vendor Booth'],
-      [['battle-essence', 'Material Realm, and buy the extra attempts']]);
 
     // One line per row. Every line has the same padding; the first drops its top
     // padding and the last its bottom, so the card's own padding is the only
@@ -1723,7 +1668,7 @@
         (it.facts ? '<dl class="mt-2 flex flex-wrap gap-x-6 gap-y-2">' + it.facts.map(function (x) {
           return '<div><dt class="text-[11px] ' + MUTED + '">' + esc(x[0]) + '</dt><dd class="font-semibold tabular-nums">' + esc(x[1]) + '</dd></div>';
         }).join('') + '</dl>' : '') +
-        (it.note ? '<p class="mt-2 text-xs ' + MUTED + '">' + esc(it.note) + '</p>' : '') + '</div></div>' + (it.after || '') + '</li>';
+        (it.note ? '<p class="mt-2 text-xs ' + MUTED + '">' + esc(it.note) + '</p>' : '') + '</div></div></li>';
     });
     body += '</ul>';
     return insightCard(i, 'What to enhance next', 'Compared with ' + esc(g.label) + '.', icon('eye', 'mt-1 size-4 ' + MUTED), body);
