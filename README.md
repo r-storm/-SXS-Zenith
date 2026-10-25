@@ -17,3 +17,7 @@ fan project.
 The newest date is shown by default and the calendar on the page switches
 between dates. A snapshot without profile captures reuses each member's most
 recent earlier one.
+
+A new season resets power, stats and Equipment. Put `"season": <n>` in
+`week.json` from the first snapshot of the season on; the site then compares
+and charts power only between snapshots of the same season.

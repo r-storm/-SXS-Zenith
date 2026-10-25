@@ -1,0 +1,776 @@
+{
+  "capturedAt": "2026-10-25T18:40:00.000Z",
+  "label": "Week 7",
+  "season": 3,
+  "roster": [
+    {
+      "name": "Ballistics",
+      "power": "16.5M",
+      "rank": "Master I",
+      "week": "1.98K",
+      "total": "29.9K",
+      "login": "2h",
+      "role": "Member"
+    },
+    {
+      "name": "Atsi",
+      "power": "15.5M",
+      "rank": "Master I",
+      "week": "1.94K",
+      "total": "27.4K",
+      "login": "Online",
+      "role": "Deputy"
+    },
+    {
+      "name": "XLemonL",
+      "power": "14.6M",
+      "rank": "Master I",
+      "week": "1.41K",
+      "total": "29.4K",
+      "login": "3h",
+      "role": "Member"
+    },
+    {
+      "name": "Karny",
+      "power": "14.4M",
+      "rank": "Master I",
+      "week": "1.78K",
+      "total": "13K",
+      "login": "3m",
+      "role": "Member"
+    },
+    {
+      "name": "Naki",
+      "power": "13.9M",
+      "rank": "Master I",
+      "week": "1.77K",
+      "total": "29.9K",
+      "login": "28m",
+      "role": "Member"
+    },
+    {
+      "name": "Baki",
+      "power": "13.3M",
+      "rank": "Master I",
+      "week": "2K",
+      "total": "29.5K",
+      "login": "1h",
+      "role": "Member"
+    },
+    {
+      "name": "Синтия",
+      "power": "13.3M",
+      "rank": "Master I",
+      "week": "1.96K",
+      "total": "2.86K",
+      "login": "1h",
+      "role": "Member"
+    },
+    {
+      "name": "UnorthodoxStyle",
+      "power": "12.9M",
+      "rank": "Master I",
+      "week": "1.99K",
+      "total": "11.6K",
+      "login": "Online",
+      "role": "Member"
+    },
+    {
+      "name": "Billiana",
+      "power": "12.6M",
+      "rank": "Master I",
+      "week": "1.91K",
+      "total": "13K",
+      "login": "1h",
+      "role": "Member"
+    },
+    {
+      "name": "Portir",
+      "power": "12.1M",
+      "rank": "Master I",
+      "week": "1.62K",
+      "total": "11.3K",
+      "login": "6h",
+      "role": "Member"
+    },
+    {
+      "name": "Sparklie",
+      "power": "11.8M",
+      "rank": "Master I",
+      "week": "1.9K",
+      "total": "24K",
+      "login": "21m",
+      "role": "Member"
+    },
+    {
+      "name": "KittyLinwe",
+      "power": "11.5M",
+      "rank": "Master I",
+      "week": "1.97K",
+      "total": "15.1K",
+      "login": "1h",
+      "role": "Member"
+    },
+    {
+      "name": "Beicin",
+      "power": "11.4M",
+      "rank": "Master I",
+      "week": "1.93K",
+      "total": "14.6K",
+      "login": "37m",
+      "role": "Member"
+    },
+    {
+      "name": "AsterBlaze",
+      "power": "11.3M",
+      "rank": "Master I",
+      "week": "850",
+      "total": "19.5K",
+      "login": "Online",
+      "role": "Leader"
+    },
+    {
+      "name": "ZEUS",
+      "power": "11.3M",
+      "rank": "Master I",
+      "week": "2K",
+      "total": "27.5K",
+      "login": "53m",
+      "role": "Member"
+    },
+    {
+      "name": "Tay",
+      "power": "11.1M",
+      "rank": "Master I",
+      "week": "1.7K",
+      "total": "11K",
+      "login": "23h",
+      "role": "Member"
+    },
+    {
+      "name": "Riven",
+      "power": "11M",
+      "rank": "Master I",
+      "week": "1.92K",
+      "total": "27.4K",
+      "login": "2h",
+      "role": "Deputy"
+    },
+    {
+      "name": "Depressionitself",
+      "power": "10.9M",
+      "rank": "Master I",
+      "week": "1.72K",
+      "total": "16.1K",
+      "login": "1h",
+      "role": "Member"
+    },
+    {
+      "name": "Vetali",
+      "power": "10.8M",
+      "rank": "Master I",
+      "week": "1.96K",
+      "total": "27.7K",
+      "login": "Online",
+      "role": "Member"
+    },
+    {
+      "name": "CingCing",
+      "power": "10.8M",
+      "rank": "Master I",
+      "week": "1.88K",
+      "total": "26.8K",
+      "login": "1h",
+      "role": "Member"
+    },
+    {
+      "name": "Ouvreboites",
+      "power": "10.7M",
+      "rank": "Master I",
+      "week": "2.03K",
+      "total": "26.3K",
+      "login": "42m",
+      "role": "Member"
+    },
+    {
+      "name": "CronosLogia",
+      "power": "10.7M",
+      "rank": "Master I",
+      "week": "1.87K",
+      "total": "26.7K",
+      "login": "52m",
+      "role": "Member"
+    },
+    {
+      "name": "Awrath",
+      "power": "10.7M",
+      "rank": "Master I",
+      "week": "2.05K",
+      "total": "15.7K",
+      "login": "1h",
+      "role": "Member"
+    },
+    {
+      "name": "kabojjin",
+      "power": "10.6M",
+      "rank": "Master I",
+      "week": "1.97K",
+      "total": "23K",
+      "login": "2h",
+      "role": "Member"
+    },
+    {
+      "name": "IBlank",
+      "power": "10.5M",
+      "rank": "Master I",
+      "week": "1.97K",
+      "total": "15.2K",
+      "login": "2h",
+      "role": "Member"
+    },
+    {
+      "name": "BanDalgom",
+      "power": "10.4M",
+      "rank": "Master I",
+      "week": "1.73K",
+      "total": "9.99K",
+      "login": "Online",
+      "role": "Member"
+    },
+    {
+      "name": "Schwartz",
+      "power": "10.4M",
+      "rank": "Master I",
+      "week": "1.97K",
+      "total": "18.2K",
+      "login": "2h",
+      "role": "Member"
+    },
+    {
+      "name": "Amingal",
+      "power": "10.4M",
+      "rank": "Master I",
+      "week": "1.52K",
+      "total": "10.1K",
+      "login": "3h",
+      "role": "Member"
+    },
+    {
+      "name": "JetPilot",
+      "power": "10.2M",
+      "rank": "Master I",
+      "week": "1.93K",
+      "total": "20.3K",
+      "login": "57m",
+      "role": "Member"
+    },
+    {
+      "name": "etna",
+      "power": "10.2M",
+      "rank": "Master I",
+      "week": "1.82K",
+      "total": "27.3K",
+      "login": "3h",
+      "role": "Member"
+    },
+    {
+      "name": "Pretender",
+      "power": "10.2M",
+      "rank": "Master I",
+      "week": "1.46K",
+      "total": "7.67K",
+      "login": "4h",
+      "role": "Member"
+    },
+    {
+      "name": "Philins",
+      "power": "10.1M",
+      "rank": "Master I",
+      "week": "1.83K",
+      "total": "27.2K",
+      "login": "1h",
+      "role": "Member"
+    },
+    {
+      "name": "Lyrix",
+      "power": "9.9M",
+      "rank": "Master I",
+      "week": "1.57K",
+      "total": "27K",
+      "login": "11h",
+      "role": "Member"
+    },
+    {
+      "name": "frumpy_gorilla",
+      "power": "9.85M",
+      "rank": "Master I",
+      "week": "1.9K",
+      "total": "25.2K",
+      "login": "1h",
+      "role": "Member"
+    },
+    {
+      "name": "YūmaKuga",
+      "power": "9.69M",
+      "rank": "Master I",
+      "week": "1.92K",
+      "total": "5.55K",
+      "login": "2h",
+      "role": "Member"
+    },
+    {
+      "name": "DerFussel",
+      "power": "9.39M",
+      "rank": "Master I",
+      "week": "2K",
+      "total": "16.8K",
+      "login": "2h",
+      "role": "Member"
+    },
+    {
+      "name": "silenthitter",
+      "power": "9.33M",
+      "rank": "Champion III",
+      "week": "0",
+      "total": "15.5K",
+      "login": "7d",
+      "role": "Member"
+    },
+    {
+      "name": "Styles",
+      "power": "9.28M",
+      "rank": "Master I",
+      "week": "1.75K",
+      "total": "7.94K",
+      "login": "2h",
+      "role": "Member"
+    },
+    {
+      "name": "soulmaster",
+      "power": "9.23M",
+      "rank": "Master I",
+      "week": "1.73K",
+      "total": "29.3K",
+      "login": "12h",
+      "role": "Member"
+    },
+    {
+      "name": "vDk",
+      "power": "9.21M",
+      "rank": "Master I",
+      "week": "1.96K",
+      "total": "14K",
+      "login": "6m",
+      "role": "Member"
+    },
+    {
+      "name": "kyo.",
+      "power": "8.89M",
+      "rank": "Master I",
+      "week": "1.93K",
+      "total": "30.5K",
+      "login": "26m",
+      "role": "Member"
+    },
+    {
+      "name": "1e",
+      "power": "8.86M",
+      "rank": "Master I",
+      "week": "2K",
+      "total": "16.1K",
+      "login": "1h",
+      "role": "Member"
+    },
+    {
+      "name": "Yuri_Adakada",
+      "power": "8.78M",
+      "rank": "Master I",
+      "week": "1.92K",
+      "total": "11.6K",
+      "login": "2h",
+      "role": "Member"
+    },
+    {
+      "name": "Silent_Rin",
+      "power": "8.72M",
+      "rank": "Master I",
+      "week": "1.74K",
+      "total": "5.12K",
+      "login": "12m",
+      "role": "Member"
+    },
+    {
+      "name": "KoxTLiTe",
+      "power": "8.65M",
+      "rank": "Master I",
+      "week": "1.69K",
+      "total": "25K",
+      "login": "37m",
+      "role": "Member"
+    },
+    {
+      "name": "Gencu",
+      "power": "8.59M",
+      "rank": "Master I",
+      "week": "1.25K",
+      "total": "3.73K",
+      "login": "1h",
+      "role": "Member"
+    },
+    {
+      "name": "ebovsky",
+      "power": "8.54M",
+      "rank": "Master I",
+      "week": "1.91K",
+      "total": "5.24K",
+      "login": "2h",
+      "role": "Officer"
+    },
+    {
+      "name": "Shai-roa",
+      "power": "8.35M",
+      "rank": "Master I",
+      "week": "1.76K",
+      "total": "14K",
+      "login": "14h",
+      "role": "Member"
+    },
+    {
+      "name": "Vizir",
+      "power": "8.14M",
+      "rank": "Master I",
+      "week": "2.03K",
+      "total": "18.3K",
+      "login": "2h",
+      "role": "Member"
+    },
+    {
+      "name": "Hanaroll",
+      "power": "8.09M",
+      "rank": "Master I",
+      "week": "1.96K",
+      "total": "20.3K",
+      "login": "1h",
+      "role": "Member"
+    },
+    {
+      "name": "Mila",
+      "power": "8.02M",
+      "rank": "Master I",
+      "week": "1.74K",
+      "total": "17.7K",
+      "login": "48m",
+      "role": "Member"
+    },
+    {
+      "name": "Raz777",
+      "power": "7.91M",
+      "rank": "Master I",
+      "week": "1.72K",
+      "total": "4.99K",
+      "login": "Online",
+      "role": "Member"
+    },
+    {
+      "name": "GMango",
+      "power": "7.91M",
+      "rank": "Master I",
+      "week": "500",
+      "total": "10.9K",
+      "login": "Online",
+      "role": "Member"
+    },
+    {
+      "name": "VuDuh",
+      "power": "7.89M",
+      "rank": "Master I",
+      "week": "1.79K",
+      "total": "25.4K",
+      "login": "Online",
+      "role": "Member"
+    },
+    {
+      "name": "Xember",
+      "power": "7.71M",
+      "rank": "Master I",
+      "week": "1.8K",
+      "total": "27.3K",
+      "login": "2h",
+      "role": "Member"
+    },
+    {
+      "name": "Falenas",
+      "power": "7.67M",
+      "rank": "Champion III",
+      "week": "0",
+      "total": "2.32K",
+      "login": "7d",
+      "role": "Member"
+    },
+    {
+      "name": "AJarofPicklez",
+      "power": "7.59M",
+      "rank": "Master I",
+      "week": "1.89K",
+      "total": "14.2K",
+      "login": "Online",
+      "role": "Member"
+    },
+    {
+      "name": "PureNight",
+      "power": "7.32M",
+      "rank": "Master I",
+      "week": "1.61K",
+      "total": "4.29K",
+      "login": "Online",
+      "role": "Member"
+    },
+    {
+      "name": "Dulc",
+      "power": "5.76M",
+      "rank": "Champion III",
+      "week": "0",
+      "total": "10.7K",
+      "login": "7d",
+      "role": "Member"
+    }
+  ],
+  "conquest": [
+    {
+      "name": "Ballistics",
+      "dmg": "188B"
+    },
+    {
+      "name": "XLemonL",
+      "dmg": "79.3B"
+    },
+    {
+      "name": "Baki",
+      "dmg": "45.5B"
+    },
+    {
+      "name": "Naki",
+      "dmg": "44.2B"
+    },
+    {
+      "name": "UnorthodoxStyle",
+      "dmg": "35.1B"
+    },
+    {
+      "name": "Atsi",
+      "dmg": "32.8B"
+    },
+    {
+      "name": "Billiana",
+      "dmg": "19.4B"
+    },
+    {
+      "name": "CronosLogia",
+      "dmg": "19B"
+    },
+    {
+      "name": "CingCing",
+      "dmg": "18B"
+    },
+    {
+      "name": "AsterBlaze",
+      "dmg": "16.5B"
+    },
+    {
+      "name": "Beicin",
+      "dmg": "16.1B"
+    },
+    {
+      "name": "Depressionitself",
+      "dmg": "15.6B"
+    },
+    {
+      "name": "Karny",
+      "dmg": "14.3B"
+    },
+    {
+      "name": "Vetali",
+      "dmg": "13.8B"
+    },
+    {
+      "name": "Falenas",
+      "dmg": "13B"
+    },
+    {
+      "name": "Sparklie",
+      "dmg": "11.7B"
+    },
+    {
+      "name": "kabojjin",
+      "dmg": "10.6B"
+    },
+    {
+      "name": "kyo.",
+      "dmg": "9.47B"
+    },
+    {
+      "name": "Philins",
+      "dmg": "9.18B"
+    },
+    {
+      "name": "JetPilot",
+      "dmg": "9.12B"
+    },
+    {
+      "name": "frumpy_gorilla",
+      "dmg": "9.06B"
+    },
+    {
+      "name": "Ouvreboites",
+      "dmg": "7.67B"
+    },
+    {
+      "name": "Синтия",
+      "dmg": "7.48B"
+    },
+    {
+      "name": "Awrath",
+      "dmg": "5.77B"
+    },
+    {
+      "name": "Lyrix",
+      "dmg": "5.42B"
+    },
+    {
+      "name": "soulmaster",
+      "dmg": "5.31B"
+    },
+    {
+      "name": "silenthitter",
+      "dmg": "4.95B"
+    },
+    {
+      "name": "IBlank",
+      "dmg": "4.53B"
+    },
+    {
+      "name": "KoxTLiTe",
+      "dmg": "4.51B"
+    },
+    {
+      "name": "vDk",
+      "dmg": "4.49B"
+    },
+    {
+      "name": "1e",
+      "dmg": "4.25B"
+    },
+    {
+      "name": "DerFussel",
+      "dmg": "4.16B"
+    },
+    {
+      "name": "Portir",
+      "dmg": "3.12B"
+    },
+    {
+      "name": "Mila",
+      "dmg": "3.01B"
+    },
+    {
+      "name": "Styles",
+      "dmg": "2.97B"
+    },
+    {
+      "name": "Schwartz",
+      "dmg": "2.92B"
+    },
+    {
+      "name": "KittyLinwe",
+      "dmg": "2.92B"
+    },
+    {
+      "name": "BanDalgom",
+      "dmg": "2.89B"
+    },
+    {
+      "name": "ZEUS",
+      "dmg": "2.2B"
+    },
+    {
+      "name": "Xember",
+      "dmg": "2.19B"
+    },
+    {
+      "name": "Tay",
+      "dmg": "2.17B"
+    },
+    {
+      "name": "YūmaKuga",
+      "dmg": "2.11B"
+    },
+    {
+      "name": "Riven",
+      "dmg": "2.01B"
+    },
+    {
+      "name": "GMango",
+      "dmg": "1.99B"
+    },
+    {
+      "name": "VuDuh",
+      "dmg": "1.66B"
+    },
+    {
+      "name": "Hanaroll",
+      "dmg": "1.62B"
+    },
+    {
+      "name": "Pretender",
+      "dmg": "1.48B"
+    },
+    {
+      "name": "Amingal",
+      "dmg": "1.47B"
+    },
+    {
+      "name": "etna",
+      "dmg": "1.11B"
+    },
+    {
+      "name": "Vizir",
+      "dmg": "994M"
+    },
+    {
+      "name": "ebovsky",
+      "dmg": "744M"
+    },
+    {
+      "name": "AJarofPicklez",
+      "dmg": "661M"
+    },
+    {
+      "name": "Raz777",
+      "dmg": "630M"
+    },
+    {
+      "name": "Gencu",
+      "dmg": "546M"
+    },
+    {
+      "name": "Dulc",
+      "dmg": "541M"
+    },
+    {
+      "name": "Yuri_Adakada",
+      "dmg": "348M"
+    },
+    {
+      "name": "PureNight",
+      "dmg": "273M"
+    },
+    {
+      "name": "Shai-roa",
+      "dmg": "229M"
+    },
+    {
+      "name": "Silent_Rin",
+      "dmg": "205M"
+    }
+  ]
+}

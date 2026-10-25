@@ -110,9 +110,25 @@
     return n + suffix;
   }
 
+  // The 5th job renames each class: Magister is a Destroyer, Prophet a
+  // Dominator, Ravager a Conqueror and Templar a Guardian. Members are grouped
+  // by the class line, so the advanced and not-yet-advanced share one group.
+  var CLASS_LINE = { destroyer: 'destroyer', magister: 'destroyer', dominator: 'dominator', prophet: 'dominator', conqueror: 'conqueror', ravager: 'conqueror', guardian: 'guardian', templar: 'guardian' };
+
   function classKey(p) {
     var c = p.profile && p.profile['class'] ? String(p.profile['class']).toLowerCase() : '';
-    return ['destroyer', 'dominator', 'conqueror', 'guardian'].indexOf(c) !== -1 ? c : 'unknown';
+    return CLASS_LINE[c] || 'unknown';
+  }
+
+  // The member's own class emblem; the 5th job classes have their own.
+  function classImg(p) {
+    return 'assets/img/classes/' + String(p.profile['class']).toLowerCase() + '.png';
+  }
+
+  // Name of the member's class line, for "the 12 Destroyers" and the like.
+  function classGroup(p) {
+    var k = classKey(p);
+    return k === 'unknown' ? 'Unknown' : k.charAt(0).toUpperCase() + k.slice(1);
   }
 
   function classBadge(p, extra) {
@@ -170,7 +186,8 @@
 
   // Profile screens are not captured every week. Members without one in this
   // snapshot borrow their most recent earlier capture, looking back a few
-  // snapshots at most; pr.snapshot says which folder it came from.
+  // snapshots at most; pr.snapshot says which folder it came from. A new season
+  // resets power, stats and Equipment, so captures never cross into another one.
   function loadSnapshot(dir) {
     if (snapCache[dir]) return snapCache[dir];
     var older = state.dirs.filter(function (d) { return d < dir; }).reverse().slice(0, PROFILE_LOOKBACK);
@@ -182,6 +199,7 @@
         var missing = names.some(function (n) { return !have[n]; });
         if (!missing || k >= older.length) return buildSnapshot(raw, borrowed);
         return loadRaw(older[k]).then(function (r) {
+          if ((r.week.season || null) !== (raw.week.season || null)) return;
           (r.profiles.profiles || []).forEach(function (pr) {
             if (have[pr.name] || names.indexOf(pr.name) === -1) return;
             have[pr.name] = true;
@@ -250,6 +268,7 @@
     return {
       dir: dir,
       label: week.label || dir,
+      season: week.season || null,
       capturedAt: week.capturedAt || null,
       guild: (first.badges && first.badges.guildTitle) || 'Zenith',
       server: (first.badges && first.badges.serverTitle) || null,
@@ -353,10 +372,12 @@
       var roster = {}, dmg = {}, top = 0;
       (h.week.roster || []).forEach(function (r) { roster[r.name] = r; top = Math.max(top, parseNum(r.week) || 0); });
       (h.week.conquest || []).forEach(function (c) { dmg[c.name] = parseNum(c.dmg); });
-      return { dir: h.dir, t: dirDate(h.dir).getTime(), roster: roster, dmg: dmg, top: top };
+      return { dir: h.dir, t: dirDate(h.dir).getTime(), season: h.week.season || null, roster: roster, dmg: dmg, top: top };
     });
+    // Power and damage charts stop at the season start; donations carry over,
+    // so the streak below still counts every week.
     players.forEach(function (p) {
-      p.history = weeks.filter(function (w) { return w.roster[p.name]; }).map(function (w) {
+      p.history = weeks.filter(function (w) { return w.season === current.season && w.roster[p.name]; }).map(function (w) {
         var r = w.roster[p.name];
         return { dir: w.dir, t: w.t, power: parseNum(r.power), total: parseNum(r.total), dmg: w.dmg[p.name] != null ? w.dmg[p.name] : null };
       });
@@ -421,7 +442,7 @@
     players.forEach(function (p) { var k = classKey(p); counts[k] = (counts[k] || 0) + 1; });
     var classes = Object.keys(counts).map(function (k) {
       var sample = players.filter(function (p) { return classKey(p) === k; })[0];
-      return { key: k, label: k === 'unknown' ? 'Not captured' : sample.profile['class'], count: counts[k] };
+      return { key: k, label: k === 'unknown' ? 'Not captured' : classGroup(sample), count: counts[k] };
     }).sort(function (a, b) { return b.count - a.count; });
     state.meta = {
       dir: current.dir,
@@ -430,6 +451,8 @@
       guild: current.guild,
       server: current.server,
       label: current.label,
+      season: current.season,
+      seasonStart: !!current.seasonStart,
       capturedDate: fmtDay(current.dir),
       previousLabel: previous ? previous.label : null,
       sinceDays: previous ? Math.round((dirDate(current.dir) - dirDate(previous.dir)) / 86400000) : null,
@@ -509,7 +532,7 @@
     var photo = url ? '<img class="' + sz[0] + ' shrink-0 rounded-full object-cover shadow-sm ring-2 ' + (ring || 'ring-white dark:ring-zinc-800') + '" src="' + esc(url) + '" alt="" loading="lazy" decoding="async" onerror="this.hidden=true;this.nextSibling.hidden=false">' : '';
     var inner = key === 'unknown'
       ? icon('cls-unknown', sz[2])
-      : '<img class="' + sz[1] + ' object-contain" src="assets/img/classes/' + key + '.png" alt="" loading="lazy" decoding="async">';
+      : '<img class="' + sz[1] + ' object-contain" src="' + classImg(p) + '" alt="" loading="lazy" decoding="async">';
     var cls = '<span class="grid ' + sz[0] + ' shrink-0 place-items-center rounded-full bg-' + key + '/10 text-' + key + ' ring-1 ring-inset ring-' + key + '/20" title="' + esc(label) + '"' + (url ? ' hidden' : '') + '>' + inner + '</span>';
     return photo + cls;
   }
@@ -518,7 +541,7 @@
   function classInline(p, extra) {
     var key = classKey(p);
     var name = key === 'unknown' ? 'Class not captured' : p.profile['class'];
-    var ic = key === 'unknown' ? icon('cls-unknown', 'size-3.5') : '<img class="size-3.5 object-contain" src="assets/img/classes/' + key + '.png" alt="" loading="lazy" decoding="async">';
+    var ic = key === 'unknown' ? icon('cls-unknown', 'size-3.5') : '<img class="size-3.5 object-contain" src="' + classImg(p) + '" alt="" loading="lazy" decoding="async">';
     return '<span class="inline-flex items-center gap-1 ' + (extra || '') + '">' + ic + esc(name) + '</span>';
   }
 
@@ -589,7 +612,7 @@
   function classBadges(p) {
     var k = classKey(p), out = [];
     if (k === 'unknown' || !p.cpos) return out;
-    var cls = p.profile['class'];
+    var cls = classGroup(p);
     [['power_n', 'power'], ['dmg_n', 'Conquest damage'], ['total_n', 'total contribution'], ['week_n', 'weekly contribution']].forEach(function (m) {
       var pos = p.cpos[m[0]];
       if (pos === 1 && p.classSize >= 2) out.push(classBadge(p, 'Best ' + esc(cls) + ' by ' + m[1]));
@@ -787,7 +810,7 @@
       return '<div class="mb-3 ' + (first ? 'mt-6' : 'mt-10') + ' flex flex-wrap items-baseline justify-between gap-2"><h2 class="text-lg font-semibold tracking-tight" id="' + id + '">' + title + '</h2><p class="text-xs ' + MUTED + '">' + note + '</p></div>';
     };
     var html = pastNotice('rankings') + '<section class="' + ANIM + '" style="--i:0" aria-label="Rankings">' +
-      '<p class="text-xs font-medium uppercase tracking-wide ' + MUTED + '">' + esc(m.guild) + ', ' + esc(m.label) + '</p>' +
+      '<p class="text-xs font-medium uppercase tracking-wide ' + MUTED + '">' + esc(m.guild) + ', ' + (m.season ? 'Season ' + m.season + ', ' : '') + esc(m.label) + '</p>' +
       '<h1 class="mt-0.5 text-3xl font-semibold tracking-tight sm:text-4xl">Rankings</h1>' +
       '<p class="mt-1 text-sm ' + MUTED + '">' + 'Who did well in the past week.' + '</p></section>';
     if (m.prevPlayers) {
@@ -795,7 +818,9 @@
       html += (mvps ? '<section aria-labelledby="mvp-title">' + heading('mvp-title', 'Class MVPs', 'The best all-rounder in each class: average rank among classmates for power, enhancement levels, contribution and Conquest damage gained.', true) + mvps + '</section>' : '') +
         '<section aria-labelledby="movers-title">' + heading('movers-title', 'Top gains', 'Who grew the most.', !mvps) + moversSection(5) + '</section>';
     } else {
-      html += '<p class="mt-6 rounded-xl border border-white/70 bg-white/50 p-4 text-sm backdrop-blur-md ' + MUTED + ' dark:border-white/10 dark:bg-zinc-900/40">Rankings compare two snapshots, and ' + esc(m.label) + ' is the earliest one. Pick a later snapshot to see who gained the most. For the full roster, open <a class="font-medium text-zinc-900 underline underline-offset-2 dark:text-zinc-50" href="' + esc(link('members')) + '">Members</a>.</p>';
+      html += '<p class="mt-6 rounded-xl border border-white/70 bg-white/50 p-4 text-sm backdrop-blur-md ' + MUTED + ' dark:border-white/10 dark:bg-zinc-900/40">' + (m.seasonStart
+        ? esc(m.label) + ' is the first snapshot of Season ' + m.season + '. The new season reset power, stats and Equipment, so there is nothing fair to compare it with yet. Rankings return with the next snapshot. For'
+        : 'Rankings compare two snapshots, and ' + esc(m.label) + ' is the earliest one. Pick a later snapshot to see who gained the most. For') + ' the full roster, open <a class="font-medium text-zinc-900 underline underline-offset-2 dark:text-zinc-50" href="' + esc(link('members')) + '">Members</a>.</p>';
     }
     app.innerHTML = html;
     document.title = m.guild + ' rankings' + (m.dir === state.latest ? '' : ', ' + m.capturedDate);
@@ -854,7 +879,7 @@
     var html = pastNotice('') + '<section class="mb-6 flex flex-wrap items-center gap-4 sm:gap-5 ' + ANIM + '" style="--i:0" aria-label="Guild">' +
       '<img class="size-16 shrink-0 rounded-xl shadow-lg ring-1 ring-black/5 sm:size-20 dark:ring-white/10" src="assets/img/logo/zenith-160.webp" alt="" decoding="async">' +
       '<div class="min-w-0 flex-1"><h1 class="text-3xl font-semibold tracking-tight sm:text-4xl">' + esc(m.guild) + '</h1>' +
-      (m.server ? '<p class="mt-0.5 text-sm ' + MUTED + '">' + esc(m.server) + '</p>' : '') + '</div>' +
+      (m.server || m.season ? '<p class="mt-0.5 text-sm ' + MUTED + '">' + esc([m.server, m.season ? 'Season ' + m.season : null].filter(Boolean).join(', ')) + '</p>' : '') + '</div>' +
       deco('hero', 'hidden h-36 w-auto -my-4 mr-2 self-end lg:block') +
       '</section>';
     // What is happening now, then how the guild is built. Who did well since
@@ -873,7 +898,7 @@
       '<div class="mt-4 grid gap-4 lg:grid-cols-2"><div class="empty:hidden" id="guild-readiness">' + (timeline ? guildReadinessCard(timeline, 7) : '') + '</div>' +
       contributionHealthCard(8) + '</div></section>';
 
-    html += '<section aria-labelledby="overview-title">' + group('overview-title', 'How the guild is built', m.prevPlayers ? 'Growth, classes, records and companions.' : 'Growth appears once there is an earlier snapshot to compare with.') +
+    html += '<section aria-labelledby="overview-title">' + group('overview-title', 'How the guild is built', m.prevPlayers ? 'Growth, classes, records and companions.' : m.seasonStart ? 'Season ' + m.season + ' reset power and stats. Growth returns with the next snapshot.' : 'Growth appears once there is an earlier snapshot to compare with.') +
       (m.prevPlayers ? '<div class="mb-4">' + growthCard(9) + '</div>' : '') +
       '<div class="grid gap-4 lg:grid-cols-2">' + classCard(14) + concentrationCard(14) + '</div>' +
       '<div class="mt-4 grid gap-4 lg:grid-cols-3"><div class="min-w-0 lg:col-span-2">' + recordsCard(14) + '</div>' + fantomonCard(14) + '</div></section>';
@@ -883,7 +908,7 @@
       countUp(el, parseFloat(el.getAttribute('data-count')), el.textContent);
     });
     animateMeters();
-    loadTrend(m.dir).then(function (rows) {
+    loadTrend(m.dir, m.season).then(function (rows) {
       var box = document.getElementById('guild-trends');
       if (state.meta !== m || !box) return;
       box.innerHTML = trendsBlock(rows);
@@ -1230,11 +1255,11 @@
     return weekCache[dir];
   }
 
-  function loadTrend(upTo) {
+  function loadTrend(upTo, season) {
     var dirs = state.dirs.filter(function (d) { return d <= upTo; });
     return Promise.all(dirs.map(function (d) { return loadWeek(d).catch(function () { return null; }); })).then(function (weeks) {
       return weeks.map(function (w, k) {
-        if (!w) return null;
+        if (!w || (w.season || null) !== season) return null;
         var powers = (w.roster || []).map(function (r) { return parseNum(r.power); }).filter(function (v) { return v != null; });
         var power = powers.reduce(function (a, b) { return a + b; }, 0);
         var dmg = (w.conquest || []).reduce(function (a, r) { return a + (parseNum(r.dmg) || 0); }, 0);
@@ -1533,7 +1558,7 @@
   // the whole guild otherwise.
   function peerGroup(p) {
     var m = state.meta, ck = classKey(p);
-    if (ck !== 'unknown' && p.classSize >= 3) return { avg: m.classAvg[ck], name: p.profile['class'], label: 'the ' + p.classSize + ' ' + p.profile['class'] + 's in the guild' };
+    if (ck !== 'unknown' && p.classSize >= 3) return { avg: m.classAvg[ck], name: classGroup(p), label: 'the ' + p.classSize + ' ' + classGroup(p) + 's in the guild' };
     return { avg: m.guildAvg, name: 'guild', label: 'the whole guild' };
   }
 
@@ -1610,8 +1635,8 @@
       var mates = state.players.filter(function (x) { return classKey(x) === ck && x.profile && (x.profile.fantomonSpecies || x.profile.fantomon); }), counts = {};
       mates.forEach(function (x) { var sp = x.profile.fantomonSpecies || x.profile.fantomon; counts[sp] = (counts[sp] || 0) + 1; });
       var fav = Object.keys(counts).sort(function (a, b) { return counts[b] - counts[a]; })[0];
-      if (mates.length >= 4 && fav !== mine && counts[fav] / mates.length >= 0.6) items.push({ pri: 6, tone: 'flat', ic: 'fantomon', title: 'Most ' + pr['class'] + 's run ' + fav,
-        facts: [['You run', mine], [pr['class'] + 's on ' + fav, counts[fav] + ' of ' + mates.length]] });
+      if (mates.length >= 4 && fav !== mine && counts[fav] / mates.length >= 0.6) items.push({ pri: 6, tone: 'flat', ic: 'fantomon', title: 'Most ' + classGroup(p) + 's run ' + fav,
+        facts: [['You run', mine], [classGroup(p) + 's on ' + fav, counts[fav] + ' of ' + mates.length]] });
     }
 
     items.sort(function (a, b) { return a.pri - b.pri; });
@@ -1832,7 +1857,7 @@
     var all = state.players.filter(function (x) { return x.power_n != null; }).sort(byPower);
     var ck = classKey(p), mates = ck === 'unknown' ? [] : all.filter(function (x) { return classKey(x) === ck; });
     if (mates.length < 2) return insightCard(i, 'Nearest rivals', 'Either side of you on power.', icon('swords', 'mt-1 size-4 ' + MUTED), rivalsList(p, all, 'the guild'));
-    var cls = p.profile['class'], scope = state.rivalScope === 'class' ? 'class' : 'all';
+    var cls = classGroup(p), scope = state.rivalScope === 'class' ? 'class' : 'all';
     var seg = function (key, label) {
       return '<button type="button" class="rounded-md px-2.5 py-1 text-xs font-medium transition-colors aria-pressed:bg-zinc-900 aria-pressed:text-white dark:aria-pressed:bg-zinc-50 dark:aria-pressed:text-zinc-900 ' + MUTED + '" data-scope="' + key + '" aria-pressed="' + (scope === key) + '">' + label + '</button>';
     };
@@ -1877,7 +1902,7 @@
   };
 
   function supportDamageCard(p, i, role) {
-    var m = state.meta, useGain = p.dmgGain != null, cls = p.profile['class'];
+    var m = state.meta, useGain = p.dmgGain != null, cls = classGroup(p);
     var body = '<p class="mt-4 text-sm">' + esc(role.text) + ' Your damage will always be low next to the damage dealers. That is expected, so it is not held against your power here.</p>' +
       '<p class="mt-3 text-sm font-medium">Your presence in Conquest is indispensable. Please join every run you can, we need you there.</p>';
     if (p.dmg_n != null) body += '<p class="mt-4 flex items-baseline gap-2"><span class="text-2xl font-semibold tracking-tight">' + esc(useGain ? fmtNum(p.dmgGain) : p.dmg) + '</span>' +
@@ -1920,12 +1945,12 @@
       body += '<div class="mt-4 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 rounded-lg bg-zinc-900/[0.03] px-3 py-2 text-sm dark:bg-white/[0.04]">' +
         '<span class="' + MUTED + '">Damage per 1M power' + (useGain ? ' since ' + esc(m.previousLabel) : '') + '</span>' +
         '<span><b class="font-semibold tabular-nums">' + esc(fmtNum(p.dmgPerM)) + '</b> <span class="text-xs ' + MUTED + '">' +
-        esc(effClass ? ordinal(p.eff.cpos) + ' of ' + p.eff.cof + ' ' + p.profile['class'] + 's' : ordinal(p.eff.pos) + ' of ' + p.eff.of + ' damage dealers') + '</span></span></div>';
+        esc(effClass ? ordinal(p.eff.cpos) + ' of ' + p.eff.cof + ' ' + classGroup(p) + 's' : ordinal(p.eff.pos) + ' of ' + p.eff.of + ' damage dealers') + '</span></span></div>';
     }
     var lines = [];
     if (m.dmgDealt > 0 && get(p) != null) lines.push('You dealt ' + (Math.round(1000 * get(p) / m.dmgDealt) / 10) + '% of the guild\'s ' + fmtNum(m.dmgDealt) + ' Conquest damage' + (useGain ? ' since ' + m.previousLabel : '') + '.');
     if (p.pos.power_n && p.pos.dmg_n) lines.push('In the guild: ' + ordinal(p.pos.power_n) + ' on power, ' + ordinal(p.pos.dmg_n) + ' on Conquest damage.');
-    if (classKey(p) !== 'unknown' && p.classSize >= 3 && p.cpos.power_n && p.cpos.dmg_n) lines.push('Among ' + p.classSize + ' ' + p.profile['class'] + 's: ' + ordinal(p.cpos.power_n) + ' on power, ' + ordinal(p.cpos.dmg_n) + ' on Conquest damage.');
+    if (classKey(p) !== 'unknown' && p.classSize >= 3 && p.cpos.power_n && p.cpos.dmg_n) lines.push('Among ' + p.classSize + ' ' + classGroup(p) + 's: ' + ordinal(p.cpos.power_n) + ' on power, ' + ordinal(p.cpos.dmg_n) + ' on Conquest damage.');
     if (lines.length) body += cardFoot(lines.map(esc).join('<br>'));
     return insightCard(i, title, what + ', against similar power.', aside, body);
   }
@@ -2020,7 +2045,7 @@
     var support = SUPPORT_ROLES[classKey(p)] && p.cpos && p.cpos.dmg_n != null && p.classSize >= 2;
     // What the member gained next to what half of their class (or the guild, for a small class) gained.
     var peers = classKey(p) !== 'unknown' && p.classSize >= 3 ? state.players.filter(function (x) { return classKey(x) === classKey(p); }) : state.players;
-    var peerName = peers === state.players ? 'the guild' : 'the ' + p.profile['class'] + 's';
+    var peerName = peers === state.players ? 'the guild' : 'the ' + classGroup(p) + 's';
     var pace = function (get) {
       if (!p.prev || get(p) == null) return '';
       var mid = median(peers.filter(function (x) { return x.prev; }).map(get));
@@ -2030,11 +2055,11 @@
       ['swords', 'Power', p.pos.power_n, p.power, p.delta.power, n, '', pace(function (x) { return x.growth.power; })],
       ['gem', 'Weekly contribution', p.pos.week_n, p.week, '', n, '', ''],
       ['trophy', 'Total contribution', p.pos.total_n, p.total, p.delta.total, n, '', pace(function (x) { return x.totalGain; })],
-      support ? ['sword', 'Conquest damage', p.cpos.dmg_n, p.dmg, p.delta.dmg, p.classSize, ' ' + p.profile['class'] + 's', pace(function (x) { return x.dmgGain; })]
+      support ? ['sword', 'Conquest damage', p.cpos.dmg_n, p.dmg, p.delta.dmg, p.classSize, ' ' + classGroup(p) + 's', pace(function (x) { return x.dmgGain; })]
         : ['sword', 'Conquest damage', p.pos.dmg_n, p.dmg, p.delta.dmg, n, '', pace(function (x) { return x.dmgGain; })]
     ];
     html += '<section aria-labelledby="standing-title">' + group('standing-title', 'Where you stand',
-      m.previousLabel ? 'Changes are since ' + esc(m.previousLabel) + '.' : state.dirs.length > 1 ? 'This is the first snapshot, so there is nothing earlier to compare it with.' : 'Changes and growth badges appear once a second snapshot is added.');
+      m.previousLabel ? 'Changes are since ' + esc(m.previousLabel) + '.' : m.seasonStart ? 'First snapshot of Season ' + m.season + ', which reset power and stats. Changes appear from the next one.' : state.dirs.length > 1 ? 'This is the first snapshot, so there is nothing earlier to compare it with.' : 'Changes and growth badges appear once a second snapshot is added.');
     var tiles = '';
     standing.forEach(function (s) {
       var pct = s[2] != null && s[5] > 0 ? (s[5] - s[2] + 1) / s[5] : 0;
@@ -2071,7 +2096,7 @@
       var stats = [['atk', 'Attack', 'sword', 'bg-red-500'], ['def', 'Defense', 'shield', 'bg-blue-500'], ['hp', 'HP', 'heart', 'bg-emerald-500'], ['spd', 'Speed', 'bolt', 'bg-amber-500']];
       // Stats are measured against the member's own class when it has others in
       // it: a Guardian's attack next to a Destroyer's says little.
-      var sck = classKey(p), byClass = sck !== 'unknown' && p.classSize >= 2, cls = pr['class'];
+      var sck = classKey(p), byClass = sck !== 'unknown' && p.classSize >= 2, cls = classGroup(p);
       html += '<section class="' + CARD + ' ' + ANIM + '" style="--i:' + i++ + '"><div class="border-b border-zinc-200/70 p-5 dark:border-white/10"><h2 class="text-base font-semibold">Combat stats</h2><p class="text-sm ' + MUTED + '">' +
         (byClass ? 'Bars run up to the best ' + esc(cls) + ' in the guild. The mark is the level half the ' + p.classSize + ' ' + esc(cls) + 's reach.' : 'Bars are relative to the best value in the guild.') +
         (was ? ' Changes are since the ' + esc(fmtDay(was.snapshot)) + ' capture.' : '') + '</p></div>' +
@@ -2089,7 +2114,7 @@
           '<div class="flex items-center justify-between gap-3"><span class="text-sm font-medium">' + s[1] +
           (byClass && v != null && p.cpos[s[0]] ? '<span class="ml-2 text-xs font-normal ' + MUTED + '">' + esc(ordinal(p.cpos[s[0]]) + ' of ' + p.classSize + ' ' + cls + 's') + '</span>' : '') + '</span>' +
           '<span class="flex items-center gap-2">' + (was ? deltaHTML(fmtDelta(v, parseNum((was.stats || {})[s[0]]))) : '') + '<span class="text-base font-semibold tabular-nums">' + esc(st[s[0]] || '-') + '</span>' +
-          (classBest ? classBadge(p, 'Best ' + esc(pr['class'])) : '') +
+          (classBest ? classBadge(p, 'Best ' + esc(classGroup(p))) : '') +
           (v != null && v === max ? '<span class="inline-flex items-center gap-1 rounded-md border border-emerald-200 bg-emerald-50 px-1.5 py-0.5 text-[11px] font-medium text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300">' + icon('trophy', 'size-3') + 'Guild best</span>' : '') +
           '</span></div>' +
           '<div class="relative mt-2.5">' + meter(w, s[3]) +
@@ -2160,9 +2185,9 @@
     html += '</div>';
     if (avg != null && max > 0) {
       html += '<div class="relative mt-3">' + meter(w, 'bg-zinc-900 dark:bg-zinc-100') +
-        (tick != null ? '<span class="absolute -top-1 h-3.5 w-0.5 rounded-full bg-zinc-400 dark:bg-zinc-500" style="left:' + tick + '%" title="' + esc(p.profile['class']) + ' average"></span>' : '') + '</div>' +
+        (tick != null ? '<span class="absolute -top-1 h-3.5 w-0.5 rounded-full bg-zinc-400 dark:bg-zinc-500" style="left:' + tick + '%" title="' + esc(classGroup(p)) + ' average"></span>' : '') + '</div>' +
         '<div class="mt-1.5 flex justify-between gap-3 text-xs ' + MUTED + '">' +
-        (cavg != null ? '<span>' + esc(p.profile['class']) + ' average <b class="font-medium text-zinc-700 dark:text-zinc-200">' + fmt(cavg) + '</b></span>' : '<span></span>') +
+        (cavg != null ? '<span>' + esc(classGroup(p)) + ' average <b class="font-medium text-zinc-700 dark:text-zinc-200">' + fmt(cavg) + '</b></span>' : '<span></span>') +
         '<span>Guild best <b class="font-medium text-zinc-700 dark:text-zinc-200">' + fmt(max) + '</b></span></div>';
     } else if (!values.length) {
       html += '<p class="mt-2 text-xs ' + MUTED + '">Not captured.</p>';
@@ -3121,12 +3146,16 @@
 
   // Loads a snapshot and the one before it (for the changes), then makes it
   // the one on screen. Resolves false when a later request has overtaken it.
+  // The first snapshot of a season has nothing to compare with: the season
+  // reset power, stats and Equipment.
   var loadSeq = 0;
   function openSnapshot(dir) {
     var at = state.dirs.indexOf(dir), seq = ++loadSeq;
     return Promise.all([loadSnapshot(dir), at > 0 ? loadSnapshot(state.dirs[at - 1]) : null, loadHistory(dir)]).then(function (res) {
       if (seq !== loadSeq) return false;
-      prepare(res[0], res[1], res[2]);
+      var previous = res[1] && res[1].season === res[0].season ? res[1] : null;
+      res[0].seasonStart = !!res[1] && !previous;
+      prepare(res[0], previous, res[2]);
       return true;
     });
   }
