@@ -125,11 +125,19 @@
     return 'assets/img/classes/' + String(p.profile['class']).toLowerCase() + '.png';
   }
 
-  // Name of the member's class line, for "the 12 Destroyers" and the like.
-  function classGroup(p) {
-    var k = classKey(p);
-    return k === 'unknown' ? 'Unknown' : k.charAt(0).toUpperCase() + k.slice(1);
+  // A class line goes by its 5th job name once anyone in the snapshot on
+  // screen has advanced to it (prepare fills lineNames), by the 4th job name
+  // before that. Used for groups ("the 12 Magisters") and their emblems.
+  var LINE_T5 = { destroyer: 'Magister', dominator: 'Prophet', conqueror: 'Ravager', guardian: 'Templar' };
+  var lineNames = {};
+
+  function lineName(key) {
+    return key === 'unknown' ? 'Unknown' : lineNames[key] || key.charAt(0).toUpperCase() + key.slice(1);
   }
+
+  function lineImg(key) { return 'assets/img/classes/' + lineName(key).toLowerCase() + '.png'; }
+
+  function classGroup(p) { return lineName(classKey(p)); }
 
   function classBadge(p, extra) {
     var key = classKey(p);
@@ -280,6 +288,11 @@
   // history holds every week.json up to this snapshot, oldest first.
   function prepare(current, previous, history) {
     var players = current.players;
+    lineNames = {};
+    players.forEach(function (p) {
+      var k = classKey(p);
+      if (LINE_T5[k] && String(p.profile['class']).toLowerCase() === LINE_T5[k].toLowerCase()) lineNames[k] = LINE_T5[k];
+    });
     var metrics = ['power_n', 'week_n', 'total_n', 'dmg_n'];
     var max = {};
     metrics.forEach(function (m) {
@@ -977,7 +990,7 @@
     m.classes.forEach(function (c) {
       var active = state.classFilter === c.key;
       html += '<button type="button" data-class="' + c.key + '" aria-pressed="' + active + '" class="' + base + (active ? on : off) + '">' +
-        (c.key === 'unknown' ? icon('cls-unknown', 'size-3.5') : '<img class="size-4 object-contain" src="assets/img/classes/' + c.key + '.png" alt="">') +
+        (c.key === 'unknown' ? icon('cls-unknown', 'size-3.5') : '<img class="size-4 object-contain" src="' + lineImg(c.key) + '" alt="">') +
         esc(c.label) + ' <span class="opacity-60">' + c.count + '</span></button>';
     });
     box.innerHTML = html;
@@ -1177,9 +1190,9 @@
       });
       html += '<section class="mvp mvp-' + key + ' ' + ANIM + '" style="--i:' + (i + k) + '" aria-label="' + esc(x.cls.label) + ' MVP: ' + esc(p.name) + '"><span class="mvp-border" aria-hidden="true"></span>' +
         '<div class="mvp-inner flex flex-col items-center p-5 text-center">' +
-        '<img class="pointer-events-none absolute -right-8 -top-8 size-40 rotate-12 select-none object-contain opacity-[0.08]" src="assets/img/classes/' + key + '.png" alt="">' +
+        '<img class="pointer-events-none absolute -right-8 -top-8 size-40 rotate-12 select-none object-contain opacity-[0.08]" src="' + lineImg(key) + '" alt="">' +
         '<p class="inline-flex items-center gap-1.5 rounded-full bg-' + key + '/15 px-3 py-1 text-xs font-bold uppercase tracking-widest text-zinc-800 ring-1 ring-inset ring-' + key + '/40 dark:text-' + key + '">' +
-        '<img class="size-4 object-contain" src="assets/img/classes/' + key + '.png" alt="">' + esc(x.cls.label) + ' MVP</p>' +
+        '<img class="size-4 object-contain" src="' + lineImg(key) + '" alt="">' + esc(x.cls.label) + ' MVP</p>' +
         '<div class="relative isolate mt-7">' + icon('crown', 'mvp-crown absolute -top-6 left-1/2 -ml-3.5 size-7 text-amber-400') +
         '<span class="mvp-halo" aria-hidden="true"></span>' +
         '<div class="flex">' + avatar(p, 'xl', 'ring-' + key) + '</div></div>' +
@@ -1408,7 +1421,7 @@
       var list = groups[c.key] || [], dmg = list.reduce(function (a, p) { return a + (p.dmg_n || 0); }, 0);
       var share = m.totalDmg > 0 ? dmg / m.totalDmg : 0, gear = avgOf(list, function (p) { return p.stat_n.gear; });
       body += '<tr><th scope="row" class="py-2.5 text-left font-medium"><span class="inline-flex items-center gap-2">' +
-        (c.key === 'unknown' ? icon('cls-unknown', 'size-4') : '<img class="size-5 object-contain" src="assets/img/classes/' + c.key + '.png" alt="">') + esc(c.label) + '</span></th>' +
+        (c.key === 'unknown' ? icon('cls-unknown', 'size-4') : '<img class="size-5 object-contain" src="' + lineImg(c.key) + '" alt="">') + esc(c.label) + '</span></th>' +
         '<td class="px-2 py-2.5 text-right tabular-nums">' + c.count + '</td>' +
         '<td class="px-2 py-2.5 text-right tabular-nums">' + esc(fmtNum(avgOf(list, function (p) { return p.power_n; }))) + '</td>' +
         '<td class="hidden px-2 py-2.5 text-right tabular-nums sm:table-cell">' + (gear != null ? '+' + Math.round(gear) : '-') + '</td>' +
@@ -1506,7 +1519,7 @@
     body += '</tr></thead><tbody class="divide-y divide-zinc-200/60 dark:divide-white/5">' + row('Whole guild', withStats, icon('trophy', 'size-4 text-amber-500'));
     m.classes.forEach(function (c) {
       if (c.key === 'unknown') return;
-      body += row(c.label, withStats.filter(function (p) { return classKey(p) === c.key; }), '<img class="size-5 object-contain" src="assets/img/classes/' + c.key + '.png" alt="">');
+      body += row(c.label, withStats.filter(function (p) { return classKey(p) === c.key; }), '<img class="size-5 object-contain" src="' + lineImg(c.key) + '" alt="">');
     });
     return insightCard(i, 'Record holders', 'The highest combat stats in the guild and in each class.', icon('medal', 'mt-1 size-4 ' + MUTED), body + '</tbody></table></div>');
   }
@@ -1897,13 +1910,13 @@
   // Tanks and healers are in Conquest to soak the bosses' damage and keep the
   // raid alive, so their own damage is never judged against power.
   var SUPPORT_ROLES = {
-    guardian: { role: 'Tank', text: 'Guardians are our tanks: you take the damage from the bosses so everyone else can keep attacking.' },
-    dominator: { role: 'Healer', text: 'Dominators are our healers: you keep the whole raid alive through the bosses\' damage.' }
+    guardian: { role: 'Tank', text: 'are our tanks: you take the damage from the bosses so everyone else can keep attacking.' },
+    dominator: { role: 'Healer', text: 'are our healers: you keep the whole raid alive through the bosses\' damage.' }
   };
 
   function supportDamageCard(p, i, role) {
     var m = state.meta, useGain = p.dmgGain != null, cls = classGroup(p);
-    var body = '<p class="mt-4 text-sm">' + esc(role.text) + ' Your damage will always be low next to the damage dealers. That is expected, so it is not held against your power here.</p>' +
+    var body = '<p class="mt-4 text-sm">' + esc(classGroup(p) + 's ' + role.text) + ' Your damage will always be low next to the damage dealers. That is expected, so it is not held against your power here.</p>' +
       '<p class="mt-3 text-sm font-medium">Your presence in Conquest is indispensable. Please join every run you can, we need you there.</p>';
     if (p.dmg_n != null) body += '<p class="mt-4 flex items-baseline gap-2"><span class="text-2xl font-semibold tracking-tight">' + esc(useGain ? fmtNum(p.dmgGain) : p.dmg) + '</span>' +
       '<span class="text-sm ' + MUTED + '">Conquest damage' + (useGain ? ' since ' + esc(m.previousLabel) : ' so far') + ', for reference</span></p>';
@@ -2013,7 +2026,7 @@
     };
     html += '<section class="' + CARD + ' relative overflow-hidden ' + ANIM + '" style="--i:' + i++ + '" aria-label="Player card">' +
       '<span class="pointer-events-none absolute inset-0 bg-gradient-to-br from-' + ck + '/15 via-transparent to-transparent" aria-hidden="true"></span>' +
-      (ck !== 'unknown' ? '<img class="pointer-events-none absolute -right-10 -top-12 size-64 rotate-12 select-none object-contain opacity-[0.06]" src="assets/img/classes/' + ck + '.png" alt="">' : '') +
+      (ck !== 'unknown' ? '<img class="pointer-events-none absolute -right-10 -top-12 size-64 rotate-12 select-none object-contain opacity-[0.06]" src="' + classImg(p) + '" alt="">' : '') +
       '<div class="relative flex items-start gap-4 p-5 sm:gap-5 sm:p-6">' +
       '<div class="flex shrink-0">' + avatar(p, 'xl', 'ring-' + ck) + '</div>' +
       '<div class="min-w-0 flex-1"><div class="flex flex-wrap items-center gap-x-3 gap-y-1"><h1 class="min-w-0 truncate text-2xl font-semibold tracking-tight sm:text-3xl">' + esc(p.name) + '</h1>' + roleBadge(p) + '</div>' +
@@ -2727,8 +2740,8 @@
       grid += '<section class="' + CARD + ' p-3' + anim(Math.min(k, 8) + 3) + '" data-zone="' + k + '" aria-label="Team ' + (k + 1) + '">' +
         '<div class="flex items-center gap-2 px-1"><h2 class="text-sm font-semibold">Team ' + (k + 1) + '</h2>' +
         '<span class="ml-auto inline-flex items-center gap-1" aria-label="Classes in the team">' + TEAM_CLASSES.map(function (c) {
-          var label = c.charAt(0).toUpperCase() + c.slice(1);
-          return '<img class="size-4 object-contain' + (has[c] ? '' : ' opacity-20 grayscale') + '" src="assets/img/classes/' + c + '.png" alt="' + label + (has[c] ? '' : ' missing') + '" title="' + label + (has[c] ? '' : ' missing') + '">';
+          var label = lineName(c);
+          return '<img class="size-4 object-contain' + (has[c] ? '' : ' opacity-20 grayscale') + '" src="' + lineImg(c) + '" alt="' + label + (has[c] ? '' : ' missing') + '" title="' + label + (has[c] ? '' : ' missing') + '">';
         }).join('') + '</span>' +
         (view.own ? '<button type="button" class="grid size-6 place-items-center rounded-md ' + MUTED + ' transition-colors hover:bg-zinc-900/10 hover:text-zinc-900 dark:hover:bg-white/10 dark:hover:text-zinc-50" data-team-del="' + k + '" aria-label="Remove team ' + (k + 1) + '" title="Remove this team">' + icon('close', 'size-3.5') + '</button>' : '') +
         '</div><p class="mt-1 flex items-baseline gap-2 px-1"><span class="text-2xl font-semibold tracking-tight">' + esc(team.length ? fmtNum(totals[k]) : '-') + '</span>' +
