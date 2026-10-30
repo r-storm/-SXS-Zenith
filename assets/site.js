@@ -2402,6 +2402,8 @@
   // from the snapshot being viewed.
 
   var TEAM_SIZES = [4, 2];
+  // The format the roster opens on until a viewer picks the other one.
+  var DEFAULT_SIZE = 2;
   var TEAM_CLASSES = ['destroyer', 'conqueror', 'guardian', 'dominator'];
   var ROSTER_KEY = 'zenith-rosters';
   // What the Balanced lineup evens out: power and the combat stats, every
@@ -2412,7 +2414,7 @@
 
   function loadRosters() {
     if (rosters) return rosters;
-    rosters = { size: TEAM_SIZES[0], active: null, list: [] };
+    rosters = { size: DEFAULT_SIZE, active: null, list: [] };
     try {
       var saved = JSON.parse(localStorage.getItem(ROSTER_KEY));
       if (saved && TEAM_SIZES.indexOf(saved.size) !== -1) rosters.size = saved.size;
@@ -2420,7 +2422,7 @@
         // Lineups saved before 2v2 existed have no size and are 4v4.
         saved.list.forEach(function (l) {
           if (!l || !l.id || !Array.isArray(l.teams)) return;
-          var size = TEAM_SIZES.indexOf(l.size) !== -1 ? l.size : TEAM_SIZES[0];
+          var size = TEAM_SIZES.indexOf(l.size) !== -1 ? l.size : 4;
           rosters.list.push({ id: String(l.id), name: String(l.name || 'My lineup'), size: size, teams: l.teams.filter(Array.isArray).map(function (t) { return t.map(String).slice(0, size); }) });
         });
         if (saved.active === 'nexus' || rosters.list.some(function (l) { return l.id === saved.active && l.size === rosters.size; })) rosters.active = saved.active;
