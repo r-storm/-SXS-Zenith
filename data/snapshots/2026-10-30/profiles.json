@@ -1,0 +1,2525 @@
+{
+  "capturedAt": "2026-10-30T08:49:00.000Z",
+  "label": "Week 8",
+  "source": "captures/2026-10-30/profiles/ (profile_NN.png; profile_41 excluded: Schwartz duplicate, guild badge not loaded)",
+  "profiles": [
+    {
+      "file": "profile_01.png",
+      "name": "AsterBlaze",
+      "playerId": "700290800086",
+      "power": "13.9M",
+      "class": "Magister",
+      "classLevel": 326,
+      "level": 148,
+      "badges": {
+        "rank": "Master II",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Miyo",
+      "fantomonSpecies": "Pandarial",
+      "likes": "12.2K",
+      "stats": {
+        "atk": "735K",
+        "def": "615K",
+        "hp": "3.07M",
+        "spd": "553K"
+      },
+      "gear": [
+        "+145",
+        "+145",
+        "+141",
+        "+145",
+        "+145"
+      ],
+      "technique": [
+        140,
+        140,
+        139,
+        139
+      ],
+      "charm": [
+        139,
+        139,
+        139,
+        139
+      ]
+    },
+    {
+      "file": "profile_02.png",
+      "name": "Atsi",
+      "playerId": "700290801923",
+      "power": "21.5M",
+      "class": "Prophet",
+      "classLevel": 411,
+      "level": 150,
+      "badges": {
+        "rank": "Master III",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "BubbaJoe",
+      "fantomonSpecies": "Pandarial",
+      "likes": "7.15K",
+      "stats": {
+        "atk": "1.05M",
+        "def": "1.02M",
+        "hp": "5.85M",
+        "spd": "917K"
+      },
+      "gear": [
+        "+160",
+        "+160",
+        "+160",
+        "+156",
+        "+160"
+      ],
+      "technique": [
+        150,
+        150,
+        150,
+        150
+      ],
+      "charm": [
+        150,
+        150,
+        150,
+        150
+      ]
+    },
+    {
+      "file": "profile_03.png",
+      "name": "Riven",
+      "playerId": "700290800729",
+      "power": "13.6M",
+      "class": "Prophet",
+      "classLevel": 259,
+      "level": 147,
+      "badges": {
+        "rank": "Master II",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Pandarial",
+      "fantomonSpecies": "Pandarial",
+      "likes": "2.44K",
+      "stats": {
+        "atk": "799K",
+        "def": "668K",
+        "hp": "3.69M",
+        "spd": "625K"
+      },
+      "gear": [
+        "+160",
+        "+160",
+        "+160",
+        "+160",
+        "+160"
+      ],
+      "technique": [
+        147,
+        147,
+        147,
+        147
+      ],
+      "charm": [
+        147,
+        147,
+        147,
+        147
+      ]
+    },
+    {
+      "file": "profile_04.png",
+      "name": "ebovsky",
+      "playerId": "700290803605",
+      "power": "11.4M",
+      "class": "Ravager",
+      "classLevel": 220,
+      "level": 144,
+      "badges": {
+        "rank": "Master II",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Jully",
+      "fantomonSpecies": "Pandarial",
+      "likes": "3.17K",
+      "stats": {
+        "atk": "634K",
+        "def": "609K",
+        "hp": "2.98M",
+        "spd": "574K"
+      },
+      "gear": [
+        "+155",
+        "+150",
+        "+150",
+        "+150",
+        "+152"
+      ],
+      "technique": [
+        144,
+        144,
+        144,
+        144
+      ],
+      "charm": [
+        144,
+        144,
+        144,
+        144
+      ]
+    },
+    {
+      "file": "profile_05.png",
+      "name": "Синтия",
+      "playerId": "700290802607",
+      "power": "16.4M",
+      "class": "Magister",
+      "classLevel": 360,
+      "level": 148,
+      "badges": {
+        "rank": "Master II",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Ичиго",
+      "fantomonSpecies": "Pandarial",
+      "likes": "4.19K",
+      "stats": {
+        "atk": "1M",
+        "def": "671K",
+        "hp": "3.81M",
+        "spd": "645K"
+      },
+      "gear": [
+        "+160",
+        "+160",
+        "+160",
+        "+160",
+        "+160"
+      ],
+      "technique": [
+        148,
+        148,
+        148,
+        148
+      ],
+      "charm": [
+        148,
+        148,
+        148,
+        148
+      ]
+    },
+    {
+      "file": "profile_06.png",
+      "name": "KittyLinwe",
+      "playerId": "700290804848",
+      "power": "14.4M",
+      "class": "Prophet",
+      "classLevel": 291,
+      "level": 149,
+      "badges": {
+        "rank": "Master II",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Gucci",
+      "likes": "2.38K",
+      "stats": {
+        "atk": "770K",
+        "def": "772K",
+        "hp": "3.91M",
+        "spd": "693K"
+      },
+      "gear": [
+        "+145",
+        "+142",
+        "+154",
+        "+160",
+        "+160"
+      ],
+      "technique": [
+        145,
+        145,
+        145,
+        145
+      ],
+      "charm": [
+        144,
+        144,
+        144,
+        144
+      ]
+    },
+    {
+      "file": "profile_07.png",
+      "name": "TUDboat",
+      "playerId": "700290802794",
+      "power": "10.9M",
+      "class": "Ravager",
+      "classLevel": 211,
+      "level": 145,
+      "badges": {
+        "rank": "Master II",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Po",
+      "fantomonSpecies": "Pandarial",
+      "likes": "1.6K",
+      "stats": {
+        "atk": "628K",
+        "def": "520K",
+        "hp": "2.82M",
+        "spd": "525K"
+      },
+      "gear": [
+        "+147",
+        "+145",
+        "+145",
+        "+145",
+        "+145"
+      ],
+      "technique": [
+        145,
+        145,
+        145,
+        145
+      ],
+      "charm": [
+        145,
+        145,
+        145,
+        145
+      ]
+    },
+    {
+      "file": "profile_08.png",
+      "name": "vDk",
+      "playerId": "700290803994",
+      "power": "11.6M",
+      "class": "Magister",
+      "classLevel": 237,
+      "level": 146,
+      "badges": {
+        "rank": "Master II",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Pandarial",
+      "fantomonSpecies": "Pandarial",
+      "likes": "2.77K",
+      "stats": {
+        "atk": "682K",
+        "def": "612K",
+        "hp": "2.91M",
+        "spd": "528K"
+      },
+      "gear": [
+        "+155",
+        "+150",
+        "+150",
+        "+153",
+        "+150"
+      ],
+      "technique": [
+        146,
+        146,
+        146,
+        146
+      ],
+      "charm": [
+        146,
+        146,
+        146,
+        146
+      ]
+    },
+    {
+      "file": "profile_09.png",
+      "name": "BanDalgom",
+      "playerId": "700290800726",
+      "power": "13.5M",
+      "class": "Prophet",
+      "classLevel": 304,
+      "level": 148,
+      "badges": {
+        "rank": "Master II",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Pandarial",
+      "fantomonSpecies": "Pandarial",
+      "likes": "2.51K",
+      "stats": {
+        "atk": "673K",
+        "def": "682K",
+        "hp": "3.53M",
+        "spd": "576K"
+      },
+      "gear": [
+        "+145",
+        "+145",
+        "+145",
+        "+145",
+        "+144"
+      ],
+      "technique": [
+        144,
+        144,
+        144,
+        144
+      ],
+      "charm": [
+        144,
+        144,
+        144,
+        144
+      ]
+    },
+    {
+      "file": "profile_10.png",
+      "name": "PureNight",
+      "playerId": "700290802021",
+      "power": "10M",
+      "class": "Prophet",
+      "classLevel": 233,
+      "level": 140,
+      "badges": {
+        "rank": "Master II",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Nyxarchon",
+      "fantomonSpecies": "Nyxarchon",
+      "likes": "1.33K",
+      "stats": {
+        "atk": "519K",
+        "def": "457K",
+        "hp": "2.58M",
+        "spd": "394K"
+      },
+      "gear": [
+        "+145",
+        "+144",
+        "+140",
+        "+140",
+        "+141"
+      ],
+      "technique": [
+        140,
+        140,
+        140,
+        140
+      ],
+      "charm": [
+        140,
+        140,
+        140,
+        140
+      ]
+    },
+    {
+      "file": "profile_11.png",
+      "name": "1e",
+      "playerId": "700290801323",
+      "power": "11.1M",
+      "class": "Magister",
+      "classLevel": 208,
+      "level": 146,
+      "badges": {
+        "rank": "Master II",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Nyxarchon",
+      "fantomonSpecies": "Nyxarchon",
+      "likes": "2.19K",
+      "stats": {
+        "atk": "678K",
+        "def": "629K",
+        "hp": "2.69M",
+        "spd": "542K"
+      },
+      "gear": [
+        "+145",
+        "+145",
+        "+145",
+        "+144",
+        "+140"
+      ],
+      "technique": [
+        143,
+        143,
+        143,
+        143
+      ],
+      "charm": [
+        143,
+        143,
+        142,
+        142
+      ]
+    },
+    {
+      "file": "profile_12.png",
+      "name": "DerFussel",
+      "playerId": "700290800926",
+      "power": "11.7M",
+      "class": "Magister",
+      "classLevel": 240,
+      "level": 146,
+      "badges": {
+        "rank": "Master II",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Pandarial",
+      "fantomonSpecies": "Pandarial",
+      "likes": "1.76K",
+      "stats": {
+        "atk": "676K",
+        "def": "675K",
+        "hp": "3.08M",
+        "spd": "501K"
+      },
+      "gear": [
+        "+151",
+        "+150",
+        "+150",
+        "+150",
+        "+150"
+      ],
+      "technique": [
+        144,
+        144,
+        144,
+        144
+      ],
+      "charm": [
+        144,
+        144,
+        144,
+        144
+      ]
+    },
+    {
+      "file": "profile_13.png",
+      "name": "Vizir",
+      "playerId": "700290800775",
+      "power": "10.9M",
+      "class": "Templar",
+      "classLevel": 218,
+      "level": 144,
+      "badges": {
+        "rank": "Master II",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Fiery",
+      "fantomonSpecies": "Aegiswing",
+      "likes": "1.99K",
+      "stats": {
+        "atk": "554K",
+        "def": "661K",
+        "hp": "3.02M",
+        "spd": "478K"
+      },
+      "gear": [
+        "+150",
+        "+150",
+        "+148",
+        "+145",
+        "+145"
+      ],
+      "technique": [
+        144,
+        144,
+        144,
+        144
+      ],
+      "charm": [
+        144,
+        144,
+        144,
+        144
+      ]
+    },
+    {
+      "file": "profile_14.png",
+      "name": "UnorthodoxStyle",
+      "playerId": "700290800409",
+      "power": "18.1M",
+      "class": "Ravager",
+      "classLevel": 329,
+      "level": 150,
+      "badges": {
+        "rank": "Master III",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Pandarial",
+      "fantomonSpecies": "Pandarial",
+      "likes": "5.14K",
+      "stats": {
+        "atk": "970K",
+        "def": "900K",
+        "hp": "4.28M",
+        "spd": "813K"
+      },
+      "gear": [
+        "+160",
+        "+160",
+        "+160",
+        "+160",
+        "+160"
+      ],
+      "technique": [
+        150,
+        150,
+        150,
+        150
+      ],
+      "charm": [
+        150,
+        150,
+        150,
+        150
+      ]
+    },
+    {
+      "file": "profile_15.png",
+      "name": "Ouvreboites",
+      "playerId": "700290802747",
+      "power": "13.7M",
+      "class": "Templar",
+      "classLevel": 263,
+      "level": 148,
+      "badges": {
+        "rank": "Master II",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Armopi",
+      "fantomonSpecies": "Armopi",
+      "likes": "2.17K",
+      "stats": {
+        "atk": "721K",
+        "def": "779K",
+        "hp": "3.77M",
+        "spd": "590K"
+      },
+      "gear": [
+        "+160",
+        "+160",
+        "+160",
+        "+160",
+        "+160"
+      ],
+      "technique": [
+        148,
+        148,
+        148,
+        148
+      ],
+      "charm": [
+        148,
+        148,
+        148,
+        148
+      ]
+    },
+    {
+      "file": "profile_16.png",
+      "name": "Portir",
+      "playerId": "700290802890",
+      "power": "16.4M",
+      "class": "Templar",
+      "classLevel": 299,
+      "level": 150,
+      "badges": {
+        "rank": "Master III",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Aegiswing",
+      "fantomonSpecies": "Aegiswing",
+      "likes": "2.92K",
+      "stats": {
+        "atk": "820K",
+        "def": "891K",
+        "hp": "4.43M",
+        "spd": "677K"
+      },
+      "gear": [
+        "+160",
+        "+160",
+        "+160",
+        "+160",
+        "+160"
+      ],
+      "technique": [
+        150,
+        150,
+        150,
+        150
+      ],
+      "charm": [
+        150,
+        150,
+        150,
+        150
+      ]
+    },
+    {
+      "file": "profile_17.png",
+      "name": "kyo.",
+      "playerId": "700290800306",
+      "power": "11.9M",
+      "class": "Ravager",
+      "classLevel": 225,
+      "level": 146,
+      "badges": {
+        "rank": "Master II",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Ozzy",
+      "fantomonSpecies": "Nyxarchon",
+      "likes": "2.14K",
+      "stats": {
+        "atk": "651K",
+        "def": "608K",
+        "hp": "2.96M",
+        "spd": "576K"
+      },
+      "gear": [
+        "+151",
+        "+151",
+        "+151",
+        "+151",
+        "+151"
+      ],
+      "technique": [
+        146,
+        146,
+        146,
+        146
+      ],
+      "charm": [
+        146,
+        146,
+        146,
+        146
+      ]
+    },
+    {
+      "file": "profile_18.png",
+      "name": "JetPilot",
+      "playerId": "700290801095",
+      "power": "12.7M",
+      "class": "Ravager",
+      "classLevel": 242,
+      "level": 147,
+      "badges": {
+        "rank": "Master II",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Васян",
+      "fantomonSpecies": "Pandarial",
+      "likes": "4.45K",
+      "stats": {
+        "atk": "708K",
+        "def": "689K",
+        "hp": "3.46M",
+        "spd": "591K"
+      },
+      "gear": [
+        "+145",
+        "+145",
+        "+145",
+        "+144",
+        "+145"
+      ],
+      "technique": [
+        146,
+        146,
+        146,
+        146
+      ],
+      "charm": [
+        145,
+        145,
+        145,
+        145
+      ]
+    },
+    {
+      "file": "profile_19.png",
+      "name": "Billiana",
+      "playerId": "700290802787",
+      "power": "17.3M",
+      "class": "Magister",
+      "classLevel": 320,
+      "level": 151,
+      "badges": {
+        "rank": "Master III",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Dumpling",
+      "fantomonSpecies": "Pandarial",
+      "likes": "3.18K",
+      "stats": {
+        "atk": "1.05M",
+        "def": "816K",
+        "hp": "4.3M",
+        "spd": "763K"
+      },
+      "gear": [
+        "+160",
+        "+160",
+        "+160",
+        "+160",
+        "+160"
+      ],
+      "technique": [
+        151,
+        151,
+        151,
+        151
+      ],
+      "charm": [
+        151,
+        151,
+        151,
+        150
+      ]
+    },
+    {
+      "file": "profile_20.png",
+      "name": "Beicin",
+      "playerId": "700290803806",
+      "power": "15.9M",
+      "class": "Ravager",
+      "classLevel": 259,
+      "level": 151,
+      "badges": {
+        "rank": "Master III",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Jacaré",
+      "fantomonSpecies": "Pandarial",
+      "likes": "3.81K",
+      "stats": {
+        "atk": "831K",
+        "def": "827K",
+        "hp": "4.14M",
+        "spd": "731K"
+      },
+      "gear": [
+        "+155",
+        "+155",
+        "+155",
+        "+155",
+        "+155"
+      ],
+      "technique": [
+        151,
+        151,
+        151,
+        151
+      ],
+      "charm": [
+        151,
+        151,
+        151,
+        151
+      ]
+    },
+    {
+      "file": "profile_21.png",
+      "name": "Ballistics",
+      "playerId": "700290801306",
+      "power": "22.3M",
+      "class": "Ravager",
+      "classLevel": 427,
+      "level": 150,
+      "badges": {
+        "rank": "Master III",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Pandarial",
+      "fantomonSpecies": "Pandarial",
+      "likes": "7.29K",
+      "stats": {
+        "atk": "1.18M",
+        "def": "1M",
+        "hp": "5.4M",
+        "spd": "974K"
+      },
+      "gear": [
+        "+150",
+        "+145",
+        "+150",
+        "+145",
+        "+146"
+      ],
+      "technique": [
+        150,
+        150,
+        150,
+        149
+      ],
+      "charm": [
+        149,
+        149,
+        149,
+        149
+      ]
+    },
+    {
+      "file": "profile_22.png",
+      "name": "ZEUS",
+      "playerId": "700290803244",
+      "power": "13.8M",
+      "class": "Prophet",
+      "classLevel": 282,
+      "level": 149,
+      "badges": {
+        "rank": "Master II",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "HADES",
+      "fantomonSpecies": "Pandarial",
+      "likes": "3.39K",
+      "stats": {
+        "atk": "721K",
+        "def": "644K",
+        "hp": "4.6M",
+        "spd": "567K"
+      },
+      "gear": [
+        "+150",
+        "+150",
+        "+150",
+        "+152",
+        "+150"
+      ],
+      "technique": [
+        148,
+        148,
+        148,
+        148
+      ],
+      "charm": [
+        148,
+        148,
+        148,
+        148
+      ]
+    },
+    {
+      "file": "profile_23.png",
+      "name": "Gencu",
+      "playerId": "700290805199",
+      "power": "11.4M",
+      "class": "Ravager",
+      "classLevel": 230,
+      "level": 145,
+      "badges": {
+        "rank": "Master II",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Kratos",
+      "fantomonSpecies": "Nyxarchon",
+      "likes": "1.76K",
+      "stats": {
+        "atk": "687K",
+        "def": "594K",
+        "hp": "3M",
+        "spd": "502K"
+      },
+      "gear": [
+        "+150",
+        "+145",
+        "+147",
+        "+150",
+        "+150"
+      ],
+      "technique": [
+        145,
+        145,
+        145,
+        145
+      ],
+      "charm": [
+        145,
+        145,
+        144,
+        144
+      ]
+    },
+    {
+      "file": "profile_24.png",
+      "name": "Lyrix",
+      "playerId": "700290800551",
+      "power": "12.7M",
+      "class": "Ravager",
+      "classLevel": 237,
+      "level": 149,
+      "badges": {
+        "rank": "Master II",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Pandarial",
+      "fantomonSpecies": "Pandarial",
+      "likes": "2.88K",
+      "stats": {
+        "atk": "693K",
+        "def": "586K",
+        "hp": "3.19M",
+        "spd": "637K"
+      },
+      "gear": [
+        "+160",
+        "+160",
+        "+160",
+        "+160",
+        "+160"
+      ],
+      "technique": [
+        149,
+        149,
+        149,
+        149
+      ],
+      "charm": [
+        149,
+        149,
+        149,
+        149
+      ]
+    },
+    {
+      "file": "profile_25.png",
+      "name": "Vetali",
+      "playerId": "700290804655",
+      "power": "13.8M",
+      "class": "Magister",
+      "classLevel": 272,
+      "level": 149,
+      "badges": {
+        "rank": "Master II",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Pandinha",
+      "fantomonSpecies": "Pandarial",
+      "likes": "4.24K",
+      "stats": {
+        "atk": "831K",
+        "def": "650K",
+        "hp": "3.21M",
+        "spd": "616K"
+      },
+      "gear": [
+        "+160",
+        "+160",
+        "+160",
+        "+160",
+        "+160"
+      ],
+      "technique": [
+        149,
+        149,
+        149,
+        149
+      ],
+      "charm": [
+        149,
+        149,
+        149,
+        148
+      ]
+    },
+    {
+      "file": "profile_26.png",
+      "name": "YūmaKuga",
+      "playerId": "700290805223",
+      "power": "12M",
+      "class": "Magister",
+      "classLevel": 255,
+      "level": 146,
+      "badges": {
+        "rank": "Master II",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Nyxarchon",
+      "fantomonSpecies": "Nyxarchon",
+      "likes": "2.58K",
+      "stats": {
+        "atk": "733K",
+        "def": "608K",
+        "hp": "2.75M",
+        "spd": "497K"
+      },
+      "gear": [
+        "+145",
+        "+149",
+        "+150",
+        "+150",
+        "+150"
+      ],
+      "technique": [
+        146,
+        146,
+        146,
+        146
+      ],
+      "charm": [
+        146,
+        146,
+        146,
+        146
+      ]
+    },
+    {
+      "file": "profile_27.png",
+      "name": "Shai-roa",
+      "playerId": "700290804817",
+      "power": "11.5M",
+      "class": "Magister",
+      "classLevel": 246,
+      "level": 146,
+      "badges": {
+        "rank": "Master II",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Terragon",
+      "fantomonSpecies": "Terragon",
+      "likes": "1.09K",
+      "stats": {
+        "atk": "626K",
+        "def": "586K",
+        "hp": "2.75M",
+        "spd": "507K"
+      },
+      "gear": [
+        "+150",
+        "+149",
+        "+149",
+        "+149",
+        "+149"
+      ],
+      "technique": [
+        142,
+        142,
+        142,
+        142
+      ],
+      "charm": [
+        142,
+        142,
+        141,
+        141
+      ]
+    },
+    {
+      "file": "profile_28.png",
+      "name": "frumpy_gorilla",
+      "playerId": "700290804429",
+      "power": "12.8M",
+      "class": "Magister",
+      "classLevel": 257,
+      "level": 146,
+      "badges": {
+        "rank": "Master II",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Nyxarchon",
+      "fantomonSpecies": "Nyxarchon",
+      "likes": "2.67K",
+      "stats": {
+        "atk": "757K",
+        "def": "578K",
+        "hp": "3.39M",
+        "spd": "548K"
+      },
+      "gear": [
+        "+150",
+        "+150",
+        "+148",
+        "+145",
+        "+145"
+      ],
+      "technique": [
+        146,
+        146,
+        146,
+        146
+      ],
+      "charm": [
+        146,
+        145,
+        145,
+        145
+      ]
+    },
+    {
+      "file": "profile_29.png",
+      "name": "Tay",
+      "playerId": "700290803088",
+      "power": "15.4M",
+      "class": "Ravager",
+      "classLevel": 312,
+      "level": 146,
+      "badges": {
+        "rank": "Master II",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Nyxarchon",
+      "fantomonSpecies": "Nyxarchon",
+      "likes": "2.19K",
+      "stats": {
+        "atk": "750K",
+        "def": "783K",
+        "hp": "3.78M",
+        "spd": "654K"
+      },
+      "gear": [
+        "+159",
+        "+159",
+        "+155",
+        "+155",
+        "+158"
+      ],
+      "technique": [
+        146,
+        146,
+        146,
+        146
+      ],
+      "charm": [
+        146,
+        146,
+        146,
+        146
+      ]
+    },
+    {
+      "file": "profile_30.png",
+      "name": "Sparklie",
+      "playerId": "700290802157",
+      "power": "16.1M",
+      "class": "Magister",
+      "classLevel": 299,
+      "level": 150,
+      "badges": {
+        "rank": "Master III",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Gendut",
+      "fantomonSpecies": "Pandarial",
+      "likes": "4.76K",
+      "stats": {
+        "atk": "899K",
+        "def": "816K",
+        "hp": "3.91M",
+        "spd": "687K"
+      },
+      "gear": [
+        "+160",
+        "+160",
+        "+160",
+        "+160",
+        "+160"
+      ],
+      "technique": [
+        150,
+        150,
+        150,
+        150
+      ],
+      "charm": [
+        150,
+        150,
+        150,
+        150
+      ]
+    },
+    {
+      "file": "profile_31.png",
+      "name": "CronosLogia",
+      "playerId": "700290805172",
+      "power": "13.3M",
+      "class": "Ravager",
+      "classLevel": 253,
+      "level": 148,
+      "badges": {
+        "rank": "Master II",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Nyxarchon",
+      "fantomonSpecies": "Nyxarchon",
+      "likes": "3.28K",
+      "stats": {
+        "atk": "773K",
+        "def": "618K",
+        "hp": "2.96M",
+        "spd": "628K"
+      },
+      "gear": [
+        "+155",
+        "+150",
+        "+150",
+        "+151",
+        "+155"
+      ],
+      "technique": [
+        146,
+        146,
+        145,
+        145
+      ],
+      "charm": [
+        145,
+        145,
+        145,
+        145
+      ]
+    },
+    {
+      "file": "profile_32.png",
+      "name": "Baki",
+      "playerId": "700290804067",
+      "power": "17M",
+      "class": "Ravager",
+      "classLevel": 339,
+      "level": 149,
+      "badges": {
+        "rank": "Master II",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "MeowMix",
+      "fantomonSpecies": "Nyxarchon",
+      "likes": "2.91K",
+      "stats": {
+        "atk": "821K",
+        "def": "815K",
+        "hp": "4.12M",
+        "spd": "770K"
+      },
+      "gear": [
+        "+160",
+        "+160",
+        "+160",
+        "+160",
+        "+160"
+      ],
+      "technique": [
+        149,
+        149,
+        149,
+        149
+      ],
+      "charm": [
+        149,
+        149,
+        149,
+        149
+      ]
+    },
+    {
+      "file": "profile_33.png",
+      "name": "Karny",
+      "playerId": "700290804645",
+      "power": "18.3M",
+      "class": "Templar",
+      "classLevel": 397,
+      "level": 149,
+      "badges": {
+        "rank": "Master II",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Aegiswing",
+      "fantomonSpecies": "Aegiswing",
+      "likes": "4.94K",
+      "stats": {
+        "atk": "859K",
+        "def": "954K",
+        "hp": "4.52M",
+        "spd": "726K"
+      },
+      "gear": [
+        "+160",
+        "+160",
+        "+160",
+        "+160",
+        "+160"
+      ],
+      "technique": [
+        149,
+        149,
+        149,
+        149
+      ],
+      "charm": [
+        149,
+        149,
+        149,
+        149
+      ]
+    },
+    {
+      "file": "profile_34.png",
+      "name": "Awrath",
+      "playerId": "700290802292",
+      "power": "13.3M",
+      "class": "Ravager",
+      "classLevel": 251,
+      "level": 147,
+      "badges": {
+        "rank": "Master II",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Pandarial",
+      "fantomonSpecies": "Pandarial",
+      "likes": "4.55K",
+      "stats": {
+        "atk": "787K",
+        "def": "697K",
+        "hp": "3.34M",
+        "spd": "657K"
+      },
+      "gear": [
+        "+160",
+        "+160",
+        "+160",
+        "+160",
+        "+160"
+      ],
+      "technique": [
+        147,
+        147,
+        147,
+        147
+      ],
+      "charm": [
+        147,
+        147,
+        147,
+        147
+      ]
+    },
+    {
+      "file": "profile_35.png",
+      "name": "etna",
+      "playerId": "700290800540",
+      "power": "12.8M",
+      "class": "Prophet",
+      "classLevel": 254,
+      "level": 148,
+      "badges": {
+        "rank": "Master II",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Pandarial",
+      "fantomonSpecies": "Pandarial",
+      "likes": "3.11K",
+      "stats": {
+        "atk": "637K",
+        "def": "612K",
+        "hp": "3.66M",
+        "spd": "525K"
+      },
+      "gear": [
+        "+145",
+        "+140",
+        "+145",
+        "+145",
+        "+143"
+      ],
+      "technique": [
+        143,
+        143,
+        143,
+        143
+      ],
+      "charm": [
+        142,
+        142,
+        142,
+        142
+      ]
+    },
+    {
+      "file": "profile_36.png",
+      "name": "KoxTLiTe",
+      "playerId": "700290804258",
+      "power": "11.5M",
+      "class": "Magister",
+      "classLevel": 230,
+      "level": 145,
+      "badges": {
+        "rank": "Master II",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "BeKa",
+      "fantomonSpecies": "Nyxarchon",
+      "likes": "3.25K",
+      "stats": {
+        "atk": "688K",
+        "def": "566K",
+        "hp": "3.12M",
+        "spd": "514K"
+      },
+      "gear": [
+        "+150",
+        "+150",
+        "+145",
+        "+147",
+        "+150"
+      ],
+      "technique": [
+        145,
+        145,
+        145,
+        145
+      ],
+      "charm": [
+        145,
+        145,
+        145,
+        145
+      ]
+    },
+    {
+      "file": "profile_37.png",
+      "name": "Hanaroll",
+      "playerId": "700290805182",
+      "power": "10.9M",
+      "class": "Templar",
+      "classLevel": 210,
+      "level": 145,
+      "badges": {
+        "rank": "Master II",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Aegiswing",
+      "fantomonSpecies": "Aegiswing",
+      "likes": "2.12K",
+      "stats": {
+        "atk": "597K",
+        "def": "658K",
+        "hp": "2.93M",
+        "spd": "447K"
+      },
+      "gear": [
+        "+160",
+        "+140",
+        "+158",
+        "+140",
+        "+140"
+      ],
+      "technique": [
+        145,
+        145,
+        145,
+        145
+      ],
+      "charm": [
+        145,
+        145,
+        145,
+        145
+      ]
+    },
+    {
+      "file": "profile_38.png",
+      "name": "Silent_Rin",
+      "playerId": "700290804521",
+      "power": "11.8M",
+      "class": "Prophet",
+      "classLevel": 217,
+      "level": 145,
+      "badges": {
+        "rank": "Master II",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Pandarial",
+      "fantomonSpecies": "Pandarial",
+      "likes": "2.33K",
+      "stats": {
+        "atk": "646K",
+        "def": "701K",
+        "hp": "3.28M",
+        "spd": "556K"
+      },
+      "gear": [
+        "+145",
+        "+145",
+        "+145",
+        "+143",
+        "+141"
+      ],
+      "technique": [
+        143,
+        143,
+        143,
+        143
+      ],
+      "charm": [
+        143,
+        143,
+        143,
+        142
+      ]
+    },
+    {
+      "file": "profile_39.png",
+      "name": "CingCing",
+      "playerId": "700290805183",
+      "power": "13.2M",
+      "class": "Magister",
+      "classLevel": 248,
+      "level": 147,
+      "badges": {
+        "rank": "Master II",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Pandarial",
+      "fantomonSpecies": "Pandarial",
+      "likes": "3.47K",
+      "stats": {
+        "atk": "760K",
+        "def": "641K",
+        "hp": "3.21M",
+        "spd": "585K"
+      },
+      "gear": [
+        "+150",
+        "+150",
+        "+150",
+        "+150",
+        "+150"
+      ],
+      "technique": [
+        146,
+        146,
+        146,
+        146
+      ],
+      "charm": [
+        146,
+        146,
+        146,
+        146
+      ]
+    },
+    {
+      "file": "profile_40.png",
+      "name": "Depressionitself",
+      "playerId": "700290801598",
+      "power": "13.6M",
+      "class": "Magister",
+      "classLevel": 266,
+      "level": 149,
+      "badges": {
+        "rank": "Master II",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Sputschi",
+      "likes": "2.9K",
+      "stats": {
+        "atk": "805K",
+        "def": "583K",
+        "hp": "3.25M",
+        "spd": "613K"
+      },
+      "gear": [
+        "+160",
+        "+160",
+        "+150",
+        "+150",
+        "+160"
+      ],
+      "technique": [
+        149,
+        149,
+        149,
+        149
+      ],
+      "charm": [
+        149,
+        149,
+        148,
+        148
+      ]
+    },
+    {
+      "file": "profile_42.png",
+      "name": "Raz777",
+      "playerId": "700290801757",
+      "power": "10.6M",
+      "class": "Ravager",
+      "classLevel": 198,
+      "level": 145,
+      "badges": {
+        "rank": "Master II",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Nyxarchon",
+      "fantomonSpecies": "Nyxarchon",
+      "likes": "1.58K",
+      "stats": {
+        "atk": "607K",
+        "def": "567K",
+        "hp": "2.63M",
+        "spd": "474K"
+      },
+      "gear": [
+        "+145",
+        "+145",
+        "+145",
+        "+140",
+        "+140"
+      ],
+      "technique": [
+        142,
+        141,
+        141,
+        141
+      ],
+      "charm": [
+        141,
+        141,
+        141,
+        141
+      ]
+    },
+    {
+      "file": "profile_43.png",
+      "name": "Schwartz",
+      "playerId": "700290803413",
+      "power": "12.6M",
+      "class": "Ravager",
+      "classLevel": 255,
+      "level": 147,
+      "badges": {
+        "rank": "Master II",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Bobert",
+      "fantomonSpecies": "Nyxarchon",
+      "likes": "1.36K",
+      "stats": {
+        "atk": "676K",
+        "def": "608K",
+        "hp": "3.22M",
+        "spd": "592K"
+      },
+      "gear": [
+        "+150",
+        "+150",
+        "+150",
+        "+150",
+        "+150"
+      ],
+      "technique": [
+        145,
+        145,
+        145,
+        145
+      ],
+      "charm": [
+        145,
+        145,
+        145,
+        145
+      ]
+    },
+    {
+      "file": "profile_44.png",
+      "name": "Phizbin",
+      "playerId": "700290803877",
+      "power": "9.57M",
+      "class": "Magister",
+      "classLevel": 217,
+      "level": 142,
+      "badges": {
+        "rank": "Master II",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Pandarial",
+      "fantomonSpecies": "Pandarial",
+      "likes": "1.08K",
+      "stats": {
+        "atk": "593K",
+        "def": "474K",
+        "hp": "2.14M",
+        "spd": "376K"
+      },
+      "gear": [
+        "+145",
+        "+145",
+        "+144",
+        "+140",
+        "+140"
+      ],
+      "technique": [
+        141,
+        141,
+        141,
+        141
+      ],
+      "charm": [
+        141,
+        140,
+        140,
+        140
+      ]
+    },
+    {
+      "file": "profile_45.png",
+      "name": "Hazelwyrd",
+      "playerId": "700290800234",
+      "power": "8.29M",
+      "class": "Destroyer",
+      "classLevel": 178,
+      "level": 143,
+      "badges": {
+        "rank": "Master II",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Nyx♡",
+      "fantomonSpecies": "Nyxarchon",
+      "likes": "562",
+      "stats": {
+        "atk": "502K",
+        "def": "406K",
+        "hp": "2.23M",
+        "spd": "383K"
+      },
+      "gear": [
+        "+149",
+        "+149",
+        "+149",
+        "+149",
+        "+149"
+      ],
+      "technique": [
+        143,
+        143,
+        143,
+        143
+      ],
+      "charm": [
+        143,
+        143,
+        143,
+        142
+      ]
+    },
+    {
+      "file": "profile_46.png",
+      "name": "Philins",
+      "playerId": "700290801383",
+      "power": "12.4M",
+      "class": "Templar",
+      "classLevel": 230,
+      "level": 147,
+      "badges": {
+        "rank": "Master II",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Pandarial",
+      "fantomonSpecies": "Pandarial",
+      "likes": "2.28K",
+      "stats": {
+        "atk": "726K",
+        "def": "715K",
+        "hp": "3.25M",
+        "spd": "542K"
+      },
+      "gear": [
+        "+150",
+        "+145",
+        "+145",
+        "+146",
+        "+150"
+      ],
+      "technique": [
+        145,
+        145,
+        145,
+        145
+      ],
+      "charm": [
+        145,
+        144,
+        144,
+        144
+      ]
+    },
+    {
+      "file": "profile_47.png",
+      "name": "mesukiki",
+      "playerId": "700290803599",
+      "power": "11.1M",
+      "class": "Magister",
+      "classLevel": 223,
+      "level": 144,
+      "badges": {
+        "rank": "Master II",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Nyxarchon",
+      "fantomonSpecies": "Nyxarchon",
+      "likes": "2.73K",
+      "stats": {
+        "atk": "676K",
+        "def": "574K",
+        "hp": "2.9M",
+        "spd": "456K"
+      },
+      "gear": [
+        "+147",
+        "+146",
+        "+146",
+        "+146",
+        "+146"
+      ],
+      "technique": [
+        144,
+        144,
+        144,
+        144
+      ],
+      "charm": [
+        143,
+        143,
+        143,
+        143
+      ]
+    },
+    {
+      "file": "profile_48.png",
+      "name": "Styles",
+      "playerId": "700290801919",
+      "power": "12.4M",
+      "class": "Prophet",
+      "classLevel": 269,
+      "level": 146,
+      "badges": {
+        "rank": "Master II",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Heru",
+      "fantomonSpecies": "Pandarial",
+      "likes": "2.89K",
+      "stats": {
+        "atk": "630K",
+        "def": "638K",
+        "hp": "3.45M",
+        "spd": "512K"
+      },
+      "gear": [
+        "+145",
+        "+145",
+        "+140",
+        "+140",
+        "+140"
+      ],
+      "technique": [
+        142,
+        142,
+        142,
+        142
+      ],
+      "charm": [
+        141,
+        141,
+        141,
+        141
+      ]
+    },
+    {
+      "file": "profile_49.png",
+      "name": "kabojjin",
+      "playerId": "700290805108",
+      "power": "13.3M",
+      "class": "Prophet",
+      "classLevel": 241,
+      "level": 147,
+      "badges": {
+        "rank": "Master II",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Pandarial",
+      "fantomonSpecies": "Pandarial",
+      "likes": "2.19K",
+      "stats": {
+        "atk": "740K",
+        "def": "707K",
+        "hp": "3.88M",
+        "spd": "579K"
+      },
+      "gear": [
+        "+160",
+        "+156",
+        "+160",
+        "+160",
+        "+160"
+      ],
+      "technique": [
+        147,
+        147,
+        147,
+        147
+      ],
+      "charm": [
+        147,
+        147,
+        147,
+        147
+      ]
+    },
+    {
+      "file": "profile_50.png",
+      "name": "soulmaster",
+      "playerId": "700290801224",
+      "power": "12.6M",
+      "class": "Magister",
+      "classLevel": 251,
+      "level": 146,
+      "badges": {
+        "rank": "Master II",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Nyxon",
+      "fantomonSpecies": "Nyxarchon",
+      "likes": "2.68K",
+      "stats": {
+        "atk": "802K",
+        "def": "631K",
+        "hp": "3.12M",
+        "spd": "531K"
+      },
+      "gear": [
+        "+160",
+        "+150",
+        "+150",
+        "+150",
+        "+150"
+      ],
+      "technique": [
+        146,
+        146,
+        146,
+        146
+      ],
+      "charm": [
+        146,
+        146,
+        146,
+        146
+      ]
+    },
+    {
+      "file": "profile_51.png",
+      "name": "IBlank",
+      "playerId": "700290801198",
+      "power": "12.7M",
+      "class": "Magister",
+      "classLevel": 260,
+      "level": 147,
+      "badges": {
+        "rank": "Master II",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Pandarial",
+      "fantomonSpecies": "Pandarial",
+      "likes": "2.92K",
+      "stats": {
+        "atk": "714K",
+        "def": "676K",
+        "hp": "3.06M",
+        "spd": "581K"
+      },
+      "gear": [
+        "+145",
+        "+145",
+        "+141",
+        "+145",
+        "+145"
+      ],
+      "technique": [
+        142,
+        142,
+        141,
+        141
+      ],
+      "charm": [
+        141,
+        141,
+        141,
+        141
+      ]
+    },
+    {
+      "file": "profile_52.png",
+      "name": "XLemonL",
+      "playerId": "700290800386",
+      "power": "18.2M",
+      "class": "Magister",
+      "classLevel": 336,
+      "level": 149,
+      "badges": {
+        "rank": "Master II",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Cat",
+      "fantomonSpecies": "Aegiswing",
+      "likes": "6.63K",
+      "stats": {
+        "atk": "1.02M",
+        "def": "900K",
+        "hp": "4.5M",
+        "spd": "729K"
+      },
+      "gear": [
+        "+150",
+        "+149",
+        "+145",
+        "+145",
+        "+145"
+      ],
+      "technique": [
+        146,
+        146,
+        146,
+        146
+      ],
+      "charm": [
+        146,
+        146,
+        146,
+        145
+      ]
+    },
+    {
+      "file": "profile_53.png",
+      "name": "Amingal",
+      "playerId": "700290801181",
+      "power": "14.1M",
+      "class": "Templar",
+      "classLevel": 277,
+      "level": 146,
+      "badges": {
+        "rank": "Master II",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Pandarial",
+      "fantomonSpecies": "Pandarial",
+      "likes": "2.49K",
+      "stats": {
+        "atk": "725K",
+        "def": "849K",
+        "hp": "3.53M",
+        "spd": "558K"
+      },
+      "gear": [
+        "+160",
+        "+143",
+        "+143",
+        "+140",
+        "+160"
+      ],
+      "technique": [
+        146,
+        146,
+        146,
+        146
+      ],
+      "charm": [
+        146,
+        145,
+        145,
+        145
+      ]
+    },
+    {
+      "file": "profile_54.png",
+      "name": "AJarofPicklez",
+      "playerId": "700290800895",
+      "power": "10.5M",
+      "class": "Prophet",
+      "classLevel": 218,
+      "level": 144,
+      "badges": {
+        "rank": "Master II",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Nyxarchon",
+      "fantomonSpecies": "Nyxarchon",
+      "likes": "1.72K",
+      "stats": {
+        "atk": "538K",
+        "def": "519K",
+        "hp": "3.13M",
+        "spd": "499K"
+      },
+      "gear": [
+        "+145",
+        "+145",
+        "+145",
+        "+146",
+        "+143"
+      ],
+      "technique": [
+        144,
+        144,
+        144,
+        144
+      ],
+      "charm": [
+        144,
+        144,
+        144,
+        144
+      ]
+    },
+    {
+      "file": "profile_55.png",
+      "name": "Naki",
+      "playerId": "700290801148",
+      "power": "19.7M",
+      "class": "Magister",
+      "classLevel": 363,
+      "level": 150,
+      "badges": {
+        "rank": "Master III",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Pandarial",
+      "fantomonSpecies": "Pandarial",
+      "likes": "4.84K",
+      "stats": {
+        "atk": "1.07M",
+        "def": "1.01M",
+        "hp": "4.51M",
+        "spd": "898K"
+      },
+      "gear": [
+        "+160",
+        "+160",
+        "+160",
+        "+160",
+        "+160"
+      ],
+      "technique": [
+        150,
+        150,
+        150,
+        150
+      ],
+      "charm": [
+        150,
+        150,
+        150,
+        150
+      ]
+    },
+    {
+      "file": "profile_56.png",
+      "name": "Mila",
+      "playerId": "700290804651",
+      "power": "10.4M",
+      "class": "Magister",
+      "classLevel": 223,
+      "level": 143,
+      "badges": {
+        "rank": "Master II",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Black&White",
+      "fantomonSpecies": "Pandarial",
+      "likes": "2.02K",
+      "stats": {
+        "atk": "649K",
+        "def": "523K",
+        "hp": "2.66M",
+        "spd": "423K"
+      },
+      "gear": [
+        "+146",
+        "+140",
+        "+145",
+        "+145",
+        "+145"
+      ],
+      "technique": [
+        141,
+        141,
+        141,
+        141
+      ],
+      "charm": [
+        141,
+        141,
+        141,
+        140
+      ]
+    },
+    {
+      "file": "profile_57.png",
+      "name": "GMango",
+      "playerId": "700290803734",
+      "power": "9.07M",
+      "class": "Guardian",
+      "classLevel": 221,
+      "level": 138,
+      "badges": {
+        "rank": "Master I",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Aegiswing",
+      "fantomonSpecies": "Aegiswing",
+      "likes": "1.1K",
+      "stats": {
+        "atk": "493K",
+        "def": "506K",
+        "hp": "2.45M",
+        "spd": "372K"
+      },
+      "gear": [
+        "+141",
+        "+140",
+        "+140",
+        "+140",
+        "+139"
+      ],
+      "technique": [
+        138,
+        138,
+        138,
+        138
+      ],
+      "charm": [
+        138,
+        138,
+        138,
+        138
+      ]
+    },
+    {
+      "file": "profile_58.png",
+      "name": "VuDuh",
+      "playerId": "700290803566",
+      "power": "10.6M",
+      "class": "Ravager",
+      "classLevel": 245,
+      "level": 143,
+      "badges": {
+        "rank": "Master II",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Nyxarchon",
+      "fantomonSpecies": "Nyxarchon",
+      "likes": "1.41K",
+      "stats": {
+        "atk": "607K",
+        "def": "531K",
+        "hp": "2.58M",
+        "spd": "468K"
+      },
+      "gear": [
+        "+155",
+        "+150",
+        "+150",
+        "+150",
+        "+150"
+      ],
+      "technique": [
+        143,
+        143,
+        143,
+        143
+      ],
+      "charm": [
+        143,
+        143,
+        143,
+        143
+      ]
+    },
+    {
+      "file": "profile_59.png",
+      "name": "Yuri_Adakada",
+      "playerId": "700290802708",
+      "power": "11.5M",
+      "class": "Prophet",
+      "classLevel": 229,
+      "level": 144,
+      "badges": {
+        "rank": "Master II",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Nyxarchon",
+      "fantomonSpecies": "Nyxarchon",
+      "likes": "3.76K",
+      "stats": {
+        "atk": "608K",
+        "def": "587K",
+        "hp": "3.31M",
+        "spd": "490K"
+      },
+      "gear": [
+        "+140",
+        "+140",
+        "+140",
+        "+145",
+        "+140"
+      ],
+      "technique": [
+        144,
+        144,
+        144,
+        144
+      ],
+      "charm": [
+        144,
+        143,
+        143,
+        143
+      ]
+    },
+    {
+      "file": "profile_60.png",
+      "name": "Xember",
+      "playerId": "700290801130",
+      "power": "9.91M",
+      "class": "Ravager",
+      "classLevel": 210,
+      "level": 143,
+      "badges": {
+        "rank": "Master II",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Pandarial",
+      "fantomonSpecies": "Pandarial",
+      "likes": "2.54K",
+      "stats": {
+        "atk": "514K",
+        "def": "510K",
+        "hp": "2.62M",
+        "spd": "439K"
+      },
+      "gear": [
+        "+156",
+        "+156",
+        "+156",
+        "+156",
+        "+156"
+      ],
+      "technique": [
+        143,
+        143,
+        143,
+        143
+      ],
+      "charm": [
+        143,
+        143,
+        143,
+        143
+      ]
+    },
+    {
+      "file": "profile_61.png",
+      "name": "Pretender",
+      "playerId": "700290801801",
+      "power": "11.9M",
+      "class": "Templar",
+      "classLevel": 239,
+      "level": 143,
+      "badges": {
+        "rank": "Master II",
+        "guildTitle": "Zenith",
+        "serverTitle": "Windward Grace"
+      },
+      "fantomon": "Armopi",
+      "fantomonSpecies": "Armopi",
+      "likes": "1.33K",
+      "stats": {
+        "atk": "615K",
+        "def": "686K",
+        "hp": "3.21M",
+        "spd": "469K"
+      },
+      "gear": [
+        "+144",
+        "+144",
+        "+144",
+        "+144",
+        "+143"
+      ],
+      "technique": [
+        142,
+        142,
+        142,
+        142
+      ],
+      "charm": [
+        142,
+        142,
+        141,
+        141
+      ]
+    }
+  ]
+}
