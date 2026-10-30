@@ -2396,11 +2396,12 @@
   }
 
   // ---- rendering: tournament roster ------------------------------------------
-  // Teams of four. "Balanced" is worked out from the snapshot on screen. A
-  // viewer's own lineups hold member names only and live in their browser's
-  // localStorage, so power always comes from the snapshot being viewed.
+  // Teams of four (4v4) or two (2v2). "Balanced" is worked out from the
+  // snapshot on screen. A viewer's own lineups hold member names and a team
+  // size only and live in their browser's localStorage, so power always comes
+  // from the snapshot being viewed.
 
-  var TEAM_SIZE = 4;
+  var TEAM_SIZES = [4, 2];
   var TEAM_CLASSES = ['destroyer', 'conqueror', 'guardian', 'dominator'];
   var ROSTER_KEY = 'zenith-rosters';
   // What the Balanced lineup evens out: power and the combat stats, every
@@ -2411,19 +2412,28 @@
 
   function loadRosters() {
     if (rosters) return rosters;
-    rosters = { active: null, list: [] };
+    rosters = { size: TEAM_SIZES[0], active: null, list: [] };
     try {
       var saved = JSON.parse(localStorage.getItem(ROSTER_KEY));
+      if (saved && TEAM_SIZES.indexOf(saved.size) !== -1) rosters.size = saved.size;
       if (saved && Array.isArray(saved.list)) {
+        // Lineups saved before 2v2 existed have no size and are 4v4.
         saved.list.forEach(function (l) {
           if (!l || !l.id || !Array.isArray(l.teams)) return;
-          rosters.list.push({ id: String(l.id), name: String(l.name || 'My lineup'), teams: l.teams.filter(Array.isArray).map(function (t) { return t.map(String).slice(0, TEAM_SIZE); }) });
+          var size = TEAM_SIZES.indexOf(l.size) !== -1 ? l.size : TEAM_SIZES[0];
+          rosters.list.push({ id: String(l.id), name: String(l.name || 'My lineup'), size: size, teams: l.teams.filter(Array.isArray).map(function (t) { return t.map(String).slice(0, size); }) });
         });
-        if (saved.active === 'nexus' || rosters.list.some(function (l) { return l.id === saved.active; })) rosters.active = saved.active;
+        if (saved.active === 'nexus' || rosters.list.some(function (l) { return l.id === saved.active && l.size === rosters.size; })) rosters.active = saved.active;
       }
     } catch (e) {}
     return rosters;
   }
+
+  // Members per team in the format being viewed: 4 for 4v4, 2 for 2v2.
+  function teamSize() { return loadRosters().size; }
+
+  // Most classes one team can hold: all four in 4v4, two different ones in 2v2.
+  function teamKinds() { return Math.min(teamSize(), TEAM_CLASSES.length); }
 
   function saveRosters() {
     try { localStorage.setItem(ROSTER_KEY, JSON.stringify(rosters)); } catch (e) {}
@@ -2432,21 +2442,31 @@
   function teamPower(team) { return team.reduce(function (a, p) { return a + ((p && p.power_n) || 0); }, 0); }
   function teamStat(team, k) { return team.reduce(function (a, p) { return a + ((p && p.stat_n[k]) || 0); }, 0); }
 
+  // The tank (Guardian line) and the healer (Dominator line).
+  var SUPPORT_CLASSES = ['guardian', 'dominator'];
+
+  function hasSupport(team) {
+    return team.some(function (p) { return p && SUPPORT_CLASSES.indexOf(classKey(p)) !== -1; });
+  }
+
   function teamClasses(team) {
     var has = {};
     team.forEach(function (p) { if (p && classKey(p) !== 'unknown') has[classKey(p)] = true; });
     return has;
   }
 
-  // As many full teams as the members allow, as even as possible in the given
-  // measures (power and the combat stats), with one of every class
-  // in as many of them as the scarcest class allows. Each measure is put on
+  // As many full teams of the given size as the members allow, as even as
+  // possible in the given measures (power and the combat stats), with one of
+  // every class (in 2v2, two different classes) in as many of them as the
+  // scarcest class allows. Each measure is put on
   // the same scale, a member's share of the guild average, so that none of
   // them outweighs the rest. Classes are dealt out scarcest first, each member
   // to the team that already holds the most classes, weakest team first among
   // equals. Then pairs are swapped between teams for as long as a swap improves
-  // the spread of classes or, without harming it, narrows the gaps.
-  function balancedTeams(list, keys) {
+  // the spread of classes or, without harming it, narrows the gaps. In 2v2 a
+  // tank or healer comes first: as many pairs as possible get one, and only
+  // then do two different classes count.
+  function balancedTeams(list, keys, size) {
     var pw = function (p) { return p.power_n || 0; };
     var avg = function (get) { var v = list.map(get).filter(function (x) { return x != null; }); return v.length ? v.reduce(function (a, b) { return a + b; }, 0) / v.length : 0; };
     var avgPower = avg(pw) || 1, share = {};
@@ -2461,11 +2481,11 @@
     var sums = function (team) { return keys.map(function (k, m) { return team.reduce(function (a, p) { return a + share[p.name][m]; }, 0); }); };
     var strength = function (team) { return sums(team).reduce(function (a, b) { return a + b; }, 0); };
     var pool = list.slice().sort(function (a, b) { return pw(b) - pw(a); });
-    var n = Math.floor(pool.length / TEAM_SIZE), bench = [], counts = {};
+    var n = Math.floor(pool.length / size), bench = [], counts = {};
     if (!n) return { teams: [], bench: pool };
     pool.forEach(function (p) { counts[classKey(p)] = (counts[classKey(p)] || 0) + 1; });
     // Whoever is left over sits out: the weakest of the classes with members to spare.
-    var spare = pool.length - n * TEAM_SIZE;
+    var spare = pool.length - n * size;
     for (var k = pool.length - 1; k >= 0 && spare > 0; k--) {
       var ck = classKey(pool[k]);
       if (ck !== 'unknown' && counts[ck] <= n) continue;
@@ -2477,25 +2497,30 @@
     var teams = [], extras = [];
     for (var t = 0; t < n; t++) teams.push([]);
     // A complete set counts for more than the same classes spread over two teams.
-    var kinds = function (team) { var c = Object.keys(teamClasses(team)).length; return c === TEAM_CLASSES.length ? c + TEAM_CLASSES.length : c; };
+    var most = Math.min(size, TEAM_CLASSES.length);
+    var kinds = function (team) { var c = Object.keys(teamClasses(team)).length; return c === most ? c + most : c; };
+    // Worth more than any spread of classes, so a swap never gives up a pair's tank or healer for variety.
+    var fit = function (team) { return kinds(team) + (size === 2 && hasSupport(team) ? 2 * most + 1 : 0); };
     var weakest = function (ok) {
       var best = null;
       teams.forEach(function (team) {
-        if (team.length >= TEAM_SIZE || !ok(team)) return;
+        if (team.length >= size || !ok(team)) return;
         if (!best || kinds(team) > kinds(best) || (kinds(team) === kinds(best) && strength(team) < strength(best))) best = team;
       });
       return best;
     };
     TEAM_CLASSES.slice().sort(function (a, b) { return (counts[a] || 0) - (counts[b] || 0); }).forEach(function (cls) {
       pool.filter(function (p) { return classKey(p) === cls; }).forEach(function (p) {
-        var team = weakest(function (x) { return !teamClasses(x)[cls]; });
+        // In 2v2 a tank or healer goes to a pair that has neither, while there is one.
+        var spread = size === 2 && SUPPORT_CLASSES.indexOf(cls) !== -1;
+        var team = (spread && weakest(function (x) { return !hasSupport(x); })) || weakest(function (x) { return !teamClasses(x)[cls]; });
         if (team) team.push(p); else extras.push(p);
       });
     });
     extras.concat(pool.filter(function (p) { return classKey(p) === 'unknown'; }))
       .sort(function (a, b) { return pw(b) - pw(a); })
       .forEach(function (p) {
-        var open = teams.filter(function (x) { return x.length < TEAM_SIZE; });
+        var open = teams.filter(function (x) { return x.length < size; });
         open.sort(function (x, y) { return strength(x) - strength(y); })[0].push(p);
       });
 
@@ -2506,9 +2531,9 @@
           var A = teams[a], B = teams[b], sa = sums(A), sb = sums(B), va = share[A[i].name], vb = share[B[j].name];
           // Change in the summed squares of both teams' totals, over every measure.
           var change = keys.reduce(function (acc, k, m) { var d = vb[m] - va[m]; return acc + 2 * d * (sa[m] - sb[m] + d); }, 0);
-          var before = kinds(A) + kinds(B), x = A[i];
+          var before = fit(A) + fit(B), x = A[i];
           A[i] = B[j]; B[j] = x;
-          var gained = kinds(A) + kinds(B) - before;
+          var gained = fit(A) + fit(B) - before;
           if (gained > 0 || (gained === 0 && change < -1e-9)) moved = true;
           else { B[j] = A[i]; A[i] = x; }
         }
@@ -2530,18 +2555,18 @@
   }
 
   function balancedNames() {
-    if (!balancedCache || balancedCache.dir !== state.meta.dir) {
-      var res = balancedTeams(rosterMembers(), BALANCE);
-      balancedCache = { dir: state.meta.dir, teams: res.teams.map(function (t) { return t.map(function (p) { return p.name; }); }) };
+    if (!balancedCache || balancedCache.dir !== state.meta.dir || balancedCache.size !== teamSize()) {
+      var res = balancedTeams(rosterMembers(), BALANCE, teamSize());
+      balancedCache = { dir: state.meta.dir, size: teamSize(), teams: res.teams.map(function (t) { return t.map(function (p) { return p.name; }); }) };
     }
     return balancedCache.teams.map(function (t) { return t.slice(); });
   }
 
-  // The strongest lineups the guild can field: the four highest in power are
-  // the first team, the next four the second, and so on down the list.
+  // The strongest lineups the guild can field: the four (in 2v2, two) highest
+  // in power are the first team, the next ones the second, and so on down the list.
   function powerNames() {
-    var names = rosterMembers().map(function (p) { return p.name; }), teams = [];
-    for (var k = 0; k + TEAM_SIZE <= names.length; k += TEAM_SIZE) teams.push(names.slice(k, k + TEAM_SIZE));
+    var names = rosterMembers().map(function (p) { return p.name; }), teams = [], size = teamSize();
+    for (var k = 0; k + size <= names.length; k += size) teams.push(names.slice(k, k + size));
     return teams;
   }
 
@@ -2549,7 +2574,7 @@
   // worked-out lineups are "server" (balanced) and "nexus" (strongest first).
   function rosterView() {
     var store = loadRosters();
-    var own = store.list.filter(function (l) { return l.id === store.active; })[0] || null;
+    var own = store.list.filter(function (l) { return l.id === store.active && l.size === store.size; })[0] || null;
     var mode = own ? null : store.active === 'nexus' ? 'nexus' : 'server';
     var teams = own ? own.teams : mode === 'nexus' ? powerNames() : balancedNames(), placed = {};
     teams.forEach(function (t) { t.forEach(function (n) { placed[n] = true; }); });
@@ -2557,10 +2582,11 @@
   }
 
   function newLineup(teams) {
-    var store = loadRosters(), n = 1, name = 'My lineup';
+    var store = loadRosters(), n = 1, name = store.size === 2 ? 'My 2v2 lineup' : 'My lineup';
     var taken = function (x) { return store.list.some(function (l) { return l.name === x; }); };
-    while (taken(name)) name = 'My lineup ' + (++n);
-    var line = { id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), name: name, teams: teams };
+    var base = name;
+    while (taken(name)) name = base + ' ' + (++n);
+    var line = { id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), name: name, size: store.size, teams: teams };
     store.list.push(line);
     store.active = line.id;
     return line;
@@ -2573,7 +2599,7 @@
     var view = rosterView(), from = -1;
     view.teams.forEach(function (t, k) { if (t.indexOf(name) !== -1) from = k; });
     var to = zone === 'pool' ? -1 : zone === 'new' ? view.teams.length : parseInt(zone, 10);
-    var full = to !== -1 && view.teams[to] && view.teams[to].length >= TEAM_SIZE;
+    var full = to !== -1 && view.teams[to] && view.teams[to].length >= teamSize();
     var swap = full && target && view.teams[to].indexOf(target) !== -1;
     rosterPick = null;
     if (to === from || (full && !swap)) { renderRoster(); return; }
@@ -2605,21 +2631,22 @@
   }
 
   function renderRoster(first) {
-    var m = state.meta, store = loadRosters(), view = rosterView(), byName = {};
+    var m = state.meta, store = loadRosters(), view = rosterView(), byName = {}, size = store.size, most = teamKinds();
     state.players.forEach(function (p) { byName[p.name] = p; });
     if (rosterPick && !byName[rosterPick] && !view.teams.some(function (t) { return t.indexOf(rosterPick) !== -1; })) rosterPick = null;
     var keep = app.querySelector('[data-pool-list]'), scrolled = keep ? keep.scrollTop : 0;
     var anim = function (i) { return first ? ' ' + ANIM + '" style="--i:' + i : ''; };
     var teams = view.teams.map(function (t) { return t.map(function (n) { return byName[n] || null; }); });
     var totals = teams.map(teamPower), manned = totals.filter(function (v, k) { return teams[k].length; });
-    var fullTotals = totals.filter(function (v, k) { return teams[k].length === TEAM_SIZE; });
+    var fullTotals = totals.filter(function (v, k) { return teams[k].length === size; });
     var top = Math.max.apply(null, totals.concat([0]));
-    var allFour = teams.filter(function (t) { return Object.keys(teamClasses(t)).length === TEAM_CLASSES.length; }).length;
+    var allKinds = teams.filter(function (t) { return Object.keys(teamClasses(t)).length === most; }).length;
+    var supported = teams.filter(hasSupport).length;
     var away = state.players.filter(rosterAway).map(function (p) { return p.name; }).sort();
     var pickTeam = -1;
     view.teams.forEach(function (t, k) { if (t.indexOf(rosterPick) !== -1) pickTeam = k; });
     // How far the strongest full team is ahead of the weakest in each measure, as a share of the average.
-    var fullTeams = teams.filter(function (t) { return t.length === TEAM_SIZE; });
+    var fullTeams = teams.filter(function (t) { return t.length === size; });
     var evenness = '<div class="border-t border-zinc-200/70 px-4 py-3 sm:px-5 dark:border-white/10"><p class="text-xs ' + MUTED + '">Gap between the strongest and weakest full team, as a share of the average</p>' +
       '<dl class="mt-2 grid grid-cols-5 gap-2 text-center">' + [['power', 'Power']].concat(TEAM_STATS).map(function (s) {
         var vals = fullTeams.map(function (t) { return s[0] === 'power' ? teamPower(t) : teamStat(t, s[0]); });
@@ -2633,13 +2660,18 @@
     var on = 'border-zinc-900 bg-zinc-900 text-white dark:border-zinc-50 dark:bg-zinc-50 dark:text-zinc-900';
     var html = pastNotice('roster') + '<div data-roster>' +
       '<section class="' + CARD + anim(1) + '" aria-labelledby="roster-title">' +
-      '<div class="border-b border-zinc-200/70 p-4 sm:p-5 dark:border-white/10"><h1 class="text-base font-semibold" id="roster-title">Tournament roster</h1>' +
-      '<p class="text-sm ' + MUTED + '">Teams of ' + TEAM_SIZE + '. Drag a member into a team, or tap a member and then the team. On a phone, press and hold to drag.</p>' +
+      '<div class="border-b border-zinc-200/70 p-4 sm:p-5 dark:border-white/10"><div class="flex flex-wrap items-center justify-between gap-2"><h1 class="text-base font-semibold" id="roster-title">Tournament roster</h1>' +
+      '<div class="inline-flex rounded-full border border-zinc-200/70 bg-white/60 p-0.5 dark:border-white/10 dark:bg-zinc-800/60" role="group" aria-label="Format">' + TEAM_SIZES.map(function (n) {
+        return '<button type="button" data-team-size="' + n + '" aria-pressed="' + (n === size) + '" class="h-7 rounded-full px-3 text-xs font-semibold transition-colors ' +
+          (n === size ? 'bg-zinc-900 text-white dark:bg-zinc-50 dark:text-zinc-900' : 'text-zinc-600 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-zinc-50') + '">' + n + 'v' + n + '</button>';
+      }).join('') + '</div></div>' +
+      '<p class="text-sm ' + MUTED + '">Teams of ' + size + '. Drag a member into a team, or tap a member and then the team. On a phone, press and hold to drag.</p>' +
       (away.length ? '<p class="mt-1 text-xs ' + MUTED + '">Left out for being offline 7 days or more: ' + away.map(esc).join(', ') + '.</p>' : '') + '</div>' +
       '<div class="flex gap-1.5 overflow-x-auto border-b border-zinc-200/70 px-4 py-2.5 sm:px-5 dark:border-white/10" role="group" aria-label="Lineup">' +
       '<button type="button" data-lineup="" aria-pressed="' + (view.mode === 'server') + '" class="' + tab + (view.mode === 'server' ? on : off) + '">' + icon('spark', 'size-3.5') + 'Balanced - Server</button>' +
       '<button type="button" data-lineup="nexus" aria-pressed="' + (view.mode === 'nexus') + '" class="' + tab + (view.mode === 'nexus' ? on : off) + '">' + icon('bolt', 'size-3.5') + 'Power - Nexus</button>';
     store.list.forEach(function (l) {
+      if (l.size !== size) return;
       html += '<button type="button" data-lineup="' + esc(l.id) + '" aria-pressed="' + (l === view.own) + '" class="' + tab + (l === view.own ? on : off) + '">' + esc(l.name) + '</button>';
     });
     html += '<button type="button" data-roster-act="new" class="' + tab + 'border-dashed ' + off + '">+ New lineup</button></div>';
@@ -2654,15 +2686,15 @@
         '<span class="basis-full text-xs ' + MUTED + '">Saved in this browser only. Power follows the snapshot you are viewing.</span></div>';
     } else {
       html += '<p class="border-b border-zinc-200/70 px-4 py-3 text-sm sm:px-5 dark:border-white/10 ' + MUTED + '">' + (view.mode === 'nexus'
-        ? 'The strongest lineups the guild can put forward: the four highest in power make Team 1, the next four Team 2, and so on. Classes are not considered.'
-        : 'As many full teams as the guild can field, as even as possible in power, attack, defence, health and speed, each counting the same, and each team with one of every class while there are enough to go round.') +
+        ? 'The strongest lineups the guild can put forward: the ' + (size === 2 ? 'two' : 'four') + ' highest in power make Team 1, the next ' + (size === 2 ? 'two' : 'four') + ' Team 2, and so on. Classes are not considered.'
+        : 'As many full teams as the guild can field, as even as possible in power, attack, defence, health and speed, each counting the same, and each team with ' + (size === 2 ? 'a tank or healer (' + lineName('guardian') + ' or ' + lineName('dominator') + ') and two different classes' : 'one of every class') + ' while there are enough to go round.') +
         ' Move anyone and it becomes a lineup of your own, saved in this browser.</p>';
     }
     html += '<div class="grid grid-cols-2 gap-2 p-4 sm:p-5 lg:grid-cols-4">' +
       statCell(String(manned.length), manned.length === 1 ? 'Team' : 'Teams', fullTotals.length + ' full, ' + view.pool.length + ' not in a team') +
       statCell(manned.length ? fmtNum(manned.reduce(function (a, b) { return a + b; }, 0) / manned.length) : '-', 'Average team power', 'across teams with members') +
       statCell(fullTotals.length > 1 ? fmtNum(Math.max.apply(null, fullTotals) - Math.min.apply(null, fullTotals)) : '-', 'Power gap', 'strongest to weakest full team') +
-      statCell(allFour + ' of ' + teams.length, 'All four classes', 'teams with one of each') +
+      (size === 2 ? statCell(supported + ' of ' + teams.length, 'Tank or healer', 'pairs with a ' + lineName('guardian') + ' or ' + lineName('dominator') + ', ' + allKinds + ' with two different classes') : statCell(allKinds + ' of ' + teams.length, 'All four classes', 'teams with one of each')) +
       '</div>' + evenness + '</section>';
 
     if (rosterPick) {
@@ -2684,20 +2716,21 @@
       var has = teamClasses(team);
       grid += '<section class="' + CARD + ' p-3' + anim(Math.min(k, 8) + 3) + '" data-zone="' + k + '" aria-label="Team ' + (k + 1) + '">' +
         '<div class="flex items-center gap-2 px-1"><h2 class="text-sm font-semibold">Team ' + (k + 1) + '</h2>' +
-        '<span class="ml-auto inline-flex items-center gap-1" aria-label="Classes in the team">' + TEAM_CLASSES.map(function (c) {
+        // In 2v2 a team holds two classes at most, so only the ones it has are shown.
+        '<span class="ml-auto inline-flex items-center gap-1" aria-label="Classes in the team">' + TEAM_CLASSES.filter(function (c) { return size !== 2 || has[c]; }).map(function (c) {
           var label = lineName(c);
           return '<img class="size-4 object-contain' + (has[c] ? '' : ' opacity-20 grayscale') + '" src="' + lineImg(c) + '" alt="' + label + (has[c] ? '' : ' missing') + '" title="' + label + (has[c] ? '' : ' missing') + '">';
         }).join('') + '</span>' +
         (view.own ? '<button type="button" class="grid size-6 place-items-center rounded-md ' + MUTED + ' transition-colors hover:bg-zinc-900/10 hover:text-zinc-900 dark:hover:bg-white/10 dark:hover:text-zinc-50" data-team-del="' + k + '" aria-label="Remove team ' + (k + 1) + '" title="Remove this team">' + icon('close', 'size-3.5') + '</button>' : '') +
         '</div><p class="mt-1 flex items-baseline gap-2 px-1"><span class="text-2xl font-semibold tracking-tight">' + esc(team.length ? fmtNum(totals[k]) : '-') + '</span>' +
-        '<span class="text-xs ' + MUTED + '">total power, ' + team.length + ' of ' + TEAM_SIZE + '</span></p>' +
+        '<span class="text-xs ' + MUTED + '">total power, ' + team.length + ' of ' + size + '</span></p>' +
         '<div class="mx-1 mt-2 h-1.5 overflow-hidden rounded-full bg-zinc-200/70 dark:bg-white/10"><i class="block h-full rounded-full bg-violet-500" style="width:' + (top > 0 ? Math.round(100 * totals[k] / top) : 0) + '%"></i></div>' +
         '<dl class="mx-1 mt-2 grid grid-cols-4 gap-1 text-center">' + TEAM_STATS.map(function (s) {
           return '<div><dt class="text-[10px] font-medium ' + MUTED + '">' + s[1] + '</dt><dd class="text-xs font-semibold">' + esc(team.length ? fmtNum(teamStat(team, s[0])) : '-') + '</dd></div>';
         }).join('') + '</dl>' +
         '<div class="mt-3 space-y-1.5">' + view.teams[k].map(function (n) { return rosterChip(n, byName[n], true); }).join('');
-      for (var e = team.length; e < TEAM_SIZE; e++) grid += '<div class="grid h-[46px] place-items-center rounded-xl border border-dashed border-zinc-300/70 text-xs dark:border-white/10 ' + MUTED + '">Empty slot</div>';
-      grid += '</div>' + (rosterPick && pickTeam !== k && team.length < TEAM_SIZE ? '<button type="button" class="mt-2 w-full rounded-lg border border-dashed border-violet-400 px-3 py-1.5 text-xs font-semibold text-violet-700 dark:text-violet-300" data-place="' + k + '">Move ' + esc(rosterPick) + ' here</button>' : '') + '</section>';
+      for (var e = team.length; e < size; e++) grid += '<div class="grid h-[46px] place-items-center rounded-xl border border-dashed border-zinc-300/70 text-xs dark:border-white/10 ' + MUTED + '">Empty slot</div>';
+      grid += '</div>' + (rosterPick && pickTeam !== k && team.length < size ? '<button type="button" class="mt-2 w-full rounded-lg border border-dashed border-violet-400 px-3 py-1.5 text-xs font-semibold text-violet-700 dark:text-violet-300" data-place="' + k + '">Move ' + esc(rosterPick) + ' here</button>' : '') + '</section>';
     });
     if (view.own) {
       grid += '<section class="grid min-h-32 place-items-center rounded-2xl border-2 border-dashed border-zinc-300/70 p-4 text-center text-sm dark:border-white/10 ' + MUTED + '" data-zone="new" aria-label="New team">' +
@@ -2842,6 +2875,11 @@
       if (!onRoster() || rosterMute) return;
       var el = ev.target, hit;
       if ((hit = el.closest('[data-roster-act]'))) { act(hit.getAttribute('data-roster-act')); return; }
+      if ((hit = el.closest('[data-team-size]'))) {
+        var store = loadRosters(), n = parseInt(hit.getAttribute('data-team-size'), 10);
+        if (n !== store.size) { store.size = n; store.active = null; rosterPick = null; saveRosters(); renderRoster(); }
+        return;
+      }
       if ((hit = el.closest('[data-lineup]'))) { loadRosters().active = hit.getAttribute('data-lineup') || null; rosterPick = null; saveRosters(); renderRoster(); return; }
       if ((hit = el.closest('[data-bench]'))) { moveMember(hit.getAttribute('data-bench'), 'pool'); return; }
       if ((hit = el.closest('[data-place]'))) { moveMember(rosterPick, hit.getAttribute('data-place')); return; }
@@ -2859,7 +2897,7 @@
         // From a full team, tapping someone who is in no team swaps them in.
         if (rosterPick && rosterPick !== name && mine !== theirs) {
           if (theirs !== -1) { moveMember(rosterPick, String(theirs), name); return; }
-          if (rosterView().teams[mine].length >= TEAM_SIZE) { moveMember(name, String(mine), rosterPick); return; }
+          if (rosterView().teams[mine].length >= teamSize()) { moveMember(name, String(mine), rosterPick); return; }
         }
         rosterPick = rosterPick === name ? null : name;
         renderRoster();
